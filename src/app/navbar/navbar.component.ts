@@ -37,7 +37,7 @@ export class NavbarComponent implements OnInit {
 
             $( "#header-container" ).addClass( "fixed-theme" );  
             $('.navbar-brand img').attr('src', imgsmall);   
-            $('#carouseldemo').css({
+            $('#margintransition').css({
               'margin-top' : '30px'
             });
           },
@@ -45,7 +45,7 @@ export class NavbarComponent implements OnInit {
           remove: function() {
             $( "#header-container" ).removeClass( "fixed-theme" );
             $('.navbar-brand img').attr('src', imglarge);   
-            $('#carouseldemo')
+            $('#margintransition')
             .delay(100)
             .queue(function (next) { 
               $(this).css({

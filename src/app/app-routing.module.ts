@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { HomeComponent } from './home/home.component';
 import { PostdetailsComponent } from './postdetails/postdetails.component';
+import { PagedetailsComponent } from './pagedetails/pagedetails.component';
 import { PagenotfoundComponent } from './pagenotfound/pagenotfound.component'
 
 const routes: Routes = [
@@ -11,7 +12,8 @@ const routes: Routes = [
   },
   {
     path : 'president',
-    component : PostdetailsComponent
+    component : PagedetailsComponent
+      
   },
   {
     path : '**',
