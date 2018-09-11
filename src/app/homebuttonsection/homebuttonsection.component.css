@@ -1,0 +1,29 @@
+#secbuttonctl{
+    background-color: #670001;
+    color:white;
+    padding: 50px 0px;
+    border-top : 4px 0px solid #000000;
+    border-bottom: 4px solid #000000;
+}
+
+.bdrcrl{
+    border: 4px solid #eee;
+    border-radius: 50%;
+    padding: 25px;
+    color: #eee;
+}
+
+.bdrcrl:hover,
+.addlkpad:hover{
+    color: #000000;  
+}
+
+.addlkpad{
+    color:#eee;
+    padding-top: 10px;
+    font-size: 18px;
+}
+
+#secbuttonctl a{
+    text-decoration: none;
+}
