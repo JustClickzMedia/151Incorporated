@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import * as $ from 'jquery';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
@@ -9,9 +10,11 @@ import * as $ from 'jquery';
 export class NavbarComponent implements OnInit {
 
   logo:any = "/images/151Logo.png";
-  constructor() { }
+  constructor(private router: Router) { }
 
   ngOnInit() {
+    
+
     $(document).ready(function(){
 
       var imglarge = "http://oxygen.1-5-1.org/wp-content/uploads/2018/09/151Logo2.png";
@@ -98,5 +101,9 @@ export class NavbarComponent implements OnInit {
        */
       offSetManager();
     });
+  }
+
+  onSelect(id){
+    this.router.navigate(['/page/president', id]);
   }
 }

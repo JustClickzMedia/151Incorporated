@@ -1,9 +1,17 @@
-<section>
-  <div id="margintransition" class="jumbotron">
-    <div class="container">
+<section *ngIf="page$ | async as pagelments">
+  <div id="margintransition" class="jumbotron" [ngStyle]="{'background-image':'url(' + pagelments._embedded['wp:featuredmedia'][0].media_details.sizes.full.source_url + ')'}">
+    
+   
+   <!-- <div class="container">
       <h1 class="display-3">Hello, world!</h1>
       <p>This is a template for a simple marketing or informational website. It includes a large callout called a jumbotron and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
-      <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more »</a></p>
-    </div>
+      <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more »</a></p>KsKs
+    </div>-->
+  </div>
+  <div class="container">
+      <div class="row">
+        <div class="col-lg-12" [innerHTML]="pagelments.content.rendered">
+        </div>       
+      </div>
   </div>
 </section>

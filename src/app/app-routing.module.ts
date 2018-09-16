@@ -4,6 +4,7 @@ import { HomeComponent } from './home/home.component';
 import { PostdetailsComponent } from './postdetails/postdetails.component';
 import { PagedetailsComponent } from './pagedetails/pagedetails.component';
 import { PagenotfoundComponent } from './pagenotfound/pagenotfound.component'
+import { DetailsComponent } from './details/details.component';
 
 const routes: Routes = [
   {
@@ -11,8 +12,8 @@ const routes: Routes = [
     component : HomeComponent
   },
   {
-    path : 'president',
-    component : PagedetailsComponent
+    path : 'page/:id',
+    component : DetailsComponent
       
   },
   {

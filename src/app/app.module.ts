@@ -18,6 +18,7 @@ import { HomebuttonsectionComponent } from './homebuttonsection/homebuttonsectio
 import { TargetsComponent } from './targets/targets.component';
 import { HomeNewsComponent } from './home-news/home-news.component';
 import { PagedetailsComponent } from './pagedetails/pagedetails.component';
+import { DetailsComponent } from './details/details.component';
 
 @NgModule({
   declarations: [
@@ -33,7 +34,8 @@ import { PagedetailsComponent } from './pagedetails/pagedetails.component';
     HomebuttonsectionComponent,
     TargetsComponent,
     HomeNewsComponent,
-    PagedetailsComponent
+    PagedetailsComponent,
+    DetailsComponent
   ],
   imports:[
     CommonModule,

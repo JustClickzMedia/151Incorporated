@@ -21,12 +21,11 @@ export class WordpressService {
   }
 
   getPost(id:string): Observable<any[]> {
-    return this.http.get<any[]>('http://oxygen.1-5-1.org/wp-json/wp/v2/posts/' + id, {
-    });
+    return this.http.get<any[]>('http://oxygen.1-5-1.org/wp-json/wp/v2/posts/' + id  + "?_embed");
   }
 
   getPages(): Observable<any[]> {
-    return this.http.get<any[]>('http://oxygen.1-5-1.org/wp-json/wp/v2/pages', {
+    return this.http.get<any[]>('http://oxygen.1-5-1.org/wp-json/wp/v2/pages?_embed', {
       params: {
         per_page: '6'
       }
@@ -34,6 +33,6 @@ export class WordpressService {
   }
 
   getPage(id:number): Observable<any[]> {
-    return this.http.get<any[]>('http://oxygen.1-5-1.org/wp-json/wp/v2/pages/' + id);
+    return this.http.get<any[]>('http://oxygen.1-5-1.org/wp-json/wp/v2/pages/' + id + "?_embed");
   }
 }
