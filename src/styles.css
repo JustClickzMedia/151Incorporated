@@ -18,6 +18,19 @@
     -webkit-transition:  0.3s;
 }
 
+.bg{
+    background-color: #670001;
+    border: 4px solid #000000;   
+}
+
+.crnRds{
+    border-radius: 25px;
+}
+
+.sidebar{
+    height: 350px;
+}
+
 /*--------------------------------------------------------------
 # Alignments
 --------------------------------------------------------------*/

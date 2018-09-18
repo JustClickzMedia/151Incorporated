@@ -1,17 +1,33 @@
 <section *ngIf="page$ | async as pagelments">
-  <div id="margintransition" class="jumbotron" [ngStyle]="{'background-image':'url(' + pagelments._embedded['wp:featuredmedia'][0].media_details.sizes.full.source_url + ')'}">
     
-   
-   <!-- <div class="container">
-      <h1 class="display-3">Hello, world!</h1>
-      <p>This is a template for a simple marketing or informational website. It includes a large callout called a jumbotron and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
-      <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more »</a></p>KsKs
-    </div>-->
-  </div>
-  <div class="container">
-      <div class="row">
-        <div class="col-lg-12" [innerHTML]="pagelments.content.rendered">
-        </div>       
+       
+      <div id="margintransition" class="jumbotron" [ngStyle]="{'background-image':'url(' + pagelments._embedded['wp:featuredmedia'][0].media_details.sizes.full.source_url + ')'}">
+        
+      
+        <!--<div class="container">
+          <h1 class="display-3">Hello, world!</h1>
+          <p>This is a template for a simple marketing or informational website. It includes a large callout called a jumbotron and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
+          <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more »</a></p>KsKs
+        </div>-->
       </div>
-  </div>
+  
+      
+      <div class="container bgPage" >
+          <div class="row">
+              <div class="col-lg-6 text-justify">
+                  <h1>{{pagelments.title.rendered}}</h1>
+              </div>      
+          </div>
+          <div class="row">
+              
+            <div class="col-lg-6 text-justify" [innerHTML]="pagelments.content.rendered">
+              
+            </div>  
+            <div class="col-lg-1"> 
+              </div> 
+            <div class="col-lg-5 bg crnRds sidebar text-center">
+                <p class="algncenter">Strategic Objectives</p>
+            </div>       
+          </div>
+      </div>
 </section>

@@ -1,4 +1,11 @@
 .jumbotron{
     height: 600px;
     opacity: .4;
+    border-bottom: 4px solid #000000;
+   /* margin: -100px 0px;*/ 
+}
+
+.bgPage{
+    background-color: #fff;
+    margin-bottom: 20px;
 }
