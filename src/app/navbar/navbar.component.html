@@ -19,7 +19,7 @@
           </div>
         </li>-->   
         <li class="nav-item" *ngFor="let NavItem of NavMenu$ | async">
-            <a class="nav-link" routerLink="pg/{{ NavItem.id }}/{{ NavItem.title.rendered }}">{{ NavItem.slug | uppercase }}</a>
+            <a class="nav-link" routerLink="/pg/{{ NavItem.id }}/{{ NavItem.title.rendered }}">{{ NavItem.slug | uppercase }}</a>
         </li>
       </ul>
       <form class="form-inline my-2 my-md-0">
