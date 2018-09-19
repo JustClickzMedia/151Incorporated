@@ -16,6 +16,7 @@ import {Router} from '@angular/router';
 export class PagedetailsComponent implements OnInit {
 
   page$ : Observable<any>;
+  posts$ : Observable<any[]>;
   pageitem : any;
 
   constructor( private route: ActivatedRoute,
@@ -36,5 +37,6 @@ export class PagedetailsComponent implements OnInit {
   getPage(): void {
     const id = +this.route.snapshot.paramMap.get('id');
     this.page$ = this.wpService.getPage(id);
+    this.posts$ = this.wpService.getPosts();
   }
 }

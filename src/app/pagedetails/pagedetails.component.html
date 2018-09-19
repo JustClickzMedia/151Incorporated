@@ -1,9 +1,7 @@
 <section *ngIf="page$ | async as pagelments">
     
        
-      <div id="margintransition" class="jumbotron" [ngStyle]="{'background-image':'url(' + pagelments._embedded['wp:featuredmedia'][0].media_details.sizes.full.source_url + ')'}">
-        
-      
+      <div id="margintransition" class="jumbotron" [ngStyle]="{'background-image':'url(' + pagelments._embedded['wp:featuredmedia'][0].media_details.sizes.full.source_url + ')'}">    
         <!--<div class="container">
           <h1 class="display-3">Hello, world!</h1>
           <p>This is a template for a simple marketing or informational website. It includes a large callout called a jumbotron and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
@@ -14,19 +12,23 @@
       
       <div class="container bgPage" >
           <div class="row">
-              <div class="col-lg-6 text-justify">
+              <div class="col-lg-6 text-justify hdtitle">
                   <h1>{{pagelments.title.rendered}}</h1>
               </div>      
           </div>
-          <div class="row">
-              
+          <div class="row">             
             <div class="col-lg-6 text-justify" [innerHTML]="pagelments.content.rendered">
               
             </div>  
             <div class="col-lg-1"> 
               </div> 
-            <div class="col-lg-5 bg crnRds sidebar text-center">
-                <p class="algncenter">Strategic Objectives</p>
+            <div class="col-lg-5 bg crnRds sidebar ">
+                <h2 class="sbtitle text-center">Latest News</h2>
+                <ul class="bat">
+                  <li class="nav-item" *ngFor="let post of posts$ | async">
+                      <a class="nav-link" routerLink="pst/{{ post.id }}/{{ post.title.rendered }}">{{ post.title.rendered }}</a>
+                  </li>
+                </ul>           
             </div>       
           </div>
       </div>

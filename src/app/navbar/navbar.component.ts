@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import * as $ from 'jquery';
 import { Router } from '@angular/router';
+import { Observable } from 'rxjs/internal/Observable';
+import { WordpressService } from '../wordpress.service';
 
 @Component({
   selector: 'app-navbar',
@@ -10,10 +12,14 @@ import { Router } from '@angular/router';
 export class NavbarComponent implements OnInit {
 
   logo:any = "/images/151Logo.png";
-  constructor(private router: Router) { }
+  NavMenu$ : Observable<any[]>;
+
+  constructor(private router: Router,
+              private wp: WordpressService) { }
 
   ngOnInit() {
     
+    this.NavMenu$ = this.wp.getPages();
 
     $(document).ready(function(){
 

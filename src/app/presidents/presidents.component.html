@@ -31,9 +31,14 @@
                 <div class="col-lg-10"><p>To establish a solid foundation for the development of the brotherhood.</p></div>
             </div>
           </div>
-          <div class="container bg crnRds">
-            <h2 class="algncenter">Strategic Objectives</h2>
+          <div class="container bg crnRds" style="margin-top: 30px;">
+            <h2 class="algncenter">Latest News</h2>
             <div class="row"> 
+                <ul class="bat">
+                  <li class="nav-item" *ngFor="let post of posts$ | async">
+                      <a class="nav-link" routerLink="pst/{{ post.id }}/{{ post.title.rendered }}">{{ post.title.rendered }}</a>
+                  </li>
+                </ul>   
             </div>
           </div>
         </div>

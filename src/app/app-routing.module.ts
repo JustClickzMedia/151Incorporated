@@ -12,9 +12,13 @@ const routes: Routes = [
     component : HomeComponent
   },
   {
-    path : 'page/:id',
+    path : 'pg/:id/:title',
     component : DetailsComponent
       
+  },
+  {
+    path : 'pst/:id/:title',
+    component : PostdetailsComponent
   },
   {
     path : '**',
