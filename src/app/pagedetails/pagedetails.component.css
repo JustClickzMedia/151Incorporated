@@ -19,25 +19,3 @@
 .sbtitle{
     margin-bottom: 20px;     
 }
-
-ul.bat {
-    list-style: none;
-    padding-left: 10px;
-}
-
-ul li p{
-    margin: 0 16px;
-    padding-top: 0px;
-    color: black;
-    font-size: 12px;
-}
-
-ul li a{
-    padding-bottom: 0px;
-    font-weight: bold;
-}
-
-ul li a:hover{
-    font-weight: normal;
-    text-shadow: 5px 0 black, 0 1px black, 5px 0 black, 0 -1px black;
-}

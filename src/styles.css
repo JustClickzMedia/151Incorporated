@@ -35,6 +35,29 @@ ul.bat {
     list-style-image: url('http://oxygen.1-5-1.org/wp-content/uploads/2018/09/icons8-bat-25.png');
 }
 
+#postNav{
+    list-style: none;
+    padding-left: 10px;
+}
+
+#postNav li p{
+    margin: 0 16px;
+    padding-top: 0px;
+    color: black;
+    font-size: 12px;
+}
+
+#postNav li a{
+    padding-bottom: 0px;
+    font-weight: bold;
+    color: #fff;
+}
+
+#postNav li a:hover{
+    font-weight: normal;
+    text-shadow: 5px 0 black, 0 1px black, 5px 0 black, 0 -1px black;
+}
+
 /*--------------------------------------------------------------
 # Alignments
 --------------------------------------------------------------*/

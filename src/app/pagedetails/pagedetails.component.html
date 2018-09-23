@@ -24,7 +24,7 @@
               </div> 
             <div class="col-lg-5 bg crnRds sidebar ">
                 <h2 class="sbtitle text-center">News & Upcoming Events</h2>
-                <ul class="bat">
+                <ul id="postNav">
                   <li class="nav-item" *ngFor="let post of posts$ | async">
                       <a class="nav-link" routerLink="/pst/{{ post.id }}/{{ post.title.rendered }}">{{ post.title.rendered }}</a>
                       <p>{{ post.date | date:'longDate' }} | {{ post.date | date:'shortTime' }}</p>
