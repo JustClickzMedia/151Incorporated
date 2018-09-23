@@ -6,19 +6,10 @@
     </button>
     <div class="collapse navbar-collapse">
       <ul class="navbar-nav mr-auto">
-        <li class="nav-item active">
+        <li class="nav-item" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
           <a class="nav-link" routerLink="">HOME <span class="sr-only">(current)</span></a>
         </li>
-        <!--<li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" routerLink="" id="dropdown07" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">About</a>
-          <div class="dropdown-menu ddMenuclr" aria-labelledby="dropdown07">
-            <a class="dropdown-item dditem" routerLink="">Our Leadership</a>
-            <a class="dropdown-item dditem" routerLink="">Our History</a>
-            <a class="dropdown-item dditem" routerLink="">Membership</a>
-            <a class="dropdown-item dditem" routerLink="">News</a>   
-          </div>
-        </li>-->   
-        <li class="nav-item" *ngFor="let NavItem of NavMenu$ | async">
+        <li class="nav-item" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" *ngFor="let NavItem of NavMenu$ | async">
             <a class="nav-link" routerLink="/pg/{{ NavItem.id }}/{{ NavItem.title.rendered }}">{{ NavItem.slug | uppercase }}</a>
         </li>
       </ul>
