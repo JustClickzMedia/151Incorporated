@@ -20,7 +20,7 @@ export class WordpressService {
     });
   }
 
-  getPost(id:string): Observable<any[]> {
+  getPost(id:number): Observable<any[]> {
     return this.http.get<any[]>('http://oxygen.1-5-1.org/wp-json/wp/v2/posts/' + id  + '?_embed');
   }
 
