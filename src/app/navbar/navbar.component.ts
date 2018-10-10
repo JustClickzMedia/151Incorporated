@@ -17,6 +17,10 @@ export class NavbarComponent implements OnInit {
   constructor(private router: Router,
               private wp: WordpressService) { }
 
+  search(term: string): void {
+    console.log('searchterm: ' + term);
+  }
+
   ngOnInit() {
     
     this.NavMenu$ = this.wp.getPages();

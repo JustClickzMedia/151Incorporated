@@ -7,13 +7,14 @@ import { Observable, of } from 'rxjs';
 })
 export class WordpressService {
 
+  baseUrl: string = 'http://oxygen.1-5-1.org/wp-json/wp/v2/';
   url: string;
   rtnval : Observable<any[]>;
 
   constructor(private http: HttpClient) { }
 
   getPosts(): Observable<any[]> {
-    return this.http.get<any[]>('http://oxygen.1-5-1.org/wp-json/wp/v2/posts?_embed', {
+    return this.http.get<any[]>(this.baseUrl + 'posts?_embed', {
       params: {
         per_page: '6'
       }
@@ -21,11 +22,11 @@ export class WordpressService {
   }
 
   getPost(id:number): Observable<any[]> {
-    return this.http.get<any[]>('http://oxygen.1-5-1.org/wp-json/wp/v2/posts/' + id  + '?_embed');
+    return this.http.get<any[]>(this.baseUrl + 'posts/' + id  + '?_embed');
   }
 
   getPages(): Observable<any[]> {
-    return this.http.get<any[]>('http://oxygen.1-5-1.org/wp-json/wp/v2/pages?_embed&filter[orderby]=menu_order&order=asc', {
+    return this.http.get<any[]>(this.baseUrl + 'pages?_embed&filter[orderby]=menu_order&order=asc', {
       params: {
         per_page: '6'
       }
@@ -33,6 +34,10 @@ export class WordpressService {
   }
 
   getPage(id:number): Observable<any[]> {
-    return this.http.get<any[]>('http://oxygen.1-5-1.org/wp-json/wp/v2/pages/' + id + '?_embed');
+    return this.http.get<any[]>(this.baseUrl + 'pages/' + id + '?_embed');
+  }
+
+  getSearch(searchVal:string): Observable<any[]> {
+    return this.http.get<any[]>(this.baseUrl + 'posts?search=' + searchVal );
   }
 }

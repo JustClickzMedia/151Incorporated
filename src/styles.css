@@ -11,11 +11,30 @@
     margin-top : 11px;
 }
 
-#margintransition{
-    margin-top: 120px;
-    background-color:#fff;
-    transition: 0.3s;
-    -webkit-transition:  0.3s;
+@media screen and (max-width: 740px) {
+    #margintransition{
+        margin-top: 150px !important;
+        background-color:#fff;
+        transition: 0.3s;
+        -webkit-transition:  0.3s;
+    }
+
+    .mbMargin{
+        margin-top: 160px;
+    }
+}
+
+@media screen and (min-width: 900px) {
+    #margintransition{
+        margin-top: 120px;
+        background-color:#fff;
+        transition: 0.3s;
+        -webkit-transition:  0.3s;
+    }
+}
+
+.sidebar{
+    height: 30%;
 }
 
 .bg{
@@ -27,36 +46,13 @@
     border-radius: 25px;
 }
 
-.sidebar{
-    height: 30%;
+.hdtitle,
+.bgPage{
+    background-color: #fff;
+    margin-bottom: 20px;
 }
 
-ul.bat {
-    list-style-image: url('http://oxygen.1-5-1.org/wp-content/uploads/2018/09/icons8-bat-25.png');
-}
 
-#postNav{
-    list-style: none;
-    padding-left: 10px;
-}
-
-#postNav li p{
-    margin: 0 16px;
-    padding-top: 0px;
-    color: black;
-    font-size: 12px;
-}
-
-#postNav li a{
-    padding-bottom: 0px;
-    font-weight: bold;
-    color: #fff;
-}
-
-#postNav li a:hover{
-    font-weight: normal;
-    text-shadow: 5px 0 black, 0 1px black, 5px 0 black, 0 -1px black;
-}
 
 /*--------------------------------------------------------------
 # Alignments

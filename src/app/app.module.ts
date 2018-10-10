@@ -19,6 +19,8 @@ import { TargetsComponent } from './targets/targets.component';
 import { HomeNewsComponent } from './home-news/home-news.component';
 import { PagedetailsComponent } from './pagedetails/pagedetails.component';
 import { DetailsComponent } from './details/details.component';
+import { SidbarpostsComponent } from './sidbarposts/sidbarposts.component';
+import { FilterPipe } from './filter.pipe';
 
 @NgModule({
   declarations: [
@@ -35,7 +37,9 @@ import { DetailsComponent } from './details/details.component';
     TargetsComponent,
     HomeNewsComponent,
     PagedetailsComponent,
-    DetailsComponent
+    DetailsComponent,
+    SidbarpostsComponent,
+    FilterPipe
   ],
   imports:[
     CommonModule,

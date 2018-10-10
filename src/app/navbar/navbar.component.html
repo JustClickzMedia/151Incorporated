@@ -1,7 +1,7 @@
 <nav id="header" class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
   <div id="header-container" class="container navbar-container">
-    <a class="navbar-brand" href="#"><img src="http://oxygen.1-5-1.org/wp-content/uploads/2018/09/151Logo2.png"/></a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample07" aria-controls="navbarsExample07" aria-expanded="false" aria-label="Toggle navigation">
+    <a class="navbar-brand" routerLink=""><img class="d-block w-100" src="http://oxygen.1-5-1.org/wp-content/uploads/2018/09/151Logo2.png"/></a>
+    <button class="navbar-toggler navbar-nav" data-toggle="collapse" data-target=".navbar-collapse">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse">
@@ -14,7 +14,7 @@
         </li>
       </ul>
       <form class="form-inline my-2 my-md-0">
-        <input class="form-control" type="text" placeholder="Search" aria-label="Search">
+        <input #searchBox class="form-control" type="text" placeholder="Search" aria-label="Search" (keyup.enter)="search(searchBox.value)">
       </form>
     </div>
   </div>

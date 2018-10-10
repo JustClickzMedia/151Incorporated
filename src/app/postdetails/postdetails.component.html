@@ -1,28 +1,17 @@
 <section *ngIf="post$ | async as postelments">      
-  <div id="margintransition" class="jumbotron" [ngStyle]="{'background-image':'url(' + postelments._embedded['wp:featuredmedia'][0].media_details.sizes.full.source_url + ')'}">    
+  <div id="margintransition" class="jumbotron d-none d-md-block d-lg-block" [ngStyle]="{'background-image':'url(' + postelments._embedded['wp:featuredmedia'][0].media_details.sizes.full.source_url + ')'}">    
   </div>
   
-  <div class="container bgPage" >
+  <div class="container bgPage mbMargin" >
       <div class="row">
           <div class="col-lg-6 text-justify hdtitle">
               <h1>{{postelments.title.rendered}}</h1>
           </div>      
       </div>
       <div class="row">             
-        <div class="col-lg-6 text-justify" [innerHTML]="postelments.content.rendered">
-          
-        </div>  
-        <div class="col-lg-1"> 
-          </div> 
-        <div class="col-lg-5 bg crnRds sidebar ">
-            <h2 class="sbtitle text-center">News & Upcoming Events</h2>
-            <ul id="postNav">
-              <li class="nav-item" *ngFor="let post of posts$ | async">
-                  <a class="nav-link" routerLink="/pst/{{ post.id }}/{{ post.title.rendered }}">{{ post.title.rendered }}</a>
-                  <p>{{ post.date | date:'longDate' }} | {{ post.date | date:'shortTime' }}</p>
-              </li>
-            </ul>           
-        </div>       
+        <div class="col-lg-6 text-justify" [innerHTML]="postelments.content.rendered"></div>  
+        <div class="col-lg-1"></div> 
+        <app-sidbarposts class="col-lg-5 bg crnRds sidebar d-none d-md-block d-lg-block"></app-sidbarposts>  
       </div>
   </div>
 </section>
