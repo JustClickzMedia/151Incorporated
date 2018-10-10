@@ -90,22 +90,41 @@ a.link {
     border-bottom: 4px solid #000000;
 }
 
-.seperator{
-    border-style: solid;
-    border-width: 0px 1px 0px 1px;
-    border-color: #ffffff;
-    transition: background 0.3s, border 0.3s, border-radius 0.3s, box-shadow 0.3s;
-    margin: 30px 0px;
-    padding: 0px 40px;
+@media screen and (max-width: 740px) {
+	.seperator{
+		border-style: solid;
+		border-width: 0px 1px 0px 1px;
+		border-color: #ffffff;
+		transition: background 0.3s, border 0.3s, border-radius 0.3s, box-shadow 0.3s;
+		margin: 0px;
+		padding: 0px 40px;
+	}
+
+	.cold-left{
+		padding-bottom: 10px;
+	}
+}
+
+@media screen and (min-width: 900px) {
+	.seperator{
+		border-style: solid;
+		border-width: 0px 1px 0px 1px;
+		border-color: #ffffff;
+		transition: background 0.3s, border 0.3s, border-radius 0.3s, box-shadow 0.3s;
+		margin: 30px 0px;
+		padding: 0px 40px;
+	}
+
+	.cold-left{
+		margin: 40px 0px !important;
+	}
 }
 
 .col {
     display: table-cell;  
 }
 
-.cold-left{
-    margin: 40px 0px !important;
-}
+
 
 .cold-right{
     padding-left: 70px !important;
