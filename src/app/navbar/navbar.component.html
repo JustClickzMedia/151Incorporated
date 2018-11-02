@@ -13,9 +13,7 @@
             <a class="nav-link" routerLink="/pg/{{ NavItem.id }}/{{ NavItem.title.rendered }}">{{ NavItem.slug | uppercase }}</a>
         </li>
       </ul>
-      <form class="form-inline my-2 my-md-0">
-        <input #searchBox class="form-control" type="text" placeholder="Search" aria-label="Search" (keyup.enter)="search(searchBox.value)">
-      </form>
+      <app-searchbox></app-searchbox>
     </div>
   </div>
 </nav>

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
+import { FormsModule }   from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -21,6 +22,8 @@ import { PagedetailsComponent } from './pagedetails/pagedetails.component';
 import { DetailsComponent } from './details/details.component';
 import { SidbarpostsComponent } from './sidbarposts/sidbarposts.component';
 import { FilterPipe } from './filter.pipe';
+import { SearchboxComponent } from './searchbox/searchbox.component';
+import { SearchresultsComponent } from './searchresults/searchresults.component';
 
 @NgModule({
   declarations: [
@@ -39,13 +42,16 @@ import { FilterPipe } from './filter.pipe';
     PagedetailsComponent,
     DetailsComponent,
     SidbarpostsComponent,
-    FilterPipe
+    FilterPipe,
+    SearchboxComponent,
+    SearchresultsComponent
   ],
   imports:[
     CommonModule,
     NgtUniversalModule,    
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    FormsModule
   ],
   providers: [],
 })
