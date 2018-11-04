@@ -16,6 +16,11 @@
                   <h1>{{pagelments.title.rendered}}</h1>
               </div>      
           </div>
+          <div class="row">
+            <div class="col-lg-6 text-justify hdtitle">
+                <h1>{{pagelments.date | date:'longDate'}}</h1>
+            </div>      
+          </div>
           <div class="row">             
             <div class="col-lg-6 text-justify" [innerHTML]="pagelments.content.rendered">
               

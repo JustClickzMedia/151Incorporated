@@ -37,7 +37,7 @@
 }
 
 .navbar.fixed-top {
-    background-color: #670001;
+    background-color: #670001 !important;
 }
 
 .navbar-brand.fixed-theme {

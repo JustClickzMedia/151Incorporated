@@ -10,9 +10,9 @@
       </div>
       <div class="row">
         <div class="col-lg-6 text-justify hdtitle">
-            <h1>{{tposts.date}}</h1>
+            <h1>{{tposts.date | date:'longDate'}}</h1>
         </div>      
-    </div>
+      </div>
       <div class="row">             
         <div class="col-lg-6 text-justify" [innerHTML]="postelments.content.rendered"></div>  
         <div class="col-lg-1"></div> 

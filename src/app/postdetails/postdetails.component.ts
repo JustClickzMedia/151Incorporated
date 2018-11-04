@@ -53,8 +53,7 @@ export class PostdetailsComponent implements OnInit {
       //console.log(resp['date']);
       this.tposts = { 
       date : resp['date']
-      }
-      
+      }   
     });
 
     
