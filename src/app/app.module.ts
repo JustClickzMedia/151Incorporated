@@ -7,23 +7,21 @@ import { FormsModule }   from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { NavbarComponent } from './navbar/navbar.component';
-import { CarouselComponent } from './carousel/carousel.component';
-import { HomeComponent } from './home/home.component';
-import { FooterComponent } from './footer/footer.component';
-import { PostsComponent } from './posts/posts.component';
-import { PagenotfoundComponent } from './pagenotfound/pagenotfound.component';
-import { PresidentsComponent } from './presidents/presidents.component';
-import { PostdetailsComponent } from './postdetails/postdetails.component';
-import { HomebuttonsectionComponent } from './homebuttonsection/homebuttonsection.component';
-import { TargetsComponent } from './targets/targets.component';
-import { HomeNewsComponent } from './home-news/home-news.component';
-import { PagedetailsComponent } from './pagedetails/pagedetails.component';
-import { DetailsComponent } from './details/details.component';
-import { SidbarpostsComponent } from './sidbarposts/sidbarposts.component';
-import { FilterPipe } from './filter.pipe';
-import { SearchboxComponent } from './searchbox/searchbox.component';
-import { SearchresultsComponent } from './searchresults/searchresults.component';
+import { NavbarComponent } from './Components/navbar/navbar.component';
+import { CarouselComponent } from './Components/carousel/carousel.component';
+import { HomeComponent } from './Components/home/home.component';
+import { FooterComponent } from './Components/footer/footer.component';
+import { PagenotfoundComponent } from './Components/pagenotfound/pagenotfound.component';
+import { PresidentsComponent } from './Components/presidents/presidents.component';
+import { PostdetailsComponent } from './Components/postdetails/postdetails.component';
+import { HomebuttonsectionComponent } from './Components/homebuttonsection/homebuttonsection.component';
+import { PagedetailsComponent } from './Components/pagedetails/pagedetails.component';
+import { DetailsComponent } from './Components/details/details.component';
+import { SidbarpostsComponent } from './Components/sidbarposts/sidbarposts.component';
+import { SearchboxComponent } from './Components/searchbox/searchbox.component';
+import { SearchresultsComponent } from './Components/searchresults/searchresults.component';
+import { FilterPipe } from './Pipes/filter.pipe';
+import { LinkcssPipe } from './pipes/linkcss.pipe';
 
 @NgModule({
   declarations: [
@@ -32,19 +30,17 @@ import { SearchresultsComponent } from './searchresults/searchresults.component'
     CarouselComponent,
     HomeComponent,
     FooterComponent,
-    PostsComponent,
     PagenotfoundComponent,
     PresidentsComponent,
     PostdetailsComponent,
     HomebuttonsectionComponent,
-    TargetsComponent,
-    HomeNewsComponent,
     PagedetailsComponent,
     DetailsComponent,
     SidbarpostsComponent,
     FilterPipe,
     SearchboxComponent,
-    SearchresultsComponent
+    SearchresultsComponent,
+    LinkcssPipe
   ],
   imports:[
     CommonModule,

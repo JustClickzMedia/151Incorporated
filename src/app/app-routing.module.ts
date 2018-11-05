@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { HomeComponent } from './home/home.component';
-import { PostdetailsComponent } from './postdetails/postdetails.component';
-import { PagedetailsComponent } from './pagedetails/pagedetails.component';
-import { PagenotfoundComponent } from './pagenotfound/pagenotfound.component';
-import { DetailsComponent } from './details/details.component';
-import { SearchresultsComponent } from './searchresults/searchresults.component';
+import { HomeComponent } from './Components/home/home.component';
+import { PostdetailsComponent } from './Components/postdetails/postdetails.component';
+import { PagedetailsComponent } from './Components/pagedetails/pagedetails.component';
+import { PagenotfoundComponent } from './Components/pagenotfound/pagenotfound.component';
+import { DetailsComponent } from './Components/details/details.component';
+import { SearchresultsComponent } from './Components/searchresults/searchresults.component';
 
 const routes: Routes = [
   {

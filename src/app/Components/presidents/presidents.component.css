@@ -1,0 +1,47 @@
+#presidentCorner,
+#presidentheader {
+    position: relative;
+    z-index: 5;
+    width: 100%;
+    color: #eee;
+    padding: 20px;
+}
+  
+#presidentCorner:before,
+#presidentheader:before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: url("../../../assets/images/PIXNIO-52652-2980x2226.jpg") center center;
+    background-color: #eee;
+    opacity: .3;
+}
+
+
+
+.bgTitle{
+    border-top: 4px solid #000000;
+    border-bottom: 4px solid #000000;
+    background-color: #670001;
+    color: #eee;
+    text-align: center;
+    font-size: 35px;
+    padding-top: 10px; 
+    font-style: italic;
+}
+
+.rmpad{
+    padding-top: 0px;
+}
+
+
+
+.crnhgt{
+    height: 350px;
+}
+
+
