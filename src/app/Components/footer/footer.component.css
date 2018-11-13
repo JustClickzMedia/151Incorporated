@@ -35,6 +35,10 @@
 	color: #4099FF;
 }
 
+.email {
+	color: rgb(59, 152, 129);
+}
+
 .facebook {
 	color: #3B5998;
 }
@@ -59,7 +63,12 @@
 	background-color: #4099FF;	
 }
 
+.email:hover {
+	background-color: rgb(59, 152, 129);
+}
+
 .facebook:hover {
+
 	background-color: #3B5998;	
 }
 

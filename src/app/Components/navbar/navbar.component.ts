@@ -13,6 +13,7 @@ export class NavbarComponent implements OnInit {
 
   logo:any = "/images/151Logo.png";
   NavMenu$ : Observable<any[]>;
+  navbarOpen = false;
 
   constructor(private router: Router,
               private wp: WordpressService) { }
@@ -21,11 +22,17 @@ export class NavbarComponent implements OnInit {
     console.log('searchterm: ' + term);
   }
 
+  toggleNavbar() {
+    this.navbarOpen = !this.navbarOpen;
+  }
+
   ngOnInit() {
     
     this.NavMenu$ = this.wp.getPages();
 
     $(document).ready(function(){
+
+      
 
       var imglarge = "http://oxygen.1-5-1.org/wp-content/uploads/2018/09/151Logo2.png";
       var imgsmall = "http://oxygen.1-5-1.org/wp-content/uploads/2018/09/151Logo3.png";
@@ -95,7 +102,6 @@ export class NavbarComponent implements OnInit {
           else if(currYOffSet == yOffset){
               myNavBar.remove();
           }
-      
       }
       
       /**
@@ -116,4 +122,6 @@ export class NavbarComponent implements OnInit {
   onSelect(id){
     this.router.navigate(['/page/president', id]);
   }
+
+  
 }

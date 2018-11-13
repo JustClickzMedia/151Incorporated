@@ -7,28 +7,29 @@
   <div id="presidentCorner">       
     <div class="container">
       <div class="row" *ngIf="page$ | async as pagelments">
-        <div class="col-lg-6 bg crnRds text-justify" [innerHTML]="pagelments.excerpt.rendered | linkcss:pagelments.id:pagelments.title.rendered">
+        <div class="col-md-12 col-lg-6 bg crnRds text-justify" [innerHTML]="pagelments.excerpt.rendered | linkcss:pagelments.id:pagelments.title.rendered">
         </div>
-        <div class="col-lg-1"> 
+        <div class="col-md-12 col-lg-1 d-none d-md-block d-lg-block"> 
+          <br/>
         </div>
   
           <!--<div class="col-lg-5 bg crnRds crnhgt text-justify" *ngIf="objectives$ | async as objelments" [innerHTML]="objelments.content.rendered"> -->
-        <div class="col-lg-5 crnhgt text-justify d-none d-md-block d-lg-block">
-          <div class="container bg crnRds">
-            <h2 class="algncenter">Strategic Objectives</h2>
+        <div class="col-md-12 col-lg-5 px-0 text-justify d-none d-md-block d-lg-block">
+          <div class="container  bg crnRds">
+            <h2 class="text-center">Strategic Objectives</h2>
             <div class="row"> 
-                <div class="col-lg-2"><img class="imgbat" src="../../../assets/images/icons8-bat-50.png" alt="" width="32" height="32" /></div>
-                <div class="col-lg-10"><p>Create a charitable not-for-profit foundation to support national
+                <div class="col-md-1 col-lg-2"><img class="mt-md-0 imgbat img-fluid" src="../../../assets/images/icons8-bat-50.png" alt=""/></div>
+                <div class="col-md-11 col-lg-10"><p>Create a charitable not-for-profit foundation to support national
                     community initiatives.</p></div>
             </div>
             <div class="row"> 
-                <div class="col-lg-2"><img class="imgbat" src="../../../assets/images/icons8-bat-50.png" alt="" width="32" height="32" /></div>
-                <div class="col-lg-10"><p>Develop a national community service and music program to preserve
+                <div class="col-md-1 col-lg-2"><img class="mt-md-0 imgbat img-fluid" src="../../../assets/images/icons8-bat-50.png" alt=""/></div>
+                <div class="col-md-11 col-lg-10"><p>Develop a national community service and music program to preserve
                     our efforts to serve our communities.</p></div>
             </div>
             <div class="row"> 
-                <div class="col-lg-2"><img class="imgbat" src="../../../assets/images/icons8-bat-50.png  " alt="" width="32" height="32" /></div>
-                <div class="col-lg-10"><p>To establish a solid foundation for the development of the brotherhood.</p></div>
+                <div class="col-md-1 col-lg-2"><img class="mt-md-0 imgbat img-fluid" src="../../../assets/images/icons8-bat-50.png  " alt=""/></div>
+                <div class="col-md-11 col-lg-10"><p>To establish a solid foundation for the development of the brotherhood.</p></div>
             </div>
           </div>
           <div class="container bg crnRds" style="margin-top: 30px;">
@@ -45,6 +46,37 @@
         </div>
       </div>
     </div>
+    <br/>
+    <div class="container  bg crnRds d-xs-block d-sm-block d-lg-none d-md-none">
+      <h3 class="text-center">Strategic Objectives</h3>
+      <div class="row">             
+          <div class="row"> 
+              <div class="col-2"><img class="imgbat img-fluid" src="../../../assets/images/icons8-bat-50.png" alt="1-5-1 Bat" /></div>
+              <div class="col-10"><p>Create a charitable not-for-profit foundation to support national
+                  community initiatives.</p></div>
+          </div>
+          <div class="row"> 
+            <div class="col-2"><img class="imgbat img-fluid" src="../../../assets/images/icons8-bat-50.png" alt="1-5-1 Bat" /></div>
+            <div class="col-10"><p>Develop a national community service and music program to preserve
+                our efforts to serve our communities.</p></div>
+          </div>
+          <div class="row"> 
+            <div class="col-2"><img class="imgbat img-fluid" src="../../../assets/images/icons8-bat-50.png  " alt="1-5-1 Bat" /></div>
+            <div class="col-10"><p>To establish a solid foundation for the development of the brotherhood.</p></div>
+          </div>
+      </div>
+    </div>
+    <div class="container bg crnRds d-xs-block d-sm-block d-lg-none d-md-none" style="margin-top: 30px;">
+        <h2 class="algncenter">News & Upcoming Events</h2>
+        <div class="row"> 
+            <ul id="postNav">
+              <li class="nav-item" *ngFor="let post of posts$ | async">
+                  <a class="nav-link" routerLink="/pst/{{ post.id }}/{{ post.title.rendered }}">{{ post.title.rendered }}</a>
+                  <p>{{ post.date | date:'longDate' }} | {{ post.date | date:'shortTime' }}</p>
+              </li>
+            </ul>   
+        </div>
+      </div>
   </div>
 </section>  
 

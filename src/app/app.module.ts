@@ -21,7 +21,7 @@ import { SidbarpostsComponent } from './Components/sidbarposts/sidbarposts.compo
 import { SearchboxComponent } from './Components/searchbox/searchbox.component';
 import { SearchresultsComponent } from './Components/searchresults/searchresults.component';
 import { FilterPipe } from './Pipes/filter.pipe';
-import { LinkcssPipe } from './pipes/linkcss.pipe';
+import { LinkcssPipe } from './Pipes/linkcss.pipe';
 
 @NgModule({
   declarations: [
@@ -31,7 +31,7 @@ import { LinkcssPipe } from './pipes/linkcss.pipe';
     HomeComponent,
     FooterComponent,
     PagenotfoundComponent,
-    PresidentsComponent,
+    PresidentsComponent,  
     PostdetailsComponent,
     HomebuttonsectionComponent,
     PagedetailsComponent,

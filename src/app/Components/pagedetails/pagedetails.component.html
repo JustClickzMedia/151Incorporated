@@ -12,21 +12,21 @@
       
       <div class="container bgPage mbMargin" >
           <div class="row">
-              <div class="col-lg-6 text-justify hdtitle">
-                  <h1>{{pagelments.title.rendered}}</h1>
+              <div class="col-lg-6 hdtitle">
+                  <h4>{{pagelments.title.rendered}}</h4>
               </div>      
           </div>
           <div class="row">
-            <div class="col-lg-6 text-justify hdtitle">
-                <h1>{{pagelments.date | date:'longDate'}}</h1>
+            <div class="col-lg-6 text-justify hddate">
+                <h6>{{pagelments.date | date:'longDate'}}</h6>
             </div>      
           </div>
           <div class="row">             
-            <div class="col-lg-6 text-justify" [innerHTML]="pagelments.content.rendered">
+            <div class="col-12 col-sm-12 col-md-12 col-lg-6 text-justify" [innerHTML]="pagelments.content.rendered">
               
             </div>  
-            <div class="col-lg-1"> </div> 
-            <app-sidbarposts class="col-lg-5 bg crnRds sidebar d-none d-md-block d-lg-block"></app-sidbarposts>   
+            <div class="col-12 col-sm-12 col-md-6 col-lg-1"> </div> 
+            <app-sidbarposts class="col-md-12 col-lg-5 mb-3 bg crnRds sidebar"></app-sidbarposts>   
           </div>
       </div>
 </section>
