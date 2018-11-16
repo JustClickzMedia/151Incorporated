@@ -1,21 +1,29 @@
 import { Injectable } from '@angular/core';
 import { Meta } from '@angular/platform-browser';
+import { Title } from '@angular/platform-browser';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SeoService {
 
-  constructor(private meta: Meta) { 
-    //meta.addTag({name: 'description', content: 'Title and Meta tags examples'});
-    //meta.addTag({name: 'viewport', content: 'width=device-width, initial-scale=1'}); 
+  constructor(private meta: Meta, private titleService: Title) { 
+    meta.addTag({name: 'description', content: 'Title and Meta tags examples'});
+    meta.addTag({name: 'viewport', content: 'width=device-width, initial-scale=1'}); 
   }
-  addMetaTags(desc : string) {
+
+  setTitle(_title: string){
+    this.titleService.setTitle(_title);
+  }
+
+  getTitle(){
+    this.titleService.getTitle();
+  }
+
+  addMetaTags() {
     this.meta.addTags([
-       {name: 'description', content: desc},
-       {name: 'viewport', content: 'width=device-width, initial-scale=1'},
        {name: 'robots', content: 'INDEX, FOLLOW'},
-       {name: 'author', content: 'ABCD'},
+       {name: 'author', content: 'Kenneth Elliott'},
        {name: 'keywords', content: 'TypeScript, Angular'},
        {name: 'date', content: '2018-06-02', scheme: 'YYYY-MM-DD'},
        {httpEquiv: 'Content-Type', content: 'text/html'},
@@ -37,19 +45,18 @@ export class SeoService {
         console.log(el.content);
       });
   }         
-  updateMetaTags(desc : string) {
+  updateDescMetaTags(desc : string) {
+      this.meta.updateTag({name: 'description', content: desc.substring(0, 100)});
+  } 
 
-      console.log(desc);
-      this.meta.updateTag({name: 'description', content: 'Updated: Title and Meta tags examples'});
-      this.meta.updateTag({httpEquiv: 'Content-Type', content: 'application/json'}, 'httpEquiv= "Content-Type"');
-      this.meta.updateTag({name: 'robots', content: 'NOINDEX, NOFOLLOW'});
-      this.meta.updateTag({name: 'keywords', content: 'JavaScript, Angular'});
-      this.meta.updateTag({name: 'date', content: '2018-06-03', scheme: 'YYYY-MM-DD'});
-      this.meta.updateTag({name: 'author', content: 'VXYZ'});
-      this.meta.updateTag({charset: 'UTF-16'}, 'charset= "UTF-8"');
-      this.meta.updateTag({property: 'og:title', content: "My Text2"});
-      this.meta.updateTag({property: 'og:type', content: "website"});    
-  }      
+  updateTitleMetaTags(desc : string) {
+    
+  }
+  
+  updateKeywordMetaTags(desc : string) {
+    this.meta.updateTag({name: 'keywords', content: desc});
+  }
+
   removeMetaTags() {
       //Using removeTag
       this.meta.removeTag('name = "description"');        

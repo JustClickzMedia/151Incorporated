@@ -32,41 +32,26 @@ export class PostdetailsComponent implements OnInit {
               this.route.paramMap.subscribe(params => {
                 //fetch your new parameters here, on which you are switching the routes and call ngOnInit()
                 this.ngOnInit();
-                //this.meta.updateTag({ name: 'description', content: this.tposts.date });
               });
               
   }
 
   ngOnInit() {
-    this.getPost();
-   
-    //this.seoService.updateMetaTags(this.tposts.date);
+    this.seoService.addMetaTags();
+    this.getPost(); 
   }
 
   getPost(): void {
     const id = +this.route.snapshot.paramMap.get('id');
-    console.log(id);
     this.post$ = this.wpService.getPost(id);
     this.posts$ = this.wpService.getPosts();
 
     this.wpService.getPost(id).subscribe(resp => {
-      //console.log(resp['date']);
+      this.seoService.setTitle(resp['title']['rendered']);
+      this.seoService.updateDescMetaTags(resp['excerpt']['rendered']);
       this.tposts = { 
-      date : resp['date']
+        date : resp['date']
       }   
     });
-
-    
-    //this.seoService.addMetaTags(this.tposts.date);
-
-    /*this.wpService.getPosts(id).subscribe((data: IPostData) => this.tposts = { 
-      Id : data['id'],
-      title : data['title']
-    });*/
-
-    /*this.wpService.getPost(id).subscribe(value => {
-      this.tposts=value;
-    }); */
   }
-
 }
