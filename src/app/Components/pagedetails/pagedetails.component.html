@@ -1,4 +1,4 @@
-<section *ngIf="page$ | async as pagelments">
+<section *ngIf="page as pagelments">
     
        
       <div id="margintransition" class="jumbotron d-none d-md-block d-lg-block" [ngStyle]="{'background-image':'url(' + pagelments._embedded['wp:featuredmedia'][0].media_details.sizes.full.source_url + ')'}">    

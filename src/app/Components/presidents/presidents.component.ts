@@ -12,7 +12,7 @@ export class PresidentsComponent implements OnInit {
   posts$ : Observable<any[]>;
 
   constructor(private wp : WordpressService) {
-  }
+  } 
 
   ngOnInit() {
     this.page$ = this.wp.getPage(310);

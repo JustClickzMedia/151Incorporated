@@ -14,6 +14,7 @@ export class SeoService {
 
   setTitle(_title: string){
     this.titleService.setTitle(_title);
+    this.updateTitleMetaTags(_title);
   }
 
   getTitle(){
@@ -24,10 +25,10 @@ export class SeoService {
     this.meta.addTags([
        {name: 'robots', content: 'INDEX, FOLLOW'},
        {name: 'author', content: 'Kenneth Elliott'},
-       {name: 'keywords', content: 'TypeScript, Angular'},
+       //{name: 'keywords', content: 'TypeScript, Angular'},
        {name: 'date', content: '2018-06-02', scheme: 'YYYY-MM-DD'},
        {httpEquiv: 'Content-Type', content: 'text/html'},
-       {property: 'og:title', content: "My Text"},
+       //{property: 'og:title', content: "My Text"},
        {property: 'og:type', content: "website"},
        {charset: 'UTF-8'}
     ]);
@@ -46,11 +47,11 @@ export class SeoService {
       });
   }         
   updateDescMetaTags(desc : string) {
-      this.meta.updateTag({name: 'description', content: desc.substring(0, 100)});
+      this.meta.updateTag({name: 'description', content: desc});
   } 
 
   updateTitleMetaTags(desc : string) {
-    
+    this.meta.updateTag({property: 'og:title', content: desc});
   }
   
   updateKeywordMetaTags(desc : string) {
@@ -59,10 +60,10 @@ export class SeoService {
 
   removeMetaTags() {
       //Using removeTag
-      this.meta.removeTag('name = "description"');        
+      /*this.meta.removeTag('name = "description"');        
       this.meta.removeTag('name= "keywords"');
       this.meta.removeTag('name = "viewport"');
-      this.meta.removeTag('name = "robots"');
+      this.meta.removeTag('name = "robots"');*/
       
       //Using removeTagElement
       let author: HTMLMetaElement = this.meta.getTag('name = "author"');
