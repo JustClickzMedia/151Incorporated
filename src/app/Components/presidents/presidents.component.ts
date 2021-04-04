@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { WordpressService } from '../../Services/wordpress.service';
+import { FlamelinkService } from '../../Services/flamelink.service';
 import { Observable } from 'rxjs/internal/Observable';
 
 @Component({
@@ -10,13 +11,15 @@ import { Observable } from 'rxjs/internal/Observable';
 export class PresidentsComponent implements OnInit {
   page$ : Observable<any>;
   posts$ : Observable<any[]>;
+  flamepost$: Observable<any[]>;
 
-  constructor(private wp : WordpressService) {
+  constructor(private wp : WordpressService, private fl : FlamelinkService) {
   } 
 
   ngOnInit() {
     this.page$ = this.wp.getPage(310);
     this.posts$ = this.wp.getPosts();
+    this.flamepost$ = this.fl.getPresidentMes();
   }
 
 }

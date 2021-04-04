@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Searchitem } from '../../model/searchitem';
+import { Searchitem } from '../../Model/searchitem';
 
 
 @Component({
@@ -16,6 +16,7 @@ export class SearchboxComponent implements OnInit {
   constructor(private router:Router) { }
 
   ngOnInit() {
+    this.model.searchstring = "";
   }
 
   onSubmit() { 

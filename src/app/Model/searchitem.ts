@@ -1,3 +1,3 @@
 export class Searchitem{
-    searchstring: string;
-}
+    searchstring: string = "";
+};
