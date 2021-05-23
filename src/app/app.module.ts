@@ -23,6 +23,10 @@ import { SearchresultsComponent } from './Components/searchresults/searchresults
 import { FilterPipe } from './Pipes/filter.pipe';
 import { LinkcssPipe } from './Pipes/linkcss.pipe';
 
+import { AngularFireModule } from '@angular/fire';
+import { environment } from '../environments/environment';
+import { AngularFirestoreModule } from '@angular/fire/firestore';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -47,7 +51,9 @@ import { LinkcssPipe } from './Pipes/linkcss.pipe';
     NgtUniversalModule,    
     AppRoutingModule,
     HttpClientModule,
-    FormsModule
+    FormsModule,
+    AngularFireModule.initializeApp(environment.firebase),
+    AngularFirestoreModule
   ],
   providers: [],
 })
