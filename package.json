@@ -16,12 +16,11 @@
   "private": true,
   "dependencies": {
     "@angular-devkit/schematics": "^17.3.1",
-    "@angular/animations": "^14.3.0",
+    "@angular/animations": "^13.4.0",
     "@angular/common": "^8.2.14",
     "@angular/compiler": "^8.2.14",
     "@angular/core": "^13.4.0",
     "@angular/forms": "^8.2.14",
-    "@angular/http": "^7.2.16",
     "@angular/platform-browser": "^8.2.14",
     "@angular/platform-browser-dynamic": "^8.2.14",
     "@angular/platform-server": "^8.2.14",
@@ -39,7 +38,7 @@
     "rxjs": "^6.6.7",
     "ts-loader": "4.2.0",
     "webpack-cli": "^2.1.4",
-    "zone.js": "~0.9.1"
+    "zone.js": "^0.11.4"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.7.0",
