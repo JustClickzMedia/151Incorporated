@@ -8,8 +8,8 @@ describe('SidbarpostsComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ SidbarpostsComponent ]
-    })
+    imports: [SidbarpostsComponent]
+})
     .compileComponents();
   }));
 

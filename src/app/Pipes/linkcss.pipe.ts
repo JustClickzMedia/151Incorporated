@@ -1,7 +1,8 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'linkcss'
+    name: 'linkcss',
+    standalone: true
 })
 export class LinkcssPipe implements PipeTransform {
 

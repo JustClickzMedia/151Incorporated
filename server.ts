@@ -1,56 +1,56 @@
-import 'zone.js/dist/zone-node';
-    import 'reflect-metadata';
-    import {enableProdMode} from '@angular/core';
-    import {ngExpressEngine} from '@nguniversal/express-engine';
-    import {provideModuleMap} from '@nguniversal/module-map-ngfactory-loader';
-    
-    import * as express from 'express';
-    import * as bodyParser from 'body-parser';
-    import * as cors from 'cors';
-    import * as compression from 'compression';
-    
-    import {join} from 'path';
-    
-    enableProdMode();
-    
-    export const app = express();
-    
-    app.use(compression());
-    app.use(cors());
-    app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({ extended: true }));
-    
-    // const DIST_FOLDER = join(process.cwd(), 'dist');
-    
-    const {AppServerModuleNgFactory, LAZY_MODULE_MAP} = require('./dist/server/main');
-    
-    app.engine('html', ngExpressEngine({
-      bootstrap: AppServerModuleNgFactory,
-      providers: [
-        provideModuleMap(LAZY_MODULE_MAP)
-      ]
-    }));
-    
-    app.set('view engine', 'html');
-    app.set('views', './dist/browser');
-    
-    app.get('/redirect/**', (req, res) => {
-      const location = req.url.substring(10);
-      res.redirect(301, location);
-    });
-    
-    app.get('*.*', express.static('./dist/browser', {
-      maxAge: '1y'
-    }));
-    
-    app.get('/*', (req, res) => {
-      res.render('index', {req, res}, (err, html) => {
-        if (html) {
-          res.send(html);
-        } else {
-          console.error(err);
-          res.send(err);
-        }
-      });
-    });
-    
+import { APP_BASE_HREF } from '@angular/common';
+import { CommonEngine } from '@angular/ssr';
+import express from 'express';
+import { fileURLToPath } from 'node:url';
+import { dirname, join, resolve } from 'node:path';
+import bootstrap from './src/main.server';
+
+// The Express app is exported so that it can be used by serverless Functions.
+export function app(): express.Express {
+  const server = express();
+  const serverDistFolder = dirname(fileURLToPath(import.meta.url));
+  const browserDistFolder = resolve(serverDistFolder, '../browser');
+  const indexHtml = join(serverDistFolder, 'index.server.html');
+
+  const commonEngine = new CommonEngine();
+
+  server.set('view engine', 'html');
+  server.set('views', browserDistFolder);
+
+  // Example Express Rest API endpoints
+  // server.get('/api/**', (req, res) => { });
+  // Serve static files from /browser
+  server.get('*.*', express.static(browserDistFolder, {
+    maxAge: '1y'
+  }));
+
+  // All regular routes use the Angular engine
+  server.get('*', (req, res, next) => {
+    const { protocol, originalUrl, baseUrl, headers } = req;
+
+    commonEngine
+      .render({
+        bootstrap,
+        documentFilePath: indexHtml,
+        url: `${protocol}://${headers.host}${originalUrl}`,
+        publicPath: browserDistFolder,
+        providers: [{ provide: APP_BASE_HREF, useValue: baseUrl }],
+      })
+      .then((html) => res.send(html))
+      .catch((err) => next(err));
+  });
+
+  return server;
+}
+
+function run(): void {
+  const port = process.env['PORT'] || 4000;
+
+  // Start up the Node server
+  const server = app();
+  server.listen(port, () => {
+    console.log(`Node Express server listening on http://localhost:${port}`);
+  });
+}
+
+run();

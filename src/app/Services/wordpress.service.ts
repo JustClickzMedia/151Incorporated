@@ -7,7 +7,7 @@ import { Observable, of } from 'rxjs';
 })
 export class WordpressService {
 
-  baseUrl: string = 'http://oxygen.1-5-1.org/wp-json/wp/v2/';
+  baseUrl: string = 'https://tzin.brothersof1-5-1.org/wp-json/wp/v2/';
   url: string;
   rtnval : Observable<any[]>;
 
