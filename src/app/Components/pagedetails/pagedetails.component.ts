@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Location } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { WordpressService } from '../../Services/wordpress.service';
 import { Observable } from 'rxjs/internal/Observable';
 import { async } from '@angular/core/testing';
@@ -8,12 +8,15 @@ import * as $ from 'jquery';
 import {Router} from '@angular/router';
 import { SeoService } from '../../Services/seo.service';
 import { Subscription } from 'rxjs/internal/Subscription';
+import { SidbarpostsComponent } from '../../Components/sidbarposts/sidbarposts.component';
 
 
 @Component({
-  selector: 'app-pagedetails',
-  templateUrl: './pagedetails.component.html',
-  styleUrls: ['./pagedetails.component.css']
+    selector: 'app-pagedetails',
+    templateUrl: './pagedetails.component.html',
+    styleUrls: ['./pagedetails.component.css'],
+    imports: [CommonModule, SidbarpostsComponent],
+    standalone: true
 })
 export class PagedetailsComponent implements OnInit, OnDestroy {
  

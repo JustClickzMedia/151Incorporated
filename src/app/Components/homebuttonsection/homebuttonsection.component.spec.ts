@@ -8,8 +8,8 @@ describe('HomebuttonsectionComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ HomebuttonsectionComponent ]
-    })
+    imports: [HomebuttonsectionComponent]
+})
     .compileComponents();
   }));
 
