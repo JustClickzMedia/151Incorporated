@@ -1,4 +1,4 @@
-<nav id="header" class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+<!-- <nav id="header" class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
   <div id="header-container" class="container navbar-container">
     <a class="navbar-brand mr-0" routerLink=""><img class="d-block w-100" src="https://tzin.brothersof1-5-1.org/wp-content/uploads/2024/03/151Logo2.png"/></a>
     <button class="navbar-toggler ml-auto custom-toggler" type="button" (click)="toggleNavbar()">
@@ -12,8 +12,31 @@
         <li class="nav-item" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" *ngFor="let NavItem of NavMenu$ | async">
             <a class="nav-link" (click)="toggleNavbar()" routerLink="/pg/{{ NavItem.id }}/{{ NavItem.title.rendered }}">{{ NavItem.slug | uppercase }}</a>
         </li>
-      </ul>
+      </ul> -->
       <!--<app-searchbox (submit)="toggleNavbar()" ></app-searchbox>-->
+    <!-- </div>
+  </div>
+</nav> -->
+
+<nav id="header" class="navbar fixed-top">
+  <div id="header-container" class="container navbar-container">
+    <a class="navbar-brand mr-0" routerLink=""><img class="d-block w-100" src="https://tzin.brothersof1-5-1.org/wp-content/uploads/2024/03/151Logo2.png"/></a>
+    <button class="navbar-toggler ml-auto custom-toggler" type="button" (click)="toggleNavbar()" [ngStyle]="{'border-color': buttonbrdcolor }">
+      <span class="navbar-toggler-icon" [ngStyle]="{'background-image': iconlnimage }"></span>
+    </button>
+    <div class="collapse navbar-collapse" [ngClass]="{ 'show': navbarOpen }">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" *ngFor="let NavItem of NavMenu$ | async">
+            <a class="nav-link" (click)="toggleNavbar()" routerLink="/pg/{{ NavItem.id }}/{{ NavItem.title.rendered }}">{{ NavItem.slug | uppercase }}</a>
+        </li>
+      </ul>
+      <div class="navbar-nav">
+        <a title="Pay Dues" href="https://checkout.square.site/merchant/4ZBJEDVN0C8CN/checkout/C6GENNAL37VOT5NCEZJ24W2J?fbclid=IwAR1EB1chPlhZpQ7nmtcrwSrmTETl9lR9f07NONqKYVaEe31Yq9gSYDiHmN0_aem_ATapbJl3Wzjrs2KVn8U7htNJZ0fSBP45IK18gjUnm8VL-Ngl9DvQ9wHtIwn7Wfn_rEv5JBMJEphfEzFZDOEIgLyf" 
+          class="nav-item btn btn-outline-light btn-lg mt-3 mb-3">PAY DUES</a>
+        <a title="Pay Dues" href="https://checkout.square.site/merchant/4ZBJEDVN0C8CN/checkout/C6GENNAL37VOT5NCEZJ24W2J?fbclid=IwAR1EB1chPlhZpQ7nmtcrwSrmTETl9lR9f07NONqKYVaEe31Yq9gSYDiHmN0_aem_ATapbJl3Wzjrs2KVn8U7htNJZ0fSBP45IK18gjUnm8VL-Ngl9DvQ9wHtIwn7Wfn_rEv5JBMJEphfEzFZDOEIgLyf" 
+          class="nav-item btn btn-outline-light btn-lg">GIVE BACK</a>
+      </div>
     </div>
   </div>
 </nav>
+

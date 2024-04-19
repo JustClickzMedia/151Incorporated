@@ -20,6 +20,8 @@ export class NavbarComponent implements OnInit {
   logo:any = "/images/151Logo.png";
   NavMenu$ : Observable<any[]>;
   navbarOpen = false;
+  buttonbrdcolor = "";
+  iconlnimage = "";
 
   constructor(@Inject(DOCUMENT) private document: Document,
               private router: Router,
@@ -33,40 +35,32 @@ export class NavbarComponent implements OnInit {
     this.navbarOpen = !this.navbarOpen;
   }
 
-  // @HostListener('window.scroll',['$event']) onscroll(){
-
-  //   let myTag = this.el.nativeElement.
-    
-  //   querySelector("p")
-  //   var yOffset = 0
-  //   var currYOffSet = window.pageYOffset;
-  //   var imglarge = "https://tzin.brothersof1-5-1.org/wp-content/uploads/2024/03/151Logo2.png";
-  //   var imgsmall = "https://tzin.brothersof1-5-1.org/wp-content/uploads/2024/03/151Logo3.png";
-      
-  //   if(yOffset < currYOffSet) {
-  //     this.renderer.addClass("header-container","fixed-theme")
-  //   }
-  //   else if(currYOffSet == yOffset){
-  //     this.renderer.removeClass("header-container","fixed-theme")
-  //   }
-  // }
   @HostListener('document:scroll',['$event'])
   public onViewportScroll() {
     var yOffset = 0
     var currYOffSet = window.pageYOffset;
-    var imglarge = "https://tzin.brothersof1-5-1.org/wp-content/uploads/2024/03/151Logo2.png";
-    var imgsmall = "https://tzin.brothersof1-5-1.org/wp-content/uploads/2024/03/151Logo3.png";
+    var imglarge = "https://tzin.brothersof1-5-1.org/wp-content/uploads/2024/04/brother151logo2-1.png";
+    var imgsmall = "https://tzin.brothersof1-5-1.org/wp-content/uploads/2024/04/Brothers-of-1-5-1-Incorporated-219-x-52-px-1.png";
     
+    var elheader = document.getElementById('header');
     var element = document.getElementById('header-container');
     var transitionelement = document.getElementById('margintransition');
     var container = document.querySelectorAll('.navbar-brand img')
     if(yOffset < currYOffSet) {
+      elheader.classList.add('bgnav');
       element.classList.add('fixed-theme');
+      this.buttonbrdcolor = 'rgb(103,0,1)';
+      this.iconlnimage = 'test';
+      //"background-image: url(\"data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(103,0,1,1)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 8h24M4 16h24M4 24h24'/%3E%3C/svg%3E\")";
       container[0].setAttribute('src', imgsmall);
       transitionelement.style.marginTop = '30px';
     }
     else if(currYOffSet == yOffset){
+      elheader.classList.remove('bgnav');
       element.classList.remove('fixed-theme');
+      this.buttonbrdcolor = 'rgb(255,255,255)';
+      this.iconlnimage = 'test';
+      //'background-image: url(\"data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255,255,255,0.7)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 8h24M4 16h24M4 24h24'/%3E%3C/svg%3E\")';
       container[0].setAttribute('src', imglarge);
       setTimeout(this.setDelay, 100);
     }
