@@ -4,6 +4,16 @@
     font-size: 18px;
 }
 
+.nav-link:hover{
+    color: #670001;
+    
+}
+
+a.nav-item.btn:hover{
+    color:white;
+    background-color: #670001;
+}
+
 .bg-top{
     border-top : 4px 0px solid #000000;
     border-bottom: 4px solid #000000;

@@ -1,17 +1,10 @@
 .jumbotron{
-    height: 600px;
+    height: 300px;
     opacity: .4;
-    border-bottom: 4px solid #000000;
+    border-bottom: 4px solid #000000; 
    /* margin: -100px 0px;*/ 
 }
 
 .hddate{
     margin-bottom: 20px;
 }
-
-
-
-
-
-
-
