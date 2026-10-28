@@ -1,27 +1,24 @@
 # Project Status — WordPress Backend Modernization
 
-**Last updated:** 2026-10-26
-**Current phase:** Phase 1 (Discovery) is complete and **waiting for review**.
+**Last updated:** 2026-10-28
 
 | Phase | Status |
 |---|---|
-| 1. Discovery & audit | Done. See `backend-audit.md` |
-| 2. Backup & staging | Blocked. Needs cPanel access, and there's no confirmed backup |
-| 3. GraphQL implementation (staging) | Not started. WPGraphQL is already installed on production |
-| 4. Members portal planning | Not started |
-| 5. Frontend handoff (`graphql-contract.md`) | Not started. Waits on the staging schema |
-| 6. Documentation | In progress |
+| 1. Discovery & audit | Done |
+| 2. Backup & staging | Done. Weekly HostGator backup is active; staging is at `/staging/1848`. The restore procedure hasn't been tested yet |
+| 3. GraphQL implementation | **Done on staging.** Production promotion is waiting for approval |
+| 4. Members portal planning | Drafted in `security-architecture.md` |
+| 5. Frontend handoff | `ANGULAR-HANDOFF.md` and `graphql-contract.md` v0.1 are ready for Angular |
+| 6. Documentation | Up to date |
 
-## Critical items
+## Ready for Angular
 
-1. ~~Production REST unreachable~~: transient and resolved on its own. Verified healthy; no change made.
-2. **The Angular home page requests page ID 13, which doesn't exist, so the homepage body fails to load (404).**
-3. A weekly HostGator backup exists (last run 2026-10-26).
+- **REST:** works today in production and stays on during the migration.
+- **GraphQL:** Angular can build against the **staging** endpoint using the new names (`events`, `homepageCarousels`).
 
 ## Decisions needed from Kenneth
 
-- Approve a production fix for the `/wp-json/` rewrite issue, after a backup.
-- Choose how to fix the missing page 13.
-- Provide the staging approach and cPanel backup access.
-- Provide repo access so these docs can be committed on a dedicated branch.
-- Give the list of approved CORS origins.
+1. The homepage page or slug (you're rethinking this).
+2. Approval to promote the staging changes to production (checklist in `wordpress-operations.md`).
+3. Whether to keep `http://localhost:4200` in the production CORS list.
+4. Whether to turn off GraphQL batching, and whether to add WPGraphQL Smart Cache.
