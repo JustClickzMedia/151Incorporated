@@ -52,3 +52,27 @@
 - **Side effect noted:** the HostGator plugin appears to have been switched on in production when the Staging tool was opened.
 - **Outstanding:** homepage slug decision; promotion to production (approval needed); batching and caching decisions; disable REST for New Prospects.
 - **Next steps:** owner review → Angular builds against the staging contract → promote to production. → production REST fix (approval) → backups → staging
+
+## 2026-10-28 — Angular Task 1: API URLs moved into environment config
+
+- **Branch:** `feature/angular-graphql-migration` (from `chore/backend-graphql-hardening`)
+- **Files changed:**
+  - `src/environments/environment.ts`: adds `graphqlUrl` and `restUrl` (staging `/staging/1848/`)
+  - `src/environments/environment.prod.ts`: adds `graphqlUrl` and `restUrl` (production). GraphQL isn't called yet
+  - `src/app/Services/wordpress.service.ts`: `baseUrl` now reads `environment.restUrl`; the hard-coded `wp-json` URL is removed
+  - `angular.json`: the production build now swaps in `environment.prod.ts`. There was no `fileReplacements` before, so `environment.prod.ts` was never used
+  - `src/app/Services/wordpress.service.spec.ts`: tests the URL source and that REST calls are unchanged
+- **Behavior:** production builds still call production REST, as before. `ng serve` (development) now calls staging REST. REST code paths are unchanged. No GraphQL calls yet.
+- **Tested:**
+  - `ng build` (production) and `ng build --configuration development` both succeed.
+  - The production bundle contains only production URLs; the development bundle contains only staging URLs.
+  - `ng test`: 12 pass / 11 fail. The baseline before this change was 7 / 12.
+  - The 11 remaining failures already existed: component specs are missing `HttpClient`/router test providers.
+  - The build was verified with font inlining off, because the build sandbox can't reach `fonts.googleapis.com`.
+  - Nothing was tested against the live staging endpoint (the build sandbox can't reach it).
+- **Open issues:**
+  - The 11 component specs that already fail.
+  - `.angular/cache` is tracked in git; it should be ignored.
+  - Prerendering calls WordPress REST at build time.
+  - Homepage slug is TBD (Task 2).
+  - The Angular upgrade (17 → 22) is next, per the owner.
