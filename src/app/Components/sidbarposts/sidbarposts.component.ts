@@ -4,7 +4,6 @@ import { WordpressService } from '../../Services/wordpress.service';
 import { Observable } from 'rxjs/internal/Observable';
 import { RouterLink } from '@angular/router';
 import { IPostData } from '../../Model/IPostData';
-import { async } from '@angular/core/testing';
 
 @Component({
     selector: 'app-sidbarposts',

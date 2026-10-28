@@ -3,7 +3,6 @@ import { ActivatedRoute } from '@angular/router';
 import { CommonModule, Location } from '@angular/common';
 import { WordpressService } from '../../Services/wordpress.service';
 import { Observable } from 'rxjs/internal/Observable';
-import { async } from '@angular/core/testing';
 import * as $ from 'jquery';
 import { Router } from '@angular/router';
 import { Meta } from '@angular/platform-browser';
