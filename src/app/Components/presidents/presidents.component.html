@@ -6,7 +6,7 @@
   </div>
   <div id="presidentCorner">
     <div class="container">
-      @if (page$ | async; as pagelments) {
+      @if (page(); as pagelments) {
         <div class="row">
           <div class="col-md-12 col-lg-6 bg crnRds text-justify" [innerHTML]="pagelments.excerpt.rendered | linkcss:pagelments.id:pagelments.title.rendered">
           </div>
@@ -36,7 +36,7 @@
               <h2 class="algncenter">News & Upcoming Events</h2>
               <div class="row">
                 <ul id="postNav">
-                  @for (post of posts$ | async; track post) {
+                  @for (post of posts(); track post.id) {
                     <li class="nav-item">
                       <a class="nav-link" routerLink="/pst/{{ post.id }}/{{ post.title.rendered }}">{{ post.title.rendered }}</a>
                       <p>{{ post.date | date:'longDate' }} | {{ post.date | date:'shortTime' }}</p>
@@ -73,7 +73,7 @@
       <h2 class="algncenter">News & Upcoming Events</h2>
       <div class="row">
         <ul id="postNav">
-          @for (post of posts$ | async; track post) {
+          @for (post of posts(); track post.id) {
             <li class="nav-item">
               <a class="nav-link" routerLink="/pst/{{ post.id }}/{{ post.title.rendered }}">{{ post.title.rendered }}</a>
               <p>{{ post.date | date:'longDate' }} | {{ post.date | date:'shortTime' }}</p>

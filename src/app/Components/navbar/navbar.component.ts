@@ -1,8 +1,9 @@
-import { Component, HostListener, OnInit, DOCUMENT, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, HostListener, OnInit, DOCUMENT, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 
-import { Observable } from 'rxjs/internal/Observable';
 import { WordpressService } from '../../Services/wordpress.service';
+import { withFallback } from '../../Services/rx-fallback';
 import { CommonModule } from '@angular/common'
 import { RouterLinkActive, RouterLink } from '@angular/router';
 //import { SearchboxComponent } from '../../Components/searchbox/searchbox.component'
@@ -22,17 +23,17 @@ export class NavbarComponent implements OnInit {
 
  
   logo:any = "/images/151Logo.png";
-  NavMenu$ : Observable<any[]>;
-  navbarOpen = false;
-  buttonbrdcolor = "";
-  iconlnimage = "";
+  readonly NavMenu = toSignal(this.wp.getPages().pipe(withFallback<any[]>([])), { initialValue: [] as any[] });
+  readonly navbarOpen = signal(false);
+  readonly buttonbrdcolor = signal('');
+  readonly iconlnimage = signal('');
 
   search(term: string): void {
     console.log('searchterm: ' + term);
   }
 
   toggleNavbar() {
-    this.navbarOpen = !this.navbarOpen;
+    this.navbarOpen.update(open => !open);
   }
 
   @HostListener('document:scroll')
@@ -49,8 +50,8 @@ export class NavbarComponent implements OnInit {
     if(yOffset < currYOffSet) {
       elheader.classList.add('bgnav');
       element.classList.add('fixed-theme');
-      this.buttonbrdcolor = 'rgb(103,0,1)';
-      this.iconlnimage = 'test';
+      this.buttonbrdcolor.set('rgb(103,0,1)');
+      this.iconlnimage.set('test');
       //"background-image: url(\"data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(103,0,1,1)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 8h24M4 16h24M4 24h24'/%3E%3C/svg%3E\")";
       container[0].setAttribute('src', imgsmall);
       transitionelement.style.marginTop = '30px';
@@ -58,8 +59,8 @@ export class NavbarComponent implements OnInit {
     else if(currYOffSet == yOffset){
       elheader.classList.remove('bgnav');
       element.classList.remove('fixed-theme');
-      this.buttonbrdcolor = 'rgb(255,255,255)';
-      this.iconlnimage = 'test';
+      this.buttonbrdcolor.set('rgb(255,255,255)');
+      this.iconlnimage.set('test');
       //'background-image: url(\"data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255,255,255,0.7)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 8h24M4 16h24M4 24h24'/%3E%3C/svg%3E\")';
       container[0].setAttribute('src', imglarge);
       setTimeout(this.setDelay, 100);
@@ -72,7 +73,6 @@ export class NavbarComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.NavMenu$ = this.wp.getPages();
     
     // $(this.document).ready(function(){
 

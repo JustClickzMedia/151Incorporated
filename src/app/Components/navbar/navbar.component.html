@@ -21,12 +21,12 @@
 <nav id="header" class="navbar fixed-top">
   <div id="header-container" class="container navbar-container">
     <a class="navbar-brand mr-0" routerLink=""><img class="d-block w-100" src="https://tzin.brothersof1-5-1.org/wp-content/uploads/2024/03/151Logo2.png"/></a>
-    <button class="navbar-toggler ml-auto custom-toggler" type="button" (click)="toggleNavbar()" [ngStyle]="{'border-color': buttonbrdcolor }">
-      <span class="navbar-toggler-icon" [ngStyle]="{'background-image': iconlnimage }"></span>
+    <button class="navbar-toggler ml-auto custom-toggler" type="button" (click)="toggleNavbar()" [ngStyle]="{'border-color': buttonbrdcolor() }">
+      <span class="navbar-toggler-icon" [ngStyle]="{'background-image': iconlnimage() }"></span>
     </button>
-    <div class="collapse navbar-collapse" [ngClass]="{ 'show': navbarOpen }">
+    <div class="collapse navbar-collapse" [ngClass]="{ 'show': navbarOpen() }">
       <ul class="navbar-nav mr-auto">
-        @for (NavItem of NavMenu$ | async; track NavItem) {
+        @for (NavItem of NavMenu(); track NavItem.id) {
           <li class="nav-item" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
             <a class="nav-link" (click)="toggleNavbar()" routerLink="/pg/{{ NavItem.id }}/{{ NavItem.title.rendered }}">{{ NavItem.slug | uppercase }}</a>
           </li>

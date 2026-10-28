@@ -1,12 +1,11 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { CommonModule, Location } from '@angular/common';
+import { CommonModule } from '@angular/common';
+import { map, switchMap, tap } from 'rxjs/operators';
 import { WordpressService } from '../../Services/wordpress.service';
-import { Observable } from 'rxjs/internal/Observable';
-import * as $ from 'jquery';
-import {Router} from '@angular/router';
+import { withFallback } from '../../Services/rx-fallback';
 import { SeoService } from '../../Services/seo.service';
-import { Subscription } from 'rxjs/internal/Subscription';
 import { SidbarpostsComponent } from '../../Components/sidbarposts/sidbarposts.component';
 
 
@@ -17,51 +16,31 @@ import { SidbarpostsComponent } from '../../Components/sidbarposts/sidbarposts.c
     changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, SidbarpostsComponent]
 })
-export class PagedetailsComponent implements OnInit, OnDestroy {
+export class PagedetailsComponent {
   private route = inject(ActivatedRoute);
   private wpService = inject(WordpressService);
-  private location = inject(Location);
-  private router = inject(Router);
   private seo = inject(SeoService);
 
- 
-  page : any;
-  page$ : Observable<any>;
-  posts$ : Observable<any[]>;
-  routParam : Subscription;
-  getPageService : Subscription;
-  pageitem : any;
+  /**
+   * The WordPress page for the current ':id' route param. Re-fetches when the param changes
+   * (switchMap cancels the previous request), and unsubscribes automatically on destroy.
+   */
+  readonly page = toSignal(this.route.paramMap.pipe(
+    map(params => +params.get('id')),
+    switchMap(id => this.wpService.getPage(id).pipe(withFallback<any>(undefined))),
+    tap(resp => { if (resp) { this.applySeo(resp); } })
+  ));
 
-  constructor() { 
-                
-              this.routParam = this.route.paramMap.subscribe(params => {
-                //fetch your new parameters here, on which you are switching the routes and call ngOnInit()
-                this.ngOnInit();
-              });
-  }
-
-  ngOnInit() {
-    this.getPage();
-    //this.seo.addMetaTags();
-  }
-
-  ngOnDestroy(){
-    this.routParam.unsubscribe();
-    this.getPageService.unsubscribe();
-  }
-
-  getPage(): void {
-    const id = +this.route.snapshot.paramMap.get('id');
-    this.posts$ = this.wpService.getPosts();
-
-    //Seo Work
-    this.getPageService = this.wpService.getPage(id).subscribe(resp => { 
-      this.page = resp;  
+  private applySeo(resp: any): void {
+    try {
       this.seo.removeMetaTags();
       this.seo.addMetaTags();
       this.seo.setTitle(resp['title']['rendered']);
       this.seo.updateKeywordMetaTags(resp['post-custom-fields']['Keywords']);
-      this.seo.updateDescMetaTags(resp['post-custom-fields']['Description']);  
-    });
+      this.seo.updateDescMetaTags(resp['post-custom-fields']['Description']);
+    } catch (err) {
+      // Same as before: a missing SEO field is logged, the content still renders.
+      console.error(err);
+    }
   }
 }

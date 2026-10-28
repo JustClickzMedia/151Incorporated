@@ -1,9 +1,10 @@
-import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
+import { map, switchMap } from 'rxjs/operators';
 import { WordpressService } from '../../Services/wordpress.service';
-import { Observable } from 'rxjs/internal/Observable';
+import { withFallback } from '../../Services/rx-fallback';
 import { CommonModule } from '@angular/common';
-import { IPostData } from '../../Model/IPostData'
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -13,25 +14,18 @@ import { RouterLink } from '@angular/router';
     changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, RouterLink]
 })
-export class SearchresultsComponent implements OnInit {
+export class SearchresultsComponent {
   private route = inject(ActivatedRoute);
   private wpService = inject(WordpressService);
 
+  private readonly term$ = this.route.paramMap.pipe(map(params => params.get('term')));
 
-  searchResults$: Observable<any[]>;
-  term: string;
+  /** Search term from the route; updates when navigating between searches. */
+  readonly term = toSignal(this.term$, { initialValue: this.route.snapshot.paramMap.get('term') });
 
-  constructor() { 
-    this.route.paramMap.subscribe(params => {
-      //fetch your new parameters here, on which you are switching the routes and call ngOnInit()
-      this.ngOnInit();
-      //this.meta.updateTag({ name: 'description', content: this.tposts.date });
-    });
-  }
-
-  ngOnInit() {
-    this.term = this.route.snapshot.paramMap.get('term');
-    this.searchResults$ = this.wpService.getSearch(this.term);
-  }
-
+  /** One request per term (the old code requested twice on load and never unsubscribed). */
+  readonly searchResults = toSignal(
+    this.term$.pipe(switchMap(term => this.wpService.getSearch(term).pipe(withFallback<any[]>([])))),
+    { initialValue: [] as any[] }
+  );
 }
