@@ -76,3 +76,41 @@
   - Prerendering calls WordPress REST at build time.
   - Homepage slug is TBD (Task 2).
   - The Angular upgrade (17 → 22) is next, per the owner.
+
+## 2026-10-28 — Angular upgrade 17.3 → 22.2 (version steps + control flow)
+
+- **Branch:** `feature/angular-graphql-migration`
+- **Commits:** one per major version (18, 19, 20, 21, 22), plus:
+  - one commit to untrack `.angular/cache`
+  - one commit for the `@if`/`@for` control-flow migration
+- **Files changed:**
+  - Dependencies: `package.json` and `package-lock.json`
+  - Config: `angular.json` (generation defaults), `tsconfig*.json`, `.gitignore`
+  - Server and bootstrap: `server.ts`, `src/main.ts`, `src/main.server.ts`, `src/app/app.config*.ts`
+  - Components: every `src/app/Components/*/*.component.ts`, plus 6 component templates
+  - Tests: all spec files (`async` → `waitForAsync`)
+- **Notable fixes needed during the upgrade:**
+  - 3 components imported the test-only `async` helper (removed in v18).
+  - The navbar `@HostListener` passed an unused `$event` (an error in v21).
+  - `@types/node` had to move to ^22.12 (a vite peer requirement).
+  - `@fortawesome/angular-fontawesome` was stepped 0.14 → 5.1, one version per Angular major.
+  - SSR `CommonEngine` now needs `allowedHosts`. Without it, every SSR request returned 500.
+- **Behavior kept on purpose (until the architecture step):**
+  - zone.js change detection (`provideZoneChangeDetection()`)
+  - `ChangeDetectionStrategy.Eager` on components (v22 defaults to OnPush)
+  - No incremental hydration
+  - Karma as the test runner
+  - `@angular-devkit/build-angular` builders
+- **Tested at every step:**
+  - Production and development builds succeed (font inlining was off in the sandbox only).
+  - Production bundle → production URLs; development bundle → staging URLs.
+  - `ng test` in headless Chromium: 15 pass / 8 fail at v22, up from 12/11. The 8 remaining failures already existed (missing `ActivatedRoute`/router test providers).
+  - SSR server smoke test: `/` and `/pg/...` return 200; a non-allow-listed host is rejected.
+  - `package-lock.json` installs with both npm 10 and npm 11 (`npm ci`).
+- **Not tested:** live staging calls (the sandbox can't reach the staging host); a manual browser check.
+- **Open issues:**
+  - The 8 component specs that already fail.
+  - Prerendering calls WordPress at build time.
+  - The `HomebuttonsectionComponent` import is unused.
+  - The SSR host list may need the real deploy hostname.
+  - Next: inject()/signals, zoneless, Vitest, and the `@angular/build` builder.
