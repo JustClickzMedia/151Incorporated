@@ -1,6 +1,6 @@
 @if (page(); as pagelments) {
   <section>
-    <div id="margintransition" class="jumbotron d-none d-md-block d-lg-block" [ngStyle]="{'background-image':'url(' + pagelments._embedded['wp:featuredmedia'][0].media_details.sizes.full.source_url + ')'}">
+    <div id="margintransition" class="jumbotron d-none d-md-block d-lg-block" [ngStyle]="{'background-image': heroUrl() ? 'url(' + heroUrl() + ')' : null}">
       <!--<div class="container">
       <h1 class="display-3">Hello, world!</h1>
       <p>This is a template for a simple marketing or informational website. It includes a large callout called a jumbotron and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
@@ -26,4 +26,6 @@
     </div>
   </div>
 </section>
+} @else if (notFound()) {
+  <app-pagenotfound></app-pagenotfound>
 }

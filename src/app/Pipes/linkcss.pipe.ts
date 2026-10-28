@@ -6,11 +6,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class LinkcssPipe implements PipeTransform {
 
-  constructor() { } 
-  
-  transform(excerpt:string, id:string, title:string) {
-    let termsApply = excerpt + '<a  href="/pg/'+ id + '/'  + title + '">Continue Read More...</a>'; 
-    
-    return termsApply;
+  /** Appends a "Continue Read More..." link to the page's slug URL (/pg/<slug>). */
+  transform(excerpt: string, slug: string) {
+    return excerpt + '<a  href="/pg/' + encodeURIComponent(slug ?? '') + '">Continue Read More...</a>';
   }
 }

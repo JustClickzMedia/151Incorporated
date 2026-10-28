@@ -48,7 +48,7 @@ describe('PresidentsComponent', () => {
     expect(text).toContain('Excerpt text');
     expect(text).toContain('Continue Read More');
     expect(text).toContain('Post A');
-    expect((fixture.nativeElement as HTMLElement).innerHTML).toContain('/pg/42/About');
+    expect((fixture.nativeElement as HTMLElement).innerHTML).toContain('href="/pg/about-1-5-1"');
   });
 
   it('shows only the static sections when the slug matches no page', async () => {

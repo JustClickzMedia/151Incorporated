@@ -8,7 +8,7 @@
     <div class="container">
       @if (page(); as pagelments) {
         <div class="row">
-          <div class="col-md-12 col-lg-6 bg crnRds text-justify" [innerHTML]="pagelments.excerpt.rendered | linkcss:pagelments.id:pagelments.title.rendered">
+          <div class="col-md-12 col-lg-6 bg crnRds text-justify" [innerHTML]="pagelments.excerpt.rendered | linkcss:pagelments.slug">
           </div>
           <div class="col-md-12 col-lg-1 d-none d-md-block d-lg-block">
             <br/>

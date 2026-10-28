@@ -30,6 +30,7 @@ describe('NavbarComponent', () => {
     await fixture.whenStable();
     const links = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.navbar-nav.mr-auto a'));
     expect(links.map(a => a.textContent?.trim())).toEqual(['MEMBERSHIP', 'MOTO']);
+    expect(links.map(a => a.getAttribute('href'))).toEqual(['/pg/membership', '/pg/moto']);
   });
 
   it('toggles the collapsed menu', async () => {

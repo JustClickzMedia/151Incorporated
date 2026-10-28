@@ -5,6 +5,7 @@ import { PagedetailsComponent } from './Components/pagedetails/pagedetails.compo
 import { PagenotfoundComponent } from './Components/pagenotfound/pagenotfound.component';
 import { DetailsComponent } from './Components/details/details.component';
 import { SearchresultsComponent } from './Components/searchresults/searchresults.component';
+import { legacyPageRedirectGuard } from './legacy-page-redirect.guard';
 
 export const routes: Routes = [
     {
@@ -17,9 +18,19 @@ export const routes: Routes = [
           
       },
       {
-        path : 'pg/:id/:title',
+        // WordPress pages are addressed by slug, e.g. /pg/about-1-5-1
+        path : 'pg/:slug',
         component : DetailsComponent
-          
+      },
+      {
+        // Old links (/pg/19/1-5-1 History): look the ID up and redirect to /pg/<slug>, or show the 404 view
+        path : 'pg/:id/:title',
+        canActivate : [legacyPageRedirectGuard],
+        children : []
+      },
+      {
+        path : '404',
+        component : PagenotfoundComponent
       },
       {
         path : 'pst/:id/:title',
