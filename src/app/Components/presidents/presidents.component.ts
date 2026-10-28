@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import { WordpressService } from '../../Services/wordpress.service';
 import { Observable } from 'rxjs/internal/Observable';
 import { CommonModule } from '@angular/common';
@@ -13,11 +13,10 @@ import { RouterLink } from '@angular/router';
     imports: [CommonModule, LinkcssPipe, RouterLink]
 })
 export class PresidentsComponent implements OnInit {
-  page$ : Observable<any>;
-  posts$ : Observable<any[]>;
+  private wp = inject(WordpressService);
 
-  constructor(private wp : WordpressService) {
-  } 
+  page$ : Observable<any>;
+  posts$ : Observable<any[]>; 
 
   ngOnInit() {
     this.page$ = this.wp.getPage(13);

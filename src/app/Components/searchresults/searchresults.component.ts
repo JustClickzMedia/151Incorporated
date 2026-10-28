@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { WordpressService } from '../../Services/wordpress.service';
 import { Observable } from 'rxjs/internal/Observable';
@@ -14,12 +14,14 @@ import { RouterLink } from '@angular/router';
     imports: [CommonModule, RouterLink]
 })
 export class SearchresultsComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private wpService = inject(WordpressService);
+
 
   searchResults$: Observable<any[]>;
   term: string;
 
-  constructor(private route: ActivatedRoute,
-              private wpService: WordpressService,) { 
+  constructor() { 
     this.route.paramMap.subscribe(params => {
       //fetch your new parameters here, on which you are switching the routes and call ngOnInit()
       this.ngOnInit();

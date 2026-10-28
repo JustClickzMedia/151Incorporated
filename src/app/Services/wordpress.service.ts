@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -7,13 +7,13 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class WordpressService {
+  private http = inject(HttpClient);
+
 
   // REST base comes from environment.ts / environment.prod.ts (kept until GraphQL replacements are verified)
   baseUrl: string = environment.restUrl;
   url: string;
   rtnval : Observable<any[]>;
-
-  constructor(private http: HttpClient) { }
 
   getPosts(): Observable<any[]> {
     return this.http.get<any[]>(this.baseUrl + 'posts?_embed', {

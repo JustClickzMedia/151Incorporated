@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule, Location } from '@angular/common';
 import { WordpressService } from '../../Services/wordpress.service';
@@ -20,16 +20,18 @@ import { SidbarpostsComponent } from '../../Components/sidbarposts/sidbarposts.c
     imports: [CommonModule, SidbarpostsComponent]
 })
 export class PostdetailsComponent implements OnInit, OnDestroy {
+  private route = inject(ActivatedRoute);
+  private wpService = inject(WordpressService);
+  private location = inject(Location);
+  private router = inject(Router);
+  private seo = inject(SeoService);
+
   post : any;
   posts$ : Observable<any[]>;
   getPostService : Subscription;
   paramInit : Subscription;
 
-  constructor( private route: ActivatedRoute,
-               private wpService: WordpressService,
-               private location: Location,
-               private router: Router,
-               private seo: SeoService) { 
+  constructor() { 
                 
               this.paramInit = this.route.paramMap.subscribe(params => {
                 //fetch your new parameters here, on which you are switching the routes and call ngOnInit()

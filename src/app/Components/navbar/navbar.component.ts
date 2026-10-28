@@ -1,6 +1,6 @@
-import { Component, HostListener, OnInit, DOCUMENT, ChangeDetectionStrategy } from '@angular/core';
+import { Component, HostListener, OnInit, DOCUMENT, ChangeDetectionStrategy, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { Inject } from '@angular/core';
+
 import { Observable } from 'rxjs/internal/Observable';
 import { WordpressService } from '../../Services/wordpress.service';
 import { CommonModule } from '@angular/common'
@@ -15,6 +15,10 @@ import { RouterLinkActive, RouterLink } from '@angular/router';
     imports: [CommonModule, RouterLinkActive, RouterLink]
 })
 export class NavbarComponent implements OnInit {
+  private document = inject<Document>(DOCUMENT);
+  private router = inject(Router);
+  private wp = inject(WordpressService);
+
 
  
   logo:any = "/images/151Logo.png";
@@ -22,10 +26,6 @@ export class NavbarComponent implements OnInit {
   navbarOpen = false;
   buttonbrdcolor = "";
   iconlnimage = "";
-
-  constructor(@Inject(DOCUMENT) private document: Document,
-              private router: Router,
-              private wp: WordpressService) { }
 
   search(term: string): void {
     console.log('searchterm: ' + term);

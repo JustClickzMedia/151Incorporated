@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WordpressService } from '../../Services/wordpress.service';
 import { Observable } from 'rxjs/internal/Observable';
@@ -13,10 +13,10 @@ import { IPostData } from '../../Model/IPostData';
     imports: [RouterLink, CommonModule]
 })
 export class SidbarpostsComponent implements OnInit {
+  private wpService = inject(WordpressService);
+
 
   posts$ : Observable<any[]>;
-
-  constructor(private wpService: WordpressService,) { }
 
   ngOnInit() {
     this.posts$ = this.wpService.getPosts();
