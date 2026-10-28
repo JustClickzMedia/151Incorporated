@@ -114,3 +114,32 @@
   - The `HomebuttonsectionComponent` import is unused.
   - The SSR host list may need the real deploy hostname.
   - Next: inject()/signals, zoneless, Vitest, and the `@angular/build` builder.
+
+## 2026-10-28 — Architecture step 1: inject() + signals
+
+- **Branch:** `feature/angular-graphql-migration`
+- **Commits:**
+  - `refactor: constructor injection -> inject()` (Angular's migration)
+  - `refactor: component state to signals`
+- **Files changed:**
+  - Components: `presidents`, `sidbarposts`, `navbar`, `pagedetails`, `postdetails`, `searchresults` (`.ts` and `.html` for each)
+  - New: `src/app/Services/rx-fallback.ts`
+  - Services: `seo.service.ts`, `wordpress.service.ts` (`inject()` only)
+  - Specs: app, details, presidents, navbar, pagedetails, postdetails, searchresults
+- **Behavior:**
+  - Same REST calls, same rendered output.
+  - Detail and search pages now make one request per route change; before, they made two on load.
+  - Route subscriptions are now cleaned up automatically.
+  - Errors are logged and the section stays empty, as before.
+- **Tested:**
+  - Production and development builds succeed.
+  - `ng test`: **30/30 pass** (was 15/8). New behavior tests cover:
+    - Rendering from mocked REST.
+    - Re-fetching when the route param changes.
+    - The 404 fallback (page 13). A mutation check confirmed this test fails if the fallback is removed.
+    - Menu rendering and toggling.
+  - SSR returns 200 for `/`, `/pg/…`, `/pst/…` and `/search/…`.
+- **Not tested:** live staging/production REST from the sandbox; a manual browser check.
+- **Open issues:**
+  - Change detection is still `Eager` + zone.js. That's the next step (zoneless).
+  - Homepage still uses page ID 13 (Task 2).
