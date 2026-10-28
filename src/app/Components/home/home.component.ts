@@ -8,7 +8,6 @@ import { PresidentsComponent } from '../../Components/presidents/presidents.comp
     selector: 'app-home',
     templateUrl: './home.component.html',
     styleUrls: ['./home.component.css'],
-    standalone: true,
     imports: [CarouselComponent, HomebuttonsectionComponent, PresidentsComponent]
 })
 export class HomeComponent implements OnInit {

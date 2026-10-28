@@ -9,8 +9,7 @@ import { RouterLink } from '@angular/router';
     selector: 'app-presidents',
     templateUrl: './presidents.component.html',
     styleUrls: ['./presidents.component.css'],
-    imports: [ CommonModule, LinkcssPipe, RouterLink ],
-    standalone: true
+    imports: [CommonModule, LinkcssPipe, RouterLink]
 })
 export class PresidentsComponent implements OnInit {
   page$ : Observable<any>;

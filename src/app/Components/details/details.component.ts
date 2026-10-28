@@ -5,8 +5,7 @@ import { PagedetailsComponent } from '../../Components/pagedetails/pagedetails.c
     selector: 'app-details',
     templateUrl: './details.component.html',
     styleUrls: ['./details.component.css'],
-    imports: [ PagedetailsComponent ],
-    standalone: true
+    imports: [PagedetailsComponent]
 })
 export class DetailsComponent implements OnInit {
 

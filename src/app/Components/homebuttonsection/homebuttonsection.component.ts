@@ -6,8 +6,7 @@ import { faUserTie, faUserGraduate, faUsers } from '@fortawesome/free-solid-svg-
     selector: 'app-homebuttonsection',
     templateUrl: './homebuttonsection.component.html',
     styleUrls: ['./homebuttonsection.component.css'],
-    imports: [FontAwesomeModule],
-    standalone: true
+    imports: [FontAwesomeModule]
 })
 export class HomebuttonsectionComponent implements OnInit {
   constructor() { }

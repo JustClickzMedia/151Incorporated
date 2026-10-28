@@ -16,8 +16,7 @@ import { SidbarpostsComponent } from '../../Components/sidbarposts/sidbarposts.c
     selector: 'app-postdetails',
     templateUrl: './postdetails.component.html',
     styleUrls: ['./postdetails.component.css'],
-    imports: [ CommonModule, SidbarpostsComponent],
-    standalone: true
+    imports: [CommonModule, SidbarpostsComponent]
 })
 export class PostdetailsComponent implements OnInit, OnDestroy {
   post : any;

@@ -11,8 +11,7 @@ import { RouterLinkActive, RouterLink } from '@angular/router';
     selector: 'app-navbar',
     templateUrl: './navbar.component.html',
     styleUrls: ['./navbar.component.css'],
-    imports: [ CommonModule, RouterLinkActive, RouterLink ],
-    standalone: true
+    imports: [CommonModule, RouterLinkActive, RouterLink]
 })
 export class NavbarComponent implements OnInit {
 

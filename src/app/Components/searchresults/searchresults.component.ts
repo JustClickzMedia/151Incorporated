@@ -10,8 +10,7 @@ import { RouterLink } from '@angular/router';
     selector: 'app-searchresults',
     templateUrl: './searchresults.component.html',
     styleUrls: ['./searchresults.component.css'],
-    imports: [ CommonModule, RouterLink ],
-    standalone: true
+    imports: [CommonModule, RouterLink]
 })
 export class SearchresultsComponent implements OnInit {
 

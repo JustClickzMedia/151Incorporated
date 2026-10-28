@@ -9,8 +9,7 @@ import { IPostData } from '../../Model/IPostData';
     selector: 'app-sidbarposts',
     templateUrl: './sidbarposts.component.html',
     styleUrls: ['./sidbarposts.component.css'],
-    imports: [ RouterLink, CommonModule ],
-    standalone: true
+    imports: [RouterLink, CommonModule]
 })
 export class SidbarpostsComponent implements OnInit {
 
