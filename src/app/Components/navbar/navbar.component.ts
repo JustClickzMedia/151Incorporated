@@ -34,7 +34,7 @@ export class NavbarComponent implements OnInit {
     this.navbarOpen = !this.navbarOpen;
   }
 
-  @HostListener('document:scroll',['$event'])
+  @HostListener('document:scroll')
   public onViewportScroll() {
     var yOffset = 0
     var currYOffSet = window.pageYOffset;
