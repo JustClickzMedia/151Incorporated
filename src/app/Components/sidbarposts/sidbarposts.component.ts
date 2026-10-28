@@ -1,27 +1,19 @@
-import { Component, OnInit,  } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { WordpressService } from '../../Services/wordpress.service';
-import { Observable } from 'rxjs/internal/Observable';
+import { withFallback } from '../../Services/rx-fallback';
 import { RouterLink } from '@angular/router';
-import { IPostData } from '../../Model/IPostData';
-import { async } from '@angular/core/testing';
 
 @Component({
     selector: 'app-sidbarposts',
     templateUrl: './sidbarposts.component.html',
     styleUrls: ['./sidbarposts.component.css'],
-    imports: [ RouterLink, CommonModule ],
-    standalone: true
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [RouterLink, CommonModule]
 })
-export class SidbarpostsComponent implements OnInit {
+export class SidbarpostsComponent {
+  private wpService = inject(WordpressService);
 
-  posts$ : Observable<any[]>;
-
-  constructor(private wpService: WordpressService,) { }
-
-  ngOnInit() {
-    this.posts$ = this.wpService.getPosts();
-  }
-
-  
+  readonly posts = toSignal(this.wpService.getPosts().pipe(withFallback<any[]>([])), { initialValue: [] as any[] });
 }

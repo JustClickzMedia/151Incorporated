@@ -1,19 +1,21 @@
-<section > 
-    <div class="container bgPage mbMargin">
-        <div class="row">
-            <div class="col-12 col-lg-6 text-justify hdtitle">
-                <h4>Search results for {{term}}</h4>
-            </div>      
-        </div>
-        <div class="row">
-            <div class="col-12 col-lg-6">
-                <ul id="postNav">
-                <li class="nav-item" *ngFor="let result of searchResults$ | async">
-                    <a class="nav-link" routerLink="/pst/{{ result.id }}/{{ result.title.rendered }}">{{ result.title.rendered }}</a>
-                    <p>{{ result.date | date:'longDate' }} | {{ result.date | date:'shortTime' }}</p>
-                </li>
-                </ul> 
-            </div>
-        </div> 
+<section >
+  <div class="container bgPage mbMargin">
+    <div class="row">
+      <div class="col-12 col-lg-6 text-justify hdtitle">
+        <h4>Search results for {{term()}}</h4>
+      </div>
     </div>
+    <div class="row">
+      <div class="col-12 col-lg-6">
+        <ul id="postNav">
+          @for (result of searchResults(); track result.id) {
+            <li class="nav-item">
+              <a class="nav-link" routerLink="/pst/{{ result.id }}/{{ result.title.rendered }}">{{ result.title.rendered }}</a>
+              <p>{{ result.date | date:'longDate' }} | {{ result.date | date:'shortTime' }}</p>
+            </li>
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
 </section>

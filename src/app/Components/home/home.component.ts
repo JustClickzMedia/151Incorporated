@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import { SeoService } from '../../Services/seo.service';
 import { CarouselComponent } from '../../Components/carousel/carousel.component';
 import { HomebuttonsectionComponent } from '../../Components/homebuttonsection/homebuttonsection.component';
@@ -8,12 +8,12 @@ import { PresidentsComponent } from '../../Components/presidents/presidents.comp
     selector: 'app-home',
     templateUrl: './home.component.html',
     styleUrls: ['./home.component.css'],
-    standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CarouselComponent, HomebuttonsectionComponent, PresidentsComponent]
 })
 export class HomeComponent implements OnInit {
+  private seo = inject(SeoService);
 
-  constructor(private seo: SeoService) { }
 
   ngOnInit() {
     this.seo.addMetaTags();

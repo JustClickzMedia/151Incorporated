@@ -1,35 +1,31 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
+import { map, switchMap } from 'rxjs/operators';
 import { WordpressService } from '../../Services/wordpress.service';
-import { Observable } from 'rxjs/internal/Observable';
+import { withFallback } from '../../Services/rx-fallback';
 import { CommonModule } from '@angular/common';
-import { IPostData } from '../../Model/IPostData'
 import { RouterLink } from '@angular/router';
 
 @Component({
     selector: 'app-searchresults',
     templateUrl: './searchresults.component.html',
     styleUrls: ['./searchresults.component.css'],
-    imports: [ CommonModule, RouterLink ],
-    standalone: true
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [CommonModule, RouterLink]
 })
-export class SearchresultsComponent implements OnInit {
+export class SearchresultsComponent {
+  private route = inject(ActivatedRoute);
+  private wpService = inject(WordpressService);
 
-  searchResults$: Observable<any[]>;
-  term: string;
+  private readonly term$ = this.route.paramMap.pipe(map(params => params.get('term')));
 
-  constructor(private route: ActivatedRoute,
-              private wpService: WordpressService,) { 
-    this.route.paramMap.subscribe(params => {
-      //fetch your new parameters here, on which you are switching the routes and call ngOnInit()
-      this.ngOnInit();
-      //this.meta.updateTag({ name: 'description', content: this.tposts.date });
-    });
-  }
+  /** Search term from the route; updates when navigating between searches. */
+  readonly term = toSignal(this.term$, { initialValue: this.route.snapshot.paramMap.get('term') });
 
-  ngOnInit() {
-    this.term = this.route.snapshot.paramMap.get('term');
-    this.searchResults$ = this.wpService.getSearch(this.term);
-  }
-
+  /** One request per term (the old code requested twice on load and never unsubscribed). */
+  readonly searchResults = toSignal(
+    this.term$.pipe(switchMap(term => this.wpService.getSearch(term).pipe(withFallback<any[]>([])))),
+    { initialValue: [] as any[] }
+  );
 }

@@ -3,7 +3,10 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  // Staging WordPress (docs/graphql-contract.md section 1). Public, anonymous endpoints only: no secrets here.
+  graphqlUrl: 'https://tzin.brothersof1-5-1.org/staging/1848/graphql',
+  restUrl: 'https://tzin.brothersof1-5-1.org/staging/1848/wp-json/wp/v2/'
 };
 
 /*

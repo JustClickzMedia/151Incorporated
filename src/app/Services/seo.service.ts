@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Meta } from '@angular/platform-browser';
 import { Title } from '@angular/platform-browser';
 
@@ -6,8 +6,13 @@ import { Title } from '@angular/platform-browser';
   providedIn: 'root'
 })
 export class SeoService {
+  private meta = inject(Meta);
+  private titleService = inject(Title);
 
-  constructor(private meta: Meta, private titleService: Title) { 
+
+  constructor() {
+    const meta = this.meta;
+ 
     meta.addTag({name: 'description', content: 'Title and Meta tags examples'});
     meta.addTag({name: 'viewport', content: 'width=device-width, initial-scale=1'}); 
   }

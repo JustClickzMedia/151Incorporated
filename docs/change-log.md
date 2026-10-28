@@ -52,3 +52,94 @@
 - **Side effect noted:** the HostGator plugin appears to have been switched on in production when the Staging tool was opened.
 - **Outstanding:** homepage slug decision; promotion to production (approval needed); batching and caching decisions; disable REST for New Prospects.
 - **Next steps:** owner review → Angular builds against the staging contract → promote to production. → production REST fix (approval) → backups → staging
+
+## 2026-10-28 — Angular Task 1: API URLs moved into environment config
+
+- **Branch:** `feature/angular-graphql-migration` (from `chore/backend-graphql-hardening`)
+- **Files changed:**
+  - `src/environments/environment.ts`: adds `graphqlUrl` and `restUrl` (staging `/staging/1848/`)
+  - `src/environments/environment.prod.ts`: adds `graphqlUrl` and `restUrl` (production). GraphQL isn't called yet
+  - `src/app/Services/wordpress.service.ts`: `baseUrl` now reads `environment.restUrl`; the hard-coded `wp-json` URL is removed
+  - `angular.json`: the production build now swaps in `environment.prod.ts`. There was no `fileReplacements` before, so `environment.prod.ts` was never used
+  - `src/app/Services/wordpress.service.spec.ts`: tests the URL source and that REST calls are unchanged
+- **Behavior:** production builds still call production REST, as before. `ng serve` (development) now calls staging REST. REST code paths are unchanged. No GraphQL calls yet.
+- **Tested:**
+  - `ng build` (production) and `ng build --configuration development` both succeed.
+  - The production bundle contains only production URLs; the development bundle contains only staging URLs.
+  - `ng test`: 12 pass / 11 fail. The baseline before this change was 7 / 12.
+  - The 11 remaining failures already existed: component specs are missing `HttpClient`/router test providers.
+  - The build was verified with font inlining off, because the build sandbox can't reach `fonts.googleapis.com`.
+  - Nothing was tested against the live staging endpoint (the build sandbox can't reach it).
+- **Open issues:**
+  - The 11 component specs that already fail.
+  - `.angular/cache` is tracked in git; it should be ignored.
+  - Prerendering calls WordPress REST at build time.
+  - Homepage slug is TBD (Task 2).
+  - The Angular upgrade (17 → 22) is next, per the owner.
+
+## 2026-10-28 — Angular upgrade 17.3 → 22.2 (version steps + control flow)
+
+- **Branch:** `feature/angular-graphql-migration`
+- **Commits:** one per major version (18, 19, 20, 21, 22), plus:
+  - one commit to untrack `.angular/cache`
+  - one commit for the `@if`/`@for` control-flow migration
+- **Files changed:**
+  - Dependencies: `package.json` and `package-lock.json`
+  - Config: `angular.json` (generation defaults), `tsconfig*.json`, `.gitignore`
+  - Server and bootstrap: `server.ts`, `src/main.ts`, `src/main.server.ts`, `src/app/app.config*.ts`
+  - Components: every `src/app/Components/*/*.component.ts`, plus 6 component templates
+  - Tests: all spec files (`async` → `waitForAsync`)
+- **Notable fixes needed during the upgrade:**
+  - 3 components imported the test-only `async` helper (removed in v18).
+  - The navbar `@HostListener` passed an unused `$event` (an error in v21).
+  - `@types/node` had to move to ^22.12 (a vite peer requirement).
+  - `@fortawesome/angular-fontawesome` was stepped 0.14 → 5.1, one version per Angular major.
+  - SSR `CommonEngine` now needs `allowedHosts`. Without it, every SSR request returned 500.
+- **Behavior kept on purpose (until the architecture step):**
+  - zone.js change detection (`provideZoneChangeDetection()`)
+  - `ChangeDetectionStrategy.Eager` on components (v22 defaults to OnPush)
+  - No incremental hydration
+  - Karma as the test runner
+  - `@angular-devkit/build-angular` builders
+- **Tested at every step:**
+  - Production and development builds succeed (font inlining was off in the sandbox only).
+  - Production bundle → production URLs; development bundle → staging URLs.
+  - `ng test` in headless Chromium: 15 pass / 8 fail at v22, up from 12/11. The 8 remaining failures already existed (missing `ActivatedRoute`/router test providers).
+  - SSR server smoke test: `/` and `/pg/...` return 200; a non-allow-listed host is rejected.
+  - `package-lock.json` installs with both npm 10 and npm 11 (`npm ci`).
+- **Not tested:** live staging calls (the sandbox can't reach the staging host); a manual browser check.
+- **Open issues:**
+  - The 8 component specs that already fail.
+  - Prerendering calls WordPress at build time.
+  - The `HomebuttonsectionComponent` import is unused.
+  - The SSR host list may need the real deploy hostname.
+  - Next: inject()/signals, zoneless, Vitest, and the `@angular/build` builder.
+
+## 2026-10-28 — Architecture step 1: inject() + signals
+
+- **Branch:** `feature/angular-graphql-migration`
+- **Commits:**
+  - `refactor: constructor injection -> inject()` (Angular's migration)
+  - `refactor: component state to signals`
+- **Files changed:**
+  - Components: `presidents`, `sidbarposts`, `navbar`, `pagedetails`, `postdetails`, `searchresults` (`.ts` and `.html` for each)
+  - New: `src/app/Services/rx-fallback.ts`
+  - Services: `seo.service.ts`, `wordpress.service.ts` (`inject()` only)
+  - Specs: app, details, presidents, navbar, pagedetails, postdetails, searchresults
+- **Behavior:**
+  - Same REST calls, same rendered output.
+  - Detail and search pages now make one request per route change; before, they made two on load.
+  - Route subscriptions are now cleaned up automatically.
+  - Errors are logged and the section stays empty, as before.
+- **Tested:**
+  - Production and development builds succeed.
+  - `ng test`: **30/30 pass** (was 15/8). New behavior tests cover:
+    - Rendering from mocked REST.
+    - Re-fetching when the route param changes.
+    - The 404 fallback (page 13). A mutation check confirmed this test fails if the fallback is removed.
+    - Menu rendering and toggling.
+  - SSR returns 200 for `/`, `/pg/…`, `/pst/…` and `/search/…`.
+- **Not tested:** live staging/production REST from the sandbox; a manual browser check.
+- **Open issues:**
+  - Change detection is still `Eager` + zone.js. That's the next step (zoneless).
+  - Homepage still uses page ID 13 (Task 2).
