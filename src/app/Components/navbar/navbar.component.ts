@@ -1,9 +1,9 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, DOCUMENT } from '@angular/core';
 import { Router } from '@angular/router';
 import { Inject } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
 import { WordpressService } from '../../Services/wordpress.service';
-import { CommonModule, DOCUMENT } from '@angular/common'
+import { CommonModule } from '@angular/common'
 import { RouterLinkActive, RouterLink } from '@angular/router';
 //import { SearchboxComponent } from '../../Components/searchbox/searchbox.component'
 
