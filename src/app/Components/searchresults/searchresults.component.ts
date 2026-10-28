@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { WordpressService } from '../../Services/wordpress.service';
 import { Observable } from 'rxjs/internal/Observable';
@@ -10,6 +10,7 @@ import { RouterLink } from '@angular/router';
     selector: 'app-searchresults',
     templateUrl: './searchresults.component.html',
     styleUrls: ['./searchresults.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, RouterLink]
 })
 export class SearchresultsComponent implements OnInit {

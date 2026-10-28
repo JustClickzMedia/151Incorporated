@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit, DOCUMENT } from '@angular/core';
+import { Component, HostListener, OnInit, DOCUMENT, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Inject } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
@@ -11,6 +11,7 @@ import { RouterLinkActive, RouterLink } from '@angular/router';
     selector: 'app-navbar',
     templateUrl: './navbar.component.html',
     styleUrls: ['./navbar.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, RouterLinkActive, RouterLink]
 })
 export class NavbarComponent implements OnInit {

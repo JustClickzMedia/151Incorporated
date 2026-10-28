@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { WordpressService } from '../../Services/wordpress.service';
 import { Observable } from 'rxjs/internal/Observable';
 import { CommonModule } from '@angular/common';
@@ -9,6 +9,7 @@ import { RouterLink } from '@angular/router';
     selector: 'app-presidents',
     templateUrl: './presidents.component.html',
     styleUrls: ['./presidents.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, LinkcssPipe, RouterLink]
 })
 export class PresidentsComponent implements OnInit {

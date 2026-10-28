@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { WordpressService } from './wordpress.service';
@@ -11,7 +11,7 @@ describe('WordpressService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [WordpressService, provideHttpClient(), provideHttpClientTesting()]
+      providers: [WordpressService, provideHttpClient(withXhr()), provideHttpClientTesting()]
     });
     service = TestBed.inject(WordpressService);
     httpMock = TestBed.inject(HttpTestingController);

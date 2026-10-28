@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faUserTie, faUserGraduate, faUsers } from '@fortawesome/free-solid-svg-icons';
 
@@ -6,6 +6,7 @@ import { faUserTie, faUserGraduate, faUsers } from '@fortawesome/free-solid-svg-
     selector: 'app-homebuttonsection',
     templateUrl: './homebuttonsection.component.html',
     styleUrls: ['./homebuttonsection.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [FontAwesomeModule]
 })
 export class HomebuttonsectionComponent implements OnInit {
