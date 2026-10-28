@@ -6,7 +6,10 @@ export const environment = {
   production: false,
   // Staging WordPress (docs/graphql-contract.md section 1). Public, anonymous endpoints only: no secrets here.
   graphqlUrl: 'https://tzin.brothersof1-5-1.org/staging/1848/graphql',
-  restUrl: 'https://tzin.brothersof1-5-1.org/staging/1848/wp-json/wp/v2/'
+  restUrl: 'https://tzin.brothersof1-5-1.org/staging/1848/wp-json/wp/v2/',
+  // TODO(homepage): Kenneth hasn't chosen the homepage yet. Set this to the WordPress page slug
+  // (e.g. 'about-1-5-1'). Empty = don't request a page; the homepage shows only its static sections.
+  homepageSlug: ''
 };
 
 /*
