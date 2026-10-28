@@ -143,3 +143,26 @@
 - **Open issues:**
   - Change detection is still `Eager` + zone.js. That's the next step (zoneless).
   - Homepage still uses page ID 13 (Task 2).
+
+## 2026-10-28 — Angular Task 2: homepage loaded by slug (not page ID 13)
+
+- **Branch:** `feature/angular-graphql-migration`
+- **Files changed:**
+  - `src/environments/environment.ts` and `environment.prod.ts`: new `homepageSlug: ''`, with a TODO for when the homepage is chosen
+  - New `src/app/homepage.config.ts`: a `HOMEPAGE_SLUG` token that defaults to `environment.homepageSlug`
+  - `src/app/Services/wordpress.service.ts`: new `getPageBySlug()` (REST `pages?slug=…&_embed`). The GraphQL `page(id: $slug, idType: URI)` comes with the GraphQL client (Task 4)
+  - `src/app/Components/presidents/presidents.component.ts`: loads the page by slug. With an empty slug it makes no request
+  - Specs: `presidents.component.spec.ts`, `wordpress.service.spec.ts`
+- **Behavior:**
+  - The `pages/13` request (404 `rest_post_invalid_id`) is gone.
+  - With no slug set, the homepage shows its static sections ("God Before All", Strategic Objectives, News & Upcoming Events), the same as it looks today.
+  - `getPage(id)` is unchanged, because the `pg/:id/:title` route still uses it until Task 3.
+- **Tested:**
+  - Production and development builds succeed.
+  - `ng test`: **35/35 pass**. Tests cover:
+    - No page request when the slug is empty.
+    - Slug lookup and render, including the "Continue Read More" link.
+    - Slug not found.
+    - Request failure.
+  - No `pages/13` reference remains in the source.
+- **Open issues:** Kenneth to choose the homepage slug. Candidates: `membership`, `president`, `about-1-5-1`, `moto`, `scholarship`, `foundation`.

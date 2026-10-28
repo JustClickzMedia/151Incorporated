@@ -1,7 +1,8 @@
-import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { WordpressService } from '../../Services/wordpress.service';
 import { withFallback } from '../../Services/rx-fallback';
+import { HOMEPAGE_SLUG } from '../../homepage.config';
 import { CommonModule } from '@angular/common';
 import { LinkcssPipe } from '../../Pipes/linkcss.pipe'
 import { RouterLink } from '@angular/router';
@@ -15,8 +16,12 @@ import { RouterLink } from '@angular/router';
 })
 export class PresidentsComponent {
   private wp = inject(WordpressService);
+  private homepageSlug = inject(HOMEPAGE_SLUG);
 
-  // TODO(Task 2): page ID 13 doesn't exist; load the homepage by a configurable slug instead.
-  readonly page = toSignal(this.wp.getPage(13).pipe(withFallback<any>(undefined)));
+  /** Homepage page, loaded by slug (not by ID). No slug configured yet = no request. */
+  readonly page = this.homepageSlug
+    ? toSignal(this.wp.getPageBySlug(this.homepageSlug).pipe(withFallback<any>(undefined)))
+    : signal<any>(undefined).asReadonly();
+
   readonly posts = toSignal(this.wp.getPosts().pipe(withFallback<any[]>([])), { initialValue: [] as any[] });
 }

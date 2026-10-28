@@ -45,4 +45,25 @@ describe('WordpressService', () => {
     expect(req.request.params.get('per_page')).toBe('6');
     req.flush([]);
   });
+
+  it('getPageBySlug() queries pages by slug and emits the first match', () => {
+    let result: any = 'unset';
+    service.getPageBySlug('about-1-5-1').subscribe(p => result = p);
+    const req = httpMock.expectOne(r => r.url === environment.restUrl + 'pages');
+    expect(req.request.params.get('slug')).toBe('about-1-5-1');
+    expect(req.request.params.has('_embed')).toBeTrue();
+    req.flush([{ id: 42, slug: 'about-1-5-1' }]);
+    expect(result.id).toBe(42);
+  });
+
+  it('getPageBySlug() emits undefined when no page has that slug', () => {
+    let result: any = 'unset';
+    service.getPageBySlug('nope').subscribe(p => result = p);
+    httpMock.expectOne(r => r.url === environment.restUrl + 'pages').flush([]);
+    expect(result).toBeUndefined();
+  });
+
+  it('defines an empty homepage slug until the homepage is chosen', () => {
+    expect(environment.homepageSlug).toBe('');
+  });
 });
