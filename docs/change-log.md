@@ -311,3 +311,26 @@
 - **Open issues:**
   - The rest of `Nav-changes` isn't in `master`: navbar logo and button colours, hover styles, removed page top margin, `.img-overlay`, a `homemainimage` component and a navbar rewrite. Deploying `master` would drop those; they need to be merged on purpose.
   - Add a link field to the carousel type, then remove `carousel-links.ts`.
+
+## 2026-10-28 — Task 5 follow-up 2: slides sized to the image, not stretched to full screen height
+
+- **Branch:** `feature/graphql-carousel`
+- **Problem:**
+  - With `height: 100vh` plus `object-fit: cover`, phones got the right image (for example `BismarkMobile320X480.jpg`), but it was enlarged to fill the full screen height.
+  - On a 393×852 phone, a 320×480 image was scaled about 1.8×, and both sides were cut off, so it didn't look resized.
+- **Fix** (`carousel.component.css`):
+  - Each slide takes the shape of that screen size's images, using the same media queries as the `<picture>` sources: 16:9 desktop, 1024:493 laptop, 4:3 tablet landscape, 601:962 tablet portrait, 3:2 phone landscape, 9:16 phone portrait.
+  - Slides are capped at the screen height (`max-height: 100svh`).
+  - The whole photo now shows, scaled to the screen width. `cover` only trims images whose shape differs slightly from the standard.
+- **Checked live on `ng serve`** (Chrome on the Mac):
+
+  | Viewport | Slide size | Image |
+  |---|---|---|
+  | 393×852 phone | 393×699 | `…mobileportrait.jpg` (360×640) |
+  | 812×375 phone landscape | 812×375 | 480×320 |
+  | 768×1024 tablet | 768×1024 | 601×962 |
+  | 1180×820 tablet | 1180×820 | 1024×640 |
+  | 1366×768 laptop | 1366×658 | 1024×493 |
+  | 1920×1080 desktop | 1920×1080 | 1024×576 |
+- **Tested:** `ng test` **91/91 pass** (new: slide has an aspect ratio and is no taller than the screen).
+- **Content:** the phone images are only 320–360 px wide, so they look soft on 2× and 3× phone screens. Uploading phone images at about 1080×1920 and desktop images at 1920×1080 would make them sharp.

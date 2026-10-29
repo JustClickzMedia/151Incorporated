@@ -46,6 +46,16 @@ describe('CarouselComponent', () => {
     el().remove();
   });
 
+  it('sizes each slide to the shape of the image for the screen, not to the full screen height', async () => {
+    await setup(false);
+    document.body.appendChild(el());
+    await render();
+    const slide = el().querySelector('.carousel-item.active') as HTMLElement;
+    expect(getComputedStyle(slide).aspectRatio).not.toBe('auto');
+    expect(slide.getBoundingClientRect().height).toBeLessThanOrEqual(window.innerHeight + 1);
+    el().remove();
+  });
+
   describe('GraphQL off (production until promotion)', () => {
     beforeEach(() => setup(false));
 

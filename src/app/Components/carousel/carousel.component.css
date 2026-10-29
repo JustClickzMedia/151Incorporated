@@ -1,13 +1,32 @@
 /*
- * Full-screen hero carousel, matching the live site's design (Nav-changes branch): each slide fills the
- * viewport with a dark overlay and a centred caption + button.
- * Unlike the live site, images are cropped to fit (object-fit: cover) instead of stretched, and each slide
- * uses the image made for the screen size (see the <picture> sources).
+ * Hero carousel in the live site's design (Nav-changes branch): dark overlay with a centred caption + button.
+ * Each slide has the shape of the image made for the current screen (same media queries as the <picture>
+ * sources in the template), so the whole photo is shown, scaled to the screen width, instead of being
+ * zoomed in to fill the full screen height. It never gets taller than the screen.
+ * object-fit: cover only trims an image whose shape differs slightly from the standard for that size
+ * (e.g. the 320x480 Bismarck phone image in the 9:16 phone slot).
  */
 .carousel-item {
   background-color: #670001;
-  height: 100vh;
-  height: 100svh; /* mobile browsers: don't size to behind the address bar */
+  aspect-ratio: 16 / 9;            /* desktop landscape images: 1920x1080 design (1024x576 uploaded) */
+  max-height: 100vh;
+  max-height: 100svh;              /* mobile browsers: don't size to behind the address bar */
+}
+
+@media (max-width: 1440px) {
+  .carousel-item { aspect-ratio: 1024 / 493; }    /* desktop "portrait" images (1296x624 design) */
+}
+@media (max-width: 1280px) and (orientation: landscape) {
+  .carousel-item { aspect-ratio: 4 / 3; }         /* tablet landscape images */
+}
+@media (max-width: 1024px) and (orientation: portrait) {
+  .carousel-item { aspect-ratio: 601 / 962; }     /* tablet portrait images */
+}
+@media (max-height: 480px) and (orientation: landscape) {
+  .carousel-item { aspect-ratio: 3 / 2; }         /* phone landscape images (480x320) */
+}
+@media (max-width: 480px) and (orientation: portrait) {
+  .carousel-item { aspect-ratio: 9 / 16; }        /* phone portrait images (360x640) */
 }
 
 .carousel-item picture,
