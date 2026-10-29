@@ -1,4 +1,5 @@
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 import { CarouselComponent } from './carousel.component';
 
@@ -8,7 +9,8 @@ describe('CarouselComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-    imports: [CarouselComponent]
+    imports: [CarouselComponent],
+    providers: [provideRouter([])]
 })
     .compileComponents();
   }));
@@ -21,5 +23,11 @@ describe('CarouselComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('links the History slide to the about-1-5-1 page by slug', () => {
+    const link = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('a'))
+      .find(a => a.textContent?.includes('Bismarck Hotel'));
+    expect(link?.getAttribute('href')).toBe('/pg/about-1-5-1');
   });
 });

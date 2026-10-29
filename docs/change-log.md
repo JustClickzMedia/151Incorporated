@@ -166,3 +166,31 @@
     - Request failure.
   - No `pages/13` reference remains in the source.
 - **Open issues:** Kenneth to choose the homepage slug. Candidates: `membership`, `president`, `about-1-5-1`, `moto`, `scholarship`, `foundation`.
+
+## 2026-10-28 — Angular Task 3: page route by slug (`pg/:slug`)
+
+- **Branch:** `feature/angular-graphql-migration` (adds to PR #7)
+- **Files changed:**
+  - `src/app/app.routes.ts`: new `pg/:slug` route; the old `pg/:id/:title` route now goes through a redirect guard; new `404` route
+  - New `src/app/legacy-page-redirect.guard.ts`: looks up the old page ID (REST `pages/<id>?_fields=slug`) and redirects to `/pg/<slug>`, replacing the old URL in history. Unknown IDs (such as 13) show the 404 view without changing the address bar
+  - `src/app/Services/wordpress.service.ts`: new `getPageSlugById()`. `getPage(id)` is kept but no longer used
+  - `src/app/Components/pagedetails/*`: loads the page by slug with `getPageBySlug()`. No match shows the 404 view. Request failures are logged and the section stays empty, as before. Pages without a featured image no longer cause a template error
+  - Links now use slugs:
+    - Navbar: `['/pg', slug]`
+    - Carousel History slide: `/pg/about-1-5-1`
+    - Home buttons: `/pg/membership`, `/pg/president` (was page 13, which doesn't exist), `/pg/scholarship`
+    - "Continue Read More" (`linkcss` pipe): `/pg/<slug>`
+  - `carousel`, `homebuttonsection` and `pagenotfound` now import `RouterLink`. Their links previously rendered without an `href`
+  - Specs: new guard spec; updated pagedetails, navbar, presidents, carousel, homebuttonsection, home, pagenotfound, linkcss and the service
+- **Slug map (production and staging match):** 29 `membership`, 27 `president`, 19 `about-1-5-1`, 17 `moto`, 15 `scholarship`, 10 `foundation`
+- **Tested:**
+  - `ng test`: **45/45 pass**.
+  - Mutation checks: removing the 404 view, or removing `skipLocationChange`, each makes a test fail.
+  - Development build succeeds. Production build succeeds with font inlining turned off locally: the sandbox gets a 403 from Google Fonts, and `angular.json` is unchanged.
+  - SSR returns 200 for `/`, `/pg/about-1-5-1`, `/pg/19/…`, `/pg/13/…` and `/nope`.
+- **Not tested:** live WordPress calls (the sandbox can't reach the host); a manual browser check.
+- **Open issues:**
+  - The SSR 404 view returns HTTP 200, not 404. `server.ts` uses `CommonEngine`, which has no response-status hook.
+  - If the ID lookup fails (for example, a network error), old links show the 404 view.
+  - The `pst/:id/:title` post route is still ID-based.
+  - The GraphQL `page(id: $slug, idType: URI)` swap comes with Task 4.

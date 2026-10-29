@@ -63,6 +63,15 @@ describe('WordpressService', () => {
     expect(result).toBeUndefined();
   });
 
+  it('getPageSlugById() asks for just the slug of that page ID', () => {
+    let result: any = 'unset';
+    service.getPageSlugById(19).subscribe(s => result = s);
+    const req = httpMock.expectOne(r => r.url === environment.restUrl + 'pages/19');
+    expect(req.request.params.get('_fields')).toBe('slug');
+    req.flush({ slug: 'about-1-5-1' });
+    expect(result).toBe('about-1-5-1');
+  });
+
   it('defines an empty homepage slug until the homepage is chosen', () => {
     expect(environment.homepageSlug).toBe('');
   });
