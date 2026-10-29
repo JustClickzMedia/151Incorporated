@@ -226,7 +226,7 @@
     - `Pages` returns all 6 slugs, `hasNextPage` false.
     - `PageBySlug` returns all 6 pages with featured images.
     - An unknown slug returns `page: null`.
-- **Not tested:** CORS from `http://localhost:4200` (needs `ng serve` on your Mac); a manual browser check.
+- **Browser check (2026-10-28, Kenneth):** `ng serve` on the Mac, pages load from staging GraphQL with no console or CORS errors (after the SEO fix below).
 - **Open issues:**
   - Turning on GraphQL in production is one line (`useGraphql: true` in `environment.prod.ts`) after promotion.
   - The navbar now asks for up to 20 pages (REST asked for 6); there are 6 today.
@@ -247,3 +247,44 @@
   - Development build has no NG8113 warning.
   - The old selector reproduces the error in domino; the new selectors parse.
 - **Note:** the "sanitizing HTML stripped some content" warning comes from Gutenberg's `data-type` / `data-id` attributes on a link in the `president` page. Angular removes `data-*` attributes from `[innerHTML]`. The link itself still works; this is harmless.
+
+## 2026-10-28 — Angular Task 5: homepage carousel from WordPress (GraphQL `homepageCarousels`)
+
+- **Branch:** `feature/graphql-carousel`
+- **Files changed:**
+  - New `src/app/Model/carousel-slide.ts`: maps each `homepageCarousels` item to a slide.
+    - Six images become a `<picture>`: five `<source>` media queries, with desktop landscape as the `<img>`.
+    - Missing sizes are skipped. If the desktop landscape image is missing, the next image that exists is used.
+    - `altText` falls back to the title (it's empty for all 3 items today).
+  - `src/app/Services/wp-queries.ts`: the `HomepageCarousels` query from the contract (plus `mediaDetails` for `width`/`height`).
+  - `src/app/Services/wordpress.service.ts`: new `getHomepageCarousels()`.
+    - GraphQL only (there's no REST equivalent). It returns `[]` when `useGraphql` is off.
+    - The result is cached for the session; a failed request isn't cached.
+  - `src/app/Components/carousel/*`: the component has three states:
+    - **WordPress slides** when GraphQL returns items.
+    - **The built-in slides** (unchanged) when GraphQL is off (**production until promotion**), empty, or failed. Failures are logged.
+    - **Nothing while loading**, so the built-in images aren't downloaded first.
+    - The first slide isn't lazy-loaded; the others are `loading="lazy"`.
+    - Indicators are generated per slide. The built-in set had 4 indicators for 5 slides; it now has 5.
+  - `src/app/Services/seo.service.ts`: `removeMetaTags()` removes **every** match, cleaning up duplicates. Its spec now starts from a clean `<head>`; it had been order-dependent.
+  - Specs: carousel (GraphQL on and off), `carousel-slide.spec.ts`, service carousel tests, SEO duplicates test.
+- **Breakpoints** (checked in Chrome with real staging images at each viewport):
+
+  | Viewport | Image used |
+  |---|---|
+  | Phone portrait (375×812) | `mobileportraitimage` |
+  | Phone landscape (812×375) | `mobileLandscapeImage` |
+  | Tablet portrait (768×1024) | `tabletportraitimage` |
+  | Tablet landscape (1180×820, 1024×768) | `tabletlandscapeimage` |
+  | Laptop (1366×768) | `desktopportraitImage` |
+  | Desktop (1920×1080) | `desktopLandscapeImage` |
+- **Tested:**
+  - `ng test`: **88/88 pass** (3 runs).
+  - Mutation checks: no active slide, or no alt fallback, each fail a test.
+  - Development and production builds succeed.
+  - The production SSR homepage renders the 5 built-in slides with no `<picture>` (GraphQL off).
+  - The exact query works on live staging: 3 items.
+- **Not tested:** the Bootstrap slide animation in a real browser with the WordPress slides.
+- **Open issues / content:**
+  - WordPress slides have **no captions or links**, because the type has no link field. The titles ("Brothers of 1-5-1", "The Michael J. Bryant Memorial Scholarship", "Membership Requirements") are used only as alt text. A link field would have to be added on the backend.
+  - The "desktop" images are only 1024 px wide (for example `bismarck1900landscape.jpg` is 1024×576), so they look soft on large screens. Re-upload at 1920 px to fix.

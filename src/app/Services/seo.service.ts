@@ -83,8 +83,9 @@ export class SeoService {
       // Removes the tags addMetaTags() adds, so they aren't duplicated on every navigation.
       // Selectors must have no spaces around '=': the server-side DOM (domino, used for SSR) throws
       // "op is not a function" on 'name = "author"'. The attribute is 'http-equiv', not 'httpEquiv'.
+      // Removes every match, so duplicates left by earlier navigations are cleaned up too.
       for (const selector of META_TAGS_TO_REMOVE) {
-        this.meta.removeTag(selector);
+        this.meta.getTags(selector).forEach(tag => this.meta.removeTagElement(tag));
       }
   }       
 }

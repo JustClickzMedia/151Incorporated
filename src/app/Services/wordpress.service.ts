@@ -1,11 +1,12 @@
 import { Injectable, InjectionToken, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, shareReplay } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { GraphqlService } from './graphql.service';
-import { PAGE_BY_SLUG, PAGES } from './wp-queries';
+import { HOMEPAGE_CAROUSELS, PAGE_BY_SLUG, PAGES } from './wp-queries';
 import { GqlPage, WpPage, WpPageLink, pageFromGraphql, pageFromRest } from '../Model/wp-page';
+import { CarouselSlide, GqlHomepageCarousel, slideFromGraphql } from '../Model/carousel-slide';
 
 /**
  * true = read pages through GraphQL, false = REST. Defaults to environment.useGraphql
@@ -87,6 +88,29 @@ export class WordpressService {
   getPageSlugById(id: number): Observable<string | undefined> {
     return this.http.get<{ slug?: string }>(this.baseUrl + 'pages/' + id, { params: { _fields: 'slug' } })
       .pipe(map(page => page?.slug || undefined));
+  }
+
+  private carousel$?: Observable<CarouselSlide[]>;
+
+  /**
+   * Homepage carousel slides (GraphQL homepageCarousels; there is no REST equivalent).
+   * Emits [] when GraphQL is off (production until promotion), so the caller keeps its static slides.
+   * The result is cached for the session, so returning to the homepage doesn't refetch; a failed
+   * request is not cached.
+   */
+  getHomepageCarousels(): Observable<CarouselSlide[]> {
+    if (!this.useGraphql) {
+      return of([]);
+    }
+    // shareReplay keeps the result for the session; it resets on error, so a failed request isn't cached.
+    this.carousel$ ??= this.gql.query<{ homepageCarousels: { nodes: GqlHomepageCarousel[] } | null }>(HOMEPAGE_CAROUSELS)
+      .pipe(
+        map(d => (d.homepageCarousels?.nodes ?? [])
+          .map(slideFromGraphql)
+          .filter((slide): slide is CarouselSlide => !!slide)),
+        shareReplay({ bufferSize: 1, refCount: false })
+      );
+    return this.carousel$;
   }
 
   getSearch(searchVal:string): Observable<any[]> {

@@ -1,44 +1,68 @@
 <div id="brothercarousel" class="mycarousel carousel slide" data-bs-ride="carousel">
-    
-      <!-- Indicators -->
-      <ul class="carousel-indicators">
-        <li data-bs-target="#brothercarousel" data-bs-slide-to="0" class="active"></li>
-        <li data-bs-target="#brothercarousel" data-bs-slide-to="1"></li>
-        <li data-bs-target="#brothercarousel" data-bs-slide-to="2"></li>
-        <li data-bs-target="#brothercarousel" data-bs-slide-to="3"></li>
-      </ul>
-      
-      <!-- The slideshow -->
-        <div class="carousel-inner">
-          <div class="carousel-item active">
-            <img class="d-block w-100 img-fluid" src="https://tzin.brothersof1-5-1.org/wp-content/uploads/2024/04/bismarck1296x624.png" alt="Brotherhood Weekend"/>
-            <div class="carousel-caption">
-                <h5><a routerLink="/pg/about-1-5-1">It All Started At The Bismarck Hotel</a></h5>
-            </div>
+
+  @if (slides().length) {
+    <!-- Slides from WordPress (Homepage Carousel type): one <picture> per slide, six screen sizes -->
+    <ul class="carousel-indicators">
+      @for (slide of slides(); track slide.id; let i = $index) {
+        <li data-bs-target="#brothercarousel" [attr.data-bs-slide-to]="i" [class.active]="i === 0"
+            [attr.aria-current]="i === 0 ? 'true' : null" [attr.aria-label]="slide.title"></li>
+      }
+    </ul>
+    <div class="carousel-inner">
+      @for (slide of slides(); track slide.id; let i = $index) {
+        <div class="carousel-item" [class.active]="i === 0">
+          <picture>
+            @for (source of slide.sources; track source.media) {
+              <source [attr.media]="source.media" [attr.srcset]="source.srcset" />
+            }
+            <img class="d-block w-100 img-fluid" [src]="slide.src" [alt]="slide.alt"
+                 [attr.width]="slide.width ?? null" [attr.height]="slide.height ?? null"
+                 [attr.loading]="i === 0 ? null : 'lazy'" />
+          </picture>
         </div>
-        <div class="carousel-item">
-            <img class="d-block w-100 img-fluid" src="https://tzin.brothersof1-5-1.org/wp-content/uploads/2024/04/ALT-reunion.png" alt="Brotherhood Weekend" width="963" height="863"/>
-            <div class="carousel-caption">
-                <h5><a routerLink="/pst/1/REUNION 2019 HOTEL ACCOMMODATIONS">Brotherhood Reunion 2023 in Atlanta, Georgia</a></h5>
-            </div>
-        </div>
-        <div class="carousel-item">
-          <img class="d-block w-100 img-fluid" src="../../assets/images/32Years1296.png" alt="Brotherhood" />
-        </div>
-        <div class="carousel-item">
-            <img class="d-block w-100 img-fluid" src="../../assets/images/brotherhood1296.png" alt="Brotherhood" />
-        </div>
-        <div class="carousel-item">
-            <img class="d-block w-100 img-fluid" src="../../assets/images/Peace1296.png" alt="Brotherhood" />
+      }
+    </div>
+  } @else if (showStatic()) {
+    <!-- Built-in slides: used when GraphQL is off (production until promotion), empty or failed -->
+    <ul class="carousel-indicators">
+      <li data-bs-target="#brothercarousel" data-bs-slide-to="0" class="active"></li>
+      <li data-bs-target="#brothercarousel" data-bs-slide-to="1"></li>
+      <li data-bs-target="#brothercarousel" data-bs-slide-to="2"></li>
+      <li data-bs-target="#brothercarousel" data-bs-slide-to="3"></li>
+      <li data-bs-target="#brothercarousel" data-bs-slide-to="4"></li>
+    </ul>
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+        <img class="d-block w-100 img-fluid" src="https://tzin.brothersof1-5-1.org/wp-content/uploads/2024/04/bismarck1296x624.png" alt="Brotherhood Weekend"/>
+        <div class="carousel-caption">
+          <h5><a routerLink="/pg/about-1-5-1">It All Started At The Bismarck Hotel</a></h5>
         </div>
       </div>
-      <!-- Left and right controls -->
-      <a class="carousel-control-prev" data-bs-target="#brothercarousel" role="button" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon"></span>
-        <span class="visually-hidden">Previous</span>
-      </a>
-      <a class="carousel-control-next" data-bs-target="#brothercarousel" role="button" data-bs-slide="next">
-        <span class="carousel-control-next-icon"></span>
-        <span class="visually-hidden">Next</span>
-      </a>
+      <div class="carousel-item">
+        <img class="d-block w-100 img-fluid" src="https://tzin.brothersof1-5-1.org/wp-content/uploads/2024/04/ALT-reunion.png" alt="Brotherhood Weekend" width="963" height="863"/>
+        <div class="carousel-caption">
+          <h5><a routerLink="/pst/1/REUNION 2019 HOTEL ACCOMMODATIONS">Brotherhood Reunion 2023 in Atlanta, Georgia</a></h5>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <img class="d-block w-100 img-fluid" src="../../assets/images/32Years1296.png" alt="Brotherhood" />
+      </div>
+      <div class="carousel-item">
+        <img class="d-block w-100 img-fluid" src="../../assets/images/brotherhood1296.png" alt="Brotherhood" />
+      </div>
+      <div class="carousel-item">
+        <img class="d-block w-100 img-fluid" src="../../assets/images/Peace1296.png" alt="Brotherhood" />
+      </div>
     </div>
+  }
+
+  <!-- Left and right controls -->
+  <a class="carousel-control-prev" data-bs-target="#brothercarousel" role="button" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon"></span>
+    <span class="visually-hidden">Previous</span>
+  </a>
+  <a class="carousel-control-next" data-bs-target="#brothercarousel" role="button" data-bs-slide="next">
+    <span class="carousel-control-next-icon"></span>
+    <span class="visually-hidden">Next</span>
+  </a>
+</div>

@@ -9,6 +9,11 @@ describe('SeoService', () => {
     TestBed.configureTestingModule({
       providers: [SeoService]
     });
+    // Other specs share the document <head>; start from a clean set of these tags.
+    const meta = TestBed.inject(Meta);
+    for (const selector of META_TAGS_TO_REMOVE) {
+      meta.getTags(selector).forEach(tag => meta.removeTagElement(tag));
+    }
   });
 
   it('should be created', inject([SeoService], (service: SeoService) => {
@@ -30,6 +35,17 @@ describe('SeoService', () => {
     expect(count('property="og:type"')).toBe(1);
     expect(count('property="og:title"')).toBe(1);
     expect(meta.getTag('property="og:title"')?.content).toBe('Page 2');
+  });
+
+  it('removeMetaTags() also cleans up duplicates left by earlier navigations', () => {
+    const seo = TestBed.inject(SeoService);
+    const meta = TestBed.inject(Meta);
+    // Meta.addTag() reuses identical tags, so create the duplicates directly.
+    meta.addTag({ name: 'author', content: 'a' }, true);
+    meta.addTag({ name: 'author', content: 'b' }, true);
+    expect(meta.getTags('name="author"').length).toBe(2);
+    seo.removeMetaTags();
+    expect(meta.getTags('name="author"').length).toBe(0);
   });
 
   it('uses selectors without spaces around "=" (the SSR DOM throws on them)', () => {

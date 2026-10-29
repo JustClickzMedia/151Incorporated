@@ -1,5 +1,13 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
+import { of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { WordpressService } from '../../Services/wordpress.service';
+import { CarouselSlide } from '../../Model/carousel-slide';
+
+/** loading: request in flight · cms: slides from WordPress · static: the built-in slides (GraphQL off, empty or failed) */
+type CarouselState = { status: 'loading' } | { status: 'cms'; slides: CarouselSlide[] } | { status: 'static' };
 
 @Component({
     selector: 'app-carousel',
@@ -8,11 +16,18 @@ import { RouterLink } from '@angular/router';
     changeDetection: ChangeDetectionStrategy.Eager,
     imports: [RouterLink]
 })
-export class CarouselComponent implements OnInit {
+export class CarouselComponent {
+  private wp = inject(WordpressService);
 
-  constructor() { }
+  readonly state = toSignal(
+    this.wp.getHomepageCarousels().pipe(
+      map((slides): CarouselState => slides.length ? { status: 'cms', slides } : { status: 'static' }),
+      // Same rule as elsewhere: log and keep the page working (here: show the built-in slides).
+      catchError(err => { console.error(err); return of<CarouselState>({ status: 'static' }); })
+    ),
+    { initialValue: { status: 'loading' } as CarouselState }
+  );
 
-  ngOnInit() {
-  }
-
+  readonly slides = computed(() => { const s = this.state(); return s.status === 'cms' ? s.slides : []; });
+  readonly showStatic = computed(() => this.state().status === 'static');
 }
