@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 
 import { WordpressService } from '../../Services/wordpress.service';
 import { withFallback } from '../../Services/rx-fallback';
+import { WpPageLink } from '../../Model/wp-page';
 import { CommonModule } from '@angular/common'
 import { RouterLinkActive, RouterLink } from '@angular/router';
 //import { SearchboxComponent } from '../../Components/searchbox/searchbox.component'
@@ -23,7 +24,7 @@ export class NavbarComponent implements OnInit {
 
  
   logo:any = "/images/151Logo.png";
-  readonly NavMenu = toSignal(this.wp.getPages().pipe(withFallback<any[]>([])), { initialValue: [] as any[] });
+  readonly NavMenu = toSignal(this.wp.getMenuPages().pipe(withFallback<WpPageLink[]>([])), { initialValue: [] as WpPageLink[] });
   readonly navbarOpen = signal(false);
   readonly buttonbrdcolor = signal('');
   readonly iconlnimage = signal('');

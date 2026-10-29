@@ -10,7 +10,7 @@
   <div class="container bgPage mbMargin" >
     <div class="row">
       <div class="col-lg-6 hdtitle">
-        <h4>{{pagelments.title.rendered}}</h4>
+        <h4>{{pagelments.title}}</h4>
       </div>
     </div>
     <div class="row">
@@ -19,7 +19,7 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-12 col-sm-12 col-md-12 col-lg-6 text-justify" [innerHTML]="pagelments.content.rendered">
+      <div class="col-12 col-sm-12 col-md-12 col-lg-6 text-justify" [innerHTML]="pagelments.contentHtml">
       </div>
       <div class="col-12 col-sm-12 col-md-6 col-lg-1"> </div>
       <app-sidbarposts class="col-md-12 col-lg-5 mb-3 bg crnRds sidebar"></app-sidbarposts>

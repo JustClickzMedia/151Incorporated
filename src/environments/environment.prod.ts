@@ -7,5 +7,7 @@ export const environment = {
   restUrl: 'https://tzin.brothersof1-5-1.org/wp-json/wp/v2/',
   // TODO(homepage): Kenneth hasn't chosen the homepage yet. Set this to the WordPress page slug
   // (e.g. 'about-1-5-1'). Empty = don't request a page; the homepage shows only its static sections.
-  homepageSlug: ''
+  homepageSlug: '',
+  // Keep REST in production until the backend confirms staging -> production promotion; then set to true.
+  useGraphql: false
 };
