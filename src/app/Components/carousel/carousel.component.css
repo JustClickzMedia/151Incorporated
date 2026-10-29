@@ -3,8 +3,9 @@
  * Each slide has the shape of the image made for the current screen (same media queries as the <picture>
  * sources in the template), so the whole photo is shown, scaled to the screen width, instead of being
  * zoomed in to fill the full screen height. It never gets taller than the screen.
- * object-fit: cover only trims an image whose shape differs slightly from the standard for that size
- * (e.g. the 320x480 Bismarck phone image in the 9:16 phone slot).
+ * object-fit: contain: the whole image is always visible and never runs past the screen. An image whose
+ * shape differs from the slot (e.g. the 320x480 Bismarck phone image in the 9:16 phone slot, or a slide
+ * capped at the screen height) gets thin bars in the slide's background colour instead of being cropped.
  */
 .carousel-item {
   background-color: #670001;
@@ -39,7 +40,7 @@
 .carousel-item img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
 }
 

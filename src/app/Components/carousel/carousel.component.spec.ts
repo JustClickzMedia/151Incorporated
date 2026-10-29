@@ -37,12 +37,12 @@ describe('CarouselComponent', () => {
 
   afterEach(() => http.verify());
 
-  it('crops images to fill the slide instead of stretching them (object-fit: cover)', async () => {
+  it('fits the whole image inside the slide, never cropped or stretched (object-fit: contain)', async () => {
     await setup(false);
     document.body.appendChild(el());
     await render();
     const image = el().querySelector('.carousel-item.active img') as HTMLImageElement;
-    expect(getComputedStyle(image).objectFit).toBe('cover');
+    expect(getComputedStyle(image).objectFit).toBe('contain');
     el().remove();
   });
 

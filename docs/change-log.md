@@ -334,3 +334,22 @@
   | 1920×1080 desktop | 1920×1080 | 1024×576 |
 - **Tested:** `ng test` **91/91 pass** (new: slide has an aspect ratio and is no taller than the screen).
 - **Content:** the phone images are only 320–360 px wide, so they look soft on 2× and 3× phone screens. Uploading phone images at about 1080×1920 and desktop images at 1920×1080 would make them sharp.
+
+## 2026-10-28 — Task 5 follow-up 3: whole image always visible (`object-fit: contain`)
+
+- **Branch:** `feature/graphql-carousel`
+- **Problem:** with `cover`, an image whose shape differs from its slot was enlarged and cut off at the edges.
+  - The Bismarck phone image is 320×480 (2:3) in the 9:16 phone slot, so it ran past the screen on both sides.
+  - A slide capped at the screen height had the same problem.
+- **Fix:** `object-fit: contain`. The whole image is always visible, scaled to fit. A mismatched image gets thin bars in the slide colour (#670001) instead of being cropped.
+- **Checked on `ng serve`** (393×852):
+
+  | Slide | Image | Drawn at |
+  |---|---|---|
+  | Scholarship | 360×640 | 393×699, fills the slot exactly |
+  | Membership | 360×640 | 393×699, fills the slot exactly |
+  | Bismarck | 320×480 | 393×590, full width, thin bars top and bottom |
+
+  No horizontal overflow (`scrollWidth` 393).
+- **Tested:** `ng test` **91/91 pass**.
+- **Content:** re-uploading the Bismarck phone image at 9:16 (e.g. 1080×1920) removes its bars.
