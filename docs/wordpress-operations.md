@@ -52,7 +52,14 @@
 
 ## Homepage carousel images (Homepage Carousel type)
 
-Each carousel item has six images. The site shows **exactly the image uploaded for the visitor's screen size**: it doesn't crop or zoom it, it only scales it to fit. If a phone image is a tight crop of one person, that's what phones show. **Frame each image so the whole subject is visible at that shape.**
+**Current behaviour (2026-10-29, Richmond-style banner):**
+
+- The homepage uses **only `desktopLandscapeImage`**, the same photo on every screen.
+- The photo fills a banner that keeps its shape (about 2.2:1 on desktop and tablet, 1.75:1 on phones), cropped evenly from the centre, with a maroon tint.
+- So upload a **wide photo with the subjects in the middle**, at least 1920×1080; ideally 2480×1120 (2.2:1).
+- The other five fields are ignored for now; the table below applies only if per-screen images are turned back on.
+
+Each carousel item has six images. In the earlier per-screen mode, the site showed exactly the image uploaded for the visitor's screen size. **Frame each image so the whole subject is visible at that shape.**
 
 | Field (case-sensitive) | Used on | Shape | Upload size (sharp on 2×/3× screens) |
 |---|---|---|---|

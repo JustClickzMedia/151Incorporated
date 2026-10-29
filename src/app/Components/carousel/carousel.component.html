@@ -1,7 +1,7 @@
 <div id="brothercarousel" class="mycarousel carousel slide" data-bs-ride="carousel">
 
   @if (slides().length) {
-    <!-- Slides from WordPress (Homepage Carousel type): one <picture> per slide, six screen sizes -->
+    <!-- Slides from WordPress (Homepage Carousel type): the same wide photo on every screen -->
     <ul class="carousel-indicators">
       @for (slide of slides(); track slide.id; let i = $index) {
         <li data-bs-target="#brothercarousel" [attr.data-bs-slide-to]="i" [class.active]="i === 0"
@@ -12,9 +12,6 @@
       @for (slide of slides(); track slide.id; let i = $index) {
         <div class="carousel-item" [class.active]="i === 0">
           <picture>
-            @for (source of slide.sources; track source.media) {
-              <source [attr.media]="source.media" [attr.srcset]="source.srcset" />
-            }
             <img [src]="slide.src" [alt]="slide.alt"
                  [attr.width]="slide.width ?? null" [attr.height]="slide.height ?? null"
                  [attr.loading]="i === 0 ? null : 'lazy'" />

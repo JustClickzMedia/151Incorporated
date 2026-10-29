@@ -353,3 +353,31 @@
   No horizontal overflow (`scrollWidth` 393).
 - **Tested:** `ng test` **91/91 pass**.
 - **Content:** re-uploading the Bismarck phone image at 9:16 (e.g. 1080×1920) removes its bars.
+
+## 2026-10-29 — Task 5 follow-up 4: Richmond-style hero banner (dimensions + maroon tint)
+
+- **Branch:** `feature/graphql-carousel`
+- **Request:** behave like the richmondsigmas.org homepage hero. Only the behaviour and dimensions were reproduced; no assets, text or code were copied.
+  - **The same wide photo on every screen** (`desktopLandscapeImage`; the per-screen `<source>`s are removed).
+  - A banner with a fixed shape that gets shorter as the screen narrows: **1240:560 (≈2.2:1) from 768 px up, 480:275 (≈1.75:1) on phones**.
+  - The photo is cropped from the centre (`object-fit: cover`).
+  - **Maroon tint** `rgba(103,0,1,.55)`; Kenneth chose this over Richmond's blue.
+  - The banner starts **below** the fixed navbar: a 146px maroon band (`border-top`) sits behind the transparent header, so it reads as a solid bar, as on Richmond.
+  - Smaller caption and button on phones so they fit the shorter banner.
+- **Checked on `ng serve`:**
+
+  | Viewport | Banner |
+  |---|---|
+  | 393×852 | 393×225 |
+  | 768 | 768×347 |
+  | 1024 | 1024×462 |
+  | 1366 | 1366×617 |
+  | 1920 | 1920×867 |
+
+  The banner starts at 146px at every size, and the caption sits inside it.
+- **Tested:** `ng test` **91/91 pass**.
+  - New: banner shape, 146px band, maroon tint, `cover`, no `<source>`s.
+  - Mutation: making the banner full height fails a test.
+- **Notes:**
+  - The 146px matches the navbar height at the top of the page at every width. If the navbar changes (for example, the `Nav-changes` merge), update it.
+  - `docs/wordpress-operations.md` now says only `desktopLandscapeImage` is used.

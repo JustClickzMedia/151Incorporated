@@ -37,22 +37,27 @@ describe('CarouselComponent', () => {
 
   afterEach(() => http.verify());
 
-  it('fits the whole image inside the slide, never cropped or stretched (object-fit: contain)', async () => {
+  it('fills the banner with the photo, cropped from the centre (object-fit: cover)', async () => {
     await setup(false);
     document.body.appendChild(el());
     await render();
     const image = el().querySelector('.carousel-item.active img') as HTMLImageElement;
-    expect(getComputedStyle(image).objectFit).toBe('contain');
+    expect(getComputedStyle(image).objectFit).toBe('cover');
+    expect(getComputedStyle(image).objectPosition).toBe('50% 50%');
     el().remove();
   });
 
-  it('sizes each slide to the shape of the image for the screen, not to the full screen height', async () => {
+  it('is a banner with a fixed shape below the header (Richmond-style), not full screen', async () => {
     await setup(false);
     document.body.appendChild(el());
     await render();
+    const carousel = el().querySelector('#brothercarousel') as HTMLElement;
     const slide = el().querySelector('.carousel-item.active') as HTMLElement;
-    expect(getComputedStyle(slide).aspectRatio).not.toBe('auto');
-    expect(slide.getBoundingClientRect().height).toBeLessThanOrEqual(window.innerHeight + 1);
+    expect(getComputedStyle(carousel).borderTopWidth).toBe('146px');           // band behind the fixed navbar
+    expect(['1240 / 560', '480 / 275']).toContain(getComputedStyle(slide).aspectRatio); // 2.2:1 desktop, 1.75:1 phone
+    const r = slide.getBoundingClientRect();
+    expect(r.width / r.height).toBeCloseTo(window.innerWidth < 768 ? 480 / 275 : 1240 / 560, 1);
+    expect(getComputedStyle(slide, '::after').backgroundColor).toBe('rgba(103, 0, 1, 0.55)'); // maroon tint
     el().remove();
   });
 
@@ -99,15 +104,12 @@ describe('CarouselComponent', () => {
       expect(el().textContent).not.toContain('THE BROTHERS OF 1-5-1'); // built-in slides are not shown
     });
 
-    it('builds a <picture> with the five smaller sizes as <source>s and desktop landscape as the <img>', async () => {
+    it('uses the same wide (desktop landscape) photo on every screen, like the Richmond hero', async () => {
       carouselRequest().flush({ data: { homepageCarousels: { nodes: [item(107, 'Brothers of 1-5-1', 'bismarck')] } } });
       await render();
-      const picture = el().querySelector('.carousel-item picture')!;
-      const sources = Array.from(picture.querySelectorAll('source'));
-      expect(sources.map(s => s.getAttribute('srcset')!.split('/').pop())).toEqual(
-        ['bismarck-mp.jpg', 'bismarck-ml.jpg', 'bismarck-tp.jpg', 'bismarck-tl.jpg', 'bismarck-dp.jpg']);
-      expect(sources.every(s => !!s.getAttribute('media'))).toBeTrue();
-      const image = picture.querySelector('img')!;
+      const slide = el().querySelector('.carousel-item')!;
+      expect(slide.querySelectorAll('source').length).toBe(0);
+      const image = slide.querySelector('img')!;
       expect(image.getAttribute('src')).toBe('https://cms.test/staging/1848/bismarck-dl.jpg');
       expect(image.getAttribute('alt')).toBe('Brothers of 1-5-1'); // altText is empty -> title
       expect(image.getAttribute('loading')).toBeNull(); // first slide is not lazy

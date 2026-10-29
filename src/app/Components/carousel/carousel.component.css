@@ -1,33 +1,26 @@
 /*
- * Hero carousel in the live site's design (Nav-changes branch): dark overlay with a centred caption + button.
- * Each slide has the shape of the image made for the current screen (same media queries as the <picture>
- * sources in the template), so the whole photo is shown, scaled to the screen width, instead of being
- * zoomed in to fill the full screen height. It never gets taller than the screen.
- * object-fit: contain: the whole image is always visible and never runs past the screen. An image whose
- * shape differs from the slot (e.g. the 320x480 Bismarck phone image in the 9:16 phone slot, or a slide
- * capped at the screen height) gets thin bars in the slide's background colour instead of being cropped.
+ * Hero banner, sized like the Richmond Sigmas homepage hero: ONE wide photo on every screen, in a banner
+ * that keeps a fixed shape and simply gets shorter as the screen narrows (about 2.2:1 on desktop and
+ * tablet, about 1.75:1 on phones). The photo is cropped from the centre to fill the banner, with a maroon
+ * tint and a centred caption + button.
+ * The six per-screen images from WordPress are not used for now (only desktopLandscapeImage).
  */
-.carousel-item {
-  background-color: #670001;
-  aspect-ratio: 16 / 9;            /* desktop landscape images: 1920x1080 design (1024x576 uploaded) */
-  max-height: 100vh;
-  max-height: 100svh;              /* mobile browsers: don't size to behind the address bar */
+/*
+ * Like Richmond, the banner starts BELOW the header instead of behind it (a short banner would be mostly
+ * hidden under the fixed, transparent navbar). The maroon band fills the 146px the navbar occupies at the
+ * top of the page (same at every width), so the header reads as a solid bar above the photo.
+ */
+.mycarousel {
+  border-top: 146px solid #670001;
 }
 
-@media (max-width: 1440px) {
-  .carousel-item { aspect-ratio: 1024 / 493; }    /* desktop "portrait" images (1296x624 design) */
+.carousel-item {
+  background-color: #670001;
+  aspect-ratio: 1240 / 560;        /* desktop/tablet: ~2.2:1 (e.g. 1000x452) */
 }
-@media (max-width: 1280px) and (orientation: landscape) {
-  .carousel-item { aspect-ratio: 4 / 3; }         /* tablet landscape images */
-}
-@media (max-width: 1024px) and (orientation: portrait) {
-  .carousel-item { aspect-ratio: 601 / 962; }     /* tablet portrait images */
-}
-@media (max-height: 480px) and (orientation: landscape) {
-  .carousel-item { aspect-ratio: 3 / 2; }         /* phone landscape images (480x320) */
-}
-@media (max-width: 480px) and (orientation: portrait) {
-  .carousel-item { aspect-ratio: 9 / 16; }        /* phone portrait images (360x640) */
+
+@media (max-width: 767.98px) {
+  .carousel-item { aspect-ratio: 480 / 275; }     /* phones: ~1.75:1 (e.g. 393x225) */
 }
 
 .carousel-item picture,
@@ -40,16 +33,16 @@
 .carousel-item img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;              /* fill the banner; crop evenly from the centre */
   object-position: center;
 }
 
-/* Dark overlay so the white caption stays readable on any photo */
+/* Maroon tint (1-5-1 #670001) so the white caption stays readable on any photo */
 .carousel-item::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(103, 0, 1, 0.55);
 }
 
 .carousel-caption {
@@ -60,7 +53,7 @@
 }
 
 .carousel-caption h1 {
-  font-size: clamp(1.75rem, 5vw, 3.5rem);
+  font-size: clamp(1.25rem, 4.5vw, 3.5rem);
 }
 
 /* Controls and indicators above the overlay */
@@ -73,4 +66,11 @@
 a.nav-item.btn:hover {
   color: white;
   background-color: #670001;
+}
+
+/* Phones: the banner is short (~225px), so keep the caption compact */
+@media (max-width: 767.98px) {
+  .carousel-caption { padding-top: 0; padding-bottom: 0; }
+  .carousel-caption .btn { font-size: 0.875rem; padding: 0.25rem 0.75rem; margin-top: 0.25rem !important; margin-bottom: 0 !important; }
+  .carousel-indicators { margin-bottom: 0.25rem; }
 }
