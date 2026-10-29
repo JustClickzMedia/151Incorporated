@@ -69,3 +69,56 @@
 .custom-toggler .navbar-toggler-icon {
   background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255,255,255, 0.7)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 8h24M4 16h24M4 24h24'/%3E%3C/svg%3E");
 }
+/*
+ * Desktop (>= 992px, navbar-expand-lg): regular horizontal menu instead of the hamburger.
+ * Links are white over the maroon band at the top of the page, and maroon once the header turns white
+ * on scroll (.bgnav). Spacing is tighter than the stacked phone menu so the six pages + two buttons fit.
+ */
+@media (min-width: 992px) {
+  .navbar-nav li {
+    padding-right: 0;
+  }
+
+  .navbar-nav .nav-link {
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 0.5rem 0.75rem;
+    white-space: nowrap;
+  }
+
+  .navbar-nav .nav-link:hover,
+  .navbar-nav .active > .nav-link {
+    text-decoration: underline;
+    text-underline-offset: 6px;
+  }
+
+  .bgnav .navbar-nav .nav-link {
+    color: #670001;
+  }
+
+  .navbar-buttons .btn {
+    font-size: 15px;
+    padding: 0.375rem 0.75rem;
+    white-space: nowrap;
+  }
+
+  /* White header after scrolling: outline buttons in maroon so they stay visible */
+  .bgnav .navbar-buttons .btn {
+    color: #670001;
+    border-color: #670001;
+  }
+
+  .bgnav .navbar-buttons .btn:hover {
+    color: #fff;
+    background-color: #670001;
+  }
+}
+
+/* Laptops (992-1199px): a little tighter still */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .navbar-nav .nav-link {
+    font-size: 14px;
+    padding: 0.5rem 0.5rem;
+  }
+}

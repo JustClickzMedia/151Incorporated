@@ -18,7 +18,8 @@
 </div>
 </nav> -->
 
-<nav id="header" class="navbar fixed-top">
+<!-- navbar-expand-lg: from 992px up the menu is a regular horizontal menu and the hamburger is hidden -->
+<nav id="header" class="navbar navbar-expand-lg fixed-top">
   <div id="header-container" class="container navbar-container">
     <a class="navbar-brand mr-0" routerLink=""><img class="d-block w-100" src="https://tzin.brothersof1-5-1.org/wp-content/uploads/2024/03/151Logo2.png"/></a>
     <button class="navbar-toggler ml-auto custom-toggler" type="button" (click)="toggleNavbar()" [ngStyle]="{'border-color': buttonbrdcolor() }">
@@ -28,13 +29,13 @@
       <ul class="navbar-nav mr-auto">
         @for (NavItem of NavMenu(); track NavItem.id) {
           <li class="nav-item" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
-            <a class="nav-link" (click)="toggleNavbar()" [routerLink]="['/pg', NavItem.slug]">{{ NavItem.slug | uppercase }}</a>
+            <a class="nav-link" (click)="closeNavbar()" [routerLink]="['/pg', NavItem.slug]">{{ NavItem.slug | uppercase }}</a>
           </li>
         }
       </ul>
-      <div class="navbar-nav">
+      <div class="navbar-nav navbar-buttons">
         <a title="Pay Dues" href="https://checkout.square.site/merchant/4ZBJEDVN0C8CN/checkout/C6GENNAL37VOT5NCEZJ24W2J?fbclid=IwAR1EB1chPlhZpQ7nmtcrwSrmTETl9lR9f07NONqKYVaEe31Yq9gSYDiHmN0_aem_ATapbJl3Wzjrs2KVn8U7htNJZ0fSBP45IK18gjUnm8VL-Ngl9DvQ9wHtIwn7Wfn_rEv5JBMJEphfEzFZDOEIgLyf"
-        class="nav-item btn btn-outline-light btn-lg mt-3 mb-3">PAY DUES</a>
+        class="nav-item btn btn-outline-light btn-lg mt-3 mb-3 my-lg-0 me-lg-2">PAY DUES</a>
         <a title="Pay Dues" href="https://checkout.square.site/merchant/4ZBJEDVN0C8CN/checkout/C6GENNAL37VOT5NCEZJ24W2J?fbclid=IwAR1EB1chPlhZpQ7nmtcrwSrmTETl9lR9f07NONqKYVaEe31Yq9gSYDiHmN0_aem_ATapbJl3Wzjrs2KVn8U7htNJZ0fSBP45IK18gjUnm8VL-Ngl9DvQ9wHtIwn7Wfn_rEv5JBMJEphfEzFZDOEIgLyf"
         class="nav-item btn btn-outline-light btn-lg">GIVE BACK</a>
       </div>

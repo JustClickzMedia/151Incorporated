@@ -397,3 +397,25 @@
 - **Tested:** `ng test` **93/93 pass**.
   - New: shown once and not hidden by any `d-*-none` class, both with and without a homepage page.
   - Mutation: the old template fails both tests.
+
+## 2026-10-29 — Navbar: regular menu on desktop (hamburger only on phones and tablets)
+
+- **Branch:** `feature/desktop-menu`
+- **Files changed:**
+  - `navbar.component.html`: `navbar-expand-lg`. From 992px up, the page links and the Pay Dues and Give Back buttons show in one horizontal row next to the logo, and the hamburger is hidden. Below 992px, the hamburger menu is unchanged.
+  - `navbar.component.css`, desktop only:
+    - Links are white over the maroon header band and turn maroon when the header goes white on scroll (`.bgnav`).
+    - The underline shows on hover and on the active page.
+    - Spacing is tighter than the stacked phone menu, and tighter again at 992–1199px.
+    - Outline buttons turn maroon on the white scrolled header.
+  - `navbar.component.ts`: new `closeNavbar()`. Choosing a page now closes the phone menu instead of toggling it.
+  - Specs: `navbar-expand-lg` present; choosing a page closes the menu.
+- **Checked** (Playwright, development build, mocked WordPress data, real-size logo):
+  - 992, 1024, 1280, 1366 and 1920 px: hamburger hidden, all 6 links on one row, no horizontal overflow.
+  - 393 and 768 px: hamburger shown.
+  - Scrolled at 1366: white header, maroon links and buttons.
+- **Tested:** `ng test` **95/95 pass**.
+- **Notes:**
+  - Menu labels are still the page slugs in capitals (for example "ABOUT-1-5-1").
+  - At 992–1199px the header is 121px tall (the logo shrinks), so the 146px banner band shows about 25px of maroon below it.
+  - `ng serve` on the Mac was stopped during this check, so it wasn't re-checked there.

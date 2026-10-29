@@ -34,6 +34,23 @@ describe('NavbarComponent', () => {
     expect(links.map(a => a.getAttribute('href'))).toEqual(['/pg/membership', '/pg/moto']);
   });
 
+  it('is a regular horizontal menu on desktop (navbar-expand-lg: hamburger only below 992px)', () => {
+    http.expectOne(r => r.url.startsWith(environment.restUrl + 'pages?_embed')).flush([]);
+    const nav = (fixture.nativeElement as HTMLElement).querySelector('nav#header')!;
+    expect(nav.classList).toContain('navbar-expand-lg');
+  });
+
+  it('closes the phone menu after a page is chosen', async () => {
+    http.expectOne(r => r.url.startsWith(environment.restUrl + 'pages?_embed'))
+      .flush([{ id: 2, slug: 'membership', title: { rendered: 'Membership' } }]);
+    fixture.componentInstance.toggleNavbar();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(fixture.componentInstance.navbarOpen()).toBeTrue();
+    ((fixture.nativeElement as HTMLElement).querySelector('.navbar-nav.mr-auto a') as HTMLAnchorElement).click();
+    expect(fixture.componentInstance.navbarOpen()).toBeFalse();
+  });
+
   it('toggles the collapsed menu', async () => {
     http.expectOne(r => r.url.startsWith(environment.restUrl + 'pages?_embed')).flush([]);
     const collapse = () => (fixture.nativeElement as HTMLElement).querySelector('.navbar-collapse')!;

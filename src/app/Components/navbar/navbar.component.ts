@@ -37,6 +37,11 @@ export class NavbarComponent implements OnInit {
     this.navbarOpen.update(open => !open);
   }
 
+  /** After choosing a page, close the phone/tablet menu (on desktop the menu is always visible). */
+  closeNavbar() {
+    this.navbarOpen.set(false);
+  }
+
   @HostListener('document:scroll')
   public onViewportScroll() {
     var yOffset = 0
