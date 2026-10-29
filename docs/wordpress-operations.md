@@ -49,3 +49,24 @@
 - The HostGator plugin (`wp-plugin-hostgator`) appears to have been switched on in production when the Staging tool was opened from the HostGator portal (2026-10-28). It's required by the Staging tool.
 - WordPress core auto-updated from 7.1.3 to 7.1.4 between 2026-10-26 and 2026-10-28.
 - The staging `error_log` shows a harmless `nfd_data_sync_cron` schedule warning from the HostGator plugin.
+
+## Homepage carousel images (Homepage Carousel type)
+
+Each carousel item has six images. The site shows **exactly the image uploaded for the visitor's screen size**: it doesn't crop or zoom it, it only scales it to fit. If a phone image is a tight crop of one person, that's what phones show. **Frame each image so the whole subject is visible at that shape.**
+
+| Field (case-sensitive) | Used on | Shape | Upload size (sharp on 2×/3× screens) |
+|---|---|---|---|
+| `mobileportraitimage` | Phones, portrait | 9:16 | 1080 × 1920 |
+| `mobileLandscapeImage` | Phones, landscape | 3:2 | 1440 × 960 |
+| `tabletportraitimage` | Tablets, portrait | 601:962 (≈ 5:8) | 1202 × 1924 |
+| `tabletlandscapeimage` | Tablets, landscape (≤ 1280 px) | 4:3 | 2048 × 1536 |
+| `desktopportraitImage` | Laptops (≤ 1440 px) | 1024:493 (≈ 2.08:1) | 2592 × 1248 |
+| `desktopLandscapeImage` | Large screens | 16:9 | 1920 × 1080 (or 2560 × 1440) |
+
+- An image with a different shape still shows in full, with thin dark-red bars on two sides.
+- Fill in the **alt text** in the Media Library (for example, "Three brothers at the 2019 reunion"). It's empty today, so the slide title is used.
+- After uploading, check the homepage at phone and desktop widths. Chrome DevTools' device toolbar works for this.
+- Today's uploads (2026-10-28):
+  - The phone images are 320–360 px wide and the desktop images are 1024 px wide, so they look soft.
+  - The phone images for "Membership Requirements" and "Scholarship" are tight crops of one person.
+  - The Bismarck phone image is 2:3, not 9:16.
