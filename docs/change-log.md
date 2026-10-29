@@ -194,3 +194,40 @@
   - If the ID lookup fails (for example, a network error), old links show the 404 view.
   - The `pst/:id/:title` post route is still ID-based.
   - The GraphQL `page(id: $slug, idType: URI)` swap comes with Task 4.
+
+## 2026-10-28 — Angular Task 4: GraphQL client (pages read through GraphQL on staging)
+
+- **Branch:** `feature/graphql-client`
+- **Files changed:**
+  - New `src/app/Services/graphql.service.ts`: a thin `HttpClient.post(graphqlUrl, { query, variables })` client (no Apollo).
+    - Sends no `Authorization` header and no cookies (`withCredentials: false`).
+    - **Any `errors[]` is a failure** (`GraphqlError`), even when partial data comes back. An HTTP 500 with a GraphQL `errors` body also becomes a `GraphqlError`.
+  - New `src/app/Services/wp-queries.ts`: the `PageBySlug` and `Pages` queries, copied from `graphql-contract.md`.
+  - New `src/app/Model/wp-page.ts`: one `WpPage` model with REST and GraphQL mappers.
+    - Components no longer read raw REST fields (`title.rendered`, `_embedded`).
+    - The GraphQL `Page` type has no excerpt field, so the excerpt is built from the content (first 55 words, like WordPress).
+  - `src/app/Services/wordpress.service.ts`: `getPageBySlug()` and the new `getMenuPages()` use GraphQL when `USE_GRAPHQL` is on, and REST otherwise.
+    - `getPageSlugById()` (old-link redirects), posts and search stay on REST.
+  - Environment flag `useGraphql`: **`true` in `environment.ts` (staging), `false` in `environment.prod.ts`.** Production stays on REST until the backend promotes staging to production.
+  - `src/app/app.config.ts`: `withHttpTransferCacheOptions({ includePostRequests: true })`, so GraphQL POST responses from SSR are reused on the client instead of being fetched twice.
+  - Components:
+    - `pagedetails`, `presidents` and `navbar` use the `WpPage` / `WpPageLink` models.
+    - The SEO description now comes from the page excerpt. The old `post-custom-fields` Keywords/Description don't exist in REST or GraphQL, so those calls only threw and logged.
+  - Specs:
+    - The page-details suite now runs against **both REST and GraphQL**.
+    - New `graphql.service.spec.ts` and `wp-page.spec.ts`.
+    - Added GraphQL cases to the navbar, presidents and service specs.
+- **Tested:**
+  - `ng test`: **72/72 pass**.
+  - Mutation checks: ignoring `errors[]` fails 3 tests; ignoring the flag fails 12.
+  - Development build succeeds. Production build succeeds (font inlining off locally, as before).
+  - The production bundle has `useGraphql: false` and no staging URL.
+  - **Live staging check** (exact query strings, from the browser):
+    - `Pages` returns all 6 slugs, `hasNextPage` false.
+    - `PageBySlug` returns all 6 pages with featured images.
+    - An unknown slug returns `page: null`.
+- **Not tested:** CORS from `http://localhost:4200` (needs `ng serve` on your Mac); a manual browser check.
+- **Open issues:**
+  - Turning on GraphQL in production is one line (`useGraphql: true` in `environment.prod.ts`) after promotion.
+  - The navbar now asks for up to 20 pages (REST asked for 6); there are 6 today.
+  - Posts, search, events and carousel are still REST or static (Tasks 5–7).

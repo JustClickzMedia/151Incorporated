@@ -5,17 +5,18 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 
 import { PresidentsComponent } from './presidents.component';
 import { HOMEPAGE_SLUG } from '../../homepage.config';
+import { USE_GRAPHQL } from '../../Services/wordpress.service';
 import { environment } from '../../../environments/environment';
 
 describe('PresidentsComponent', () => {
   let fixture: ComponentFixture<PresidentsComponent>;
   let http: HttpTestingController;
 
-  async function setup(slug: string) {
+  async function setup(slug: string, useGraphql = false) {
     await TestBed.configureTestingModule({
       imports: [PresidentsComponent],
       providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(),
-                  { provide: HOMEPAGE_SLUG, useValue: slug }],
+                  { provide: HOMEPAGE_SLUG, useValue: slug }, { provide: USE_GRAPHQL, useValue: useGraphql }],
     }).compileComponents();
     fixture = TestBed.createComponent(PresidentsComponent);
     http = TestBed.inject(HttpTestingController);
@@ -49,6 +50,25 @@ describe('PresidentsComponent', () => {
     expect(text).toContain('Continue Read More');
     expect(text).toContain('Post A');
     expect((fixture.nativeElement as HTMLElement).innerHTML).toContain('href="/pg/about-1-5-1"');
+  });
+
+  it('GraphQL: builds the excerpt from the page content and links to the slug', async () => {
+    await setup('about-1-5-1', true);
+    http.expectOne(r => r.method === 'POST' && r.url === environment.graphqlUrl && r.body?.variables?.slug === 'about-1-5-1')
+      .flush({ data: { page: { databaseId: 19, slug: 'about-1-5-1', title: '1-5-1 History', date: null, content: '<p>Founded in <b>1982</b>.</p>', featuredImage: null } } });
+    flushPosts([]);
+    const text = await render();
+    expect(text).toContain('Founded in 1982.');
+    expect((fixture.nativeElement as HTMLElement).innerHTML).toContain('href="/pg/about-1-5-1"');
+  });
+
+  it('GraphQL: page null = only the static sections', async () => {
+    await setup('nope', true);
+    http.expectOne(r => r.method === 'POST' && r.url === environment.graphqlUrl).flush({ data: { page: null } });
+    flushPosts([]);
+    const text = await render();
+    expect(text).toContain('Strategic Objectives');
+    expect(text).not.toContain('Continue Read More');
   });
 
   it('shows only the static sections when the slug matches no page', async () => {

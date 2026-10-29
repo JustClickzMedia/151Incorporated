@@ -6,6 +6,7 @@ import { HOMEPAGE_SLUG } from '../../homepage.config';
 import { CommonModule } from '@angular/common';
 import { LinkcssPipe } from '../../Pipes/linkcss.pipe'
 import { RouterLink } from '@angular/router';
+import { WpPage } from '../../Model/wp-page';
 
 @Component({
     selector: 'app-presidents',
@@ -20,8 +21,8 @@ export class PresidentsComponent {
 
   /** Homepage page, loaded by slug (not by ID). No slug configured yet = no request. */
   readonly page = this.homepageSlug
-    ? toSignal(this.wp.getPageBySlug(this.homepageSlug).pipe(withFallback<any>(undefined)))
-    : signal<any>(undefined).asReadonly();
+    ? toSignal(this.wp.getPageBySlug(this.homepageSlug).pipe(withFallback<WpPage | undefined>(undefined)))
+    : signal<WpPage | undefined>(undefined).asReadonly();
 
   readonly posts = toSignal(this.wp.getPosts().pipe(withFallback<any[]>([])), { initialValue: [] as any[] });
 }

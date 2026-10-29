@@ -9,7 +9,9 @@ export const environment = {
   restUrl: 'https://tzin.brothersof1-5-1.org/staging/1848/wp-json/wp/v2/',
   // TODO(homepage): Kenneth hasn't chosen the homepage yet. Set this to the WordPress page slug
   // (e.g. 'about-1-5-1'). Empty = don't request a page; the homepage shows only its static sections.
-  homepageSlug: ''
+  homepageSlug: '',
+  // Read pages through GraphQL (staging endpoint above). REST stays available as the fallback path.
+  useGraphql: true
 };
 
 /*

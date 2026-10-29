@@ -5,6 +5,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 
 import { NavbarComponent } from './navbar.component';
 import { environment } from '../../../environments/environment';
+import { USE_GRAPHQL } from '../../Services/wordpress.service';
 
 describe('NavbarComponent', () => {
   let fixture: ComponentFixture<NavbarComponent>;
@@ -13,7 +14,7 @@ describe('NavbarComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [NavbarComponent],
-      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: USE_GRAPHQL, useValue: false }],
     }).compileComponents();
     fixture = TestBed.createComponent(NavbarComponent);
     http = TestBed.inject(HttpTestingController);
@@ -42,5 +43,28 @@ describe('NavbarComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     expect(collapse().classList).toContain('show');
+  });
+});
+
+describe('NavbarComponent (GraphQL)', () => {
+  it('renders the menu from the GraphQL Pages query, linking by slug', async () => {
+    await TestBed.configureTestingModule({
+      imports: [NavbarComponent],
+      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting(), { provide: USE_GRAPHQL, useValue: true }],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(NavbarComponent);
+    const http = TestBed.inject(HttpTestingController);
+    fixture.detectChanges();
+    const req = http.expectOne(r => r.method === 'POST' && r.url === environment.graphqlUrl);
+    expect(req.request.body.query).toContain('pages(');
+    req.flush({ data: { pages: { pageInfo: { hasNextPage: false, endCursor: null },
+      nodes: [{ databaseId: 29, slug: 'membership', title: 'Membership Requirement', uri: '/membership/' },
+              { databaseId: 17, slug: 'moto', title: 'Moto', uri: '/moto/' }] } } });
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const links = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.navbar-nav.mr-auto a'));
+    expect(links.map(a => a.textContent?.trim())).toEqual(['MEMBERSHIP', 'MOTO']);
+    expect(links.map(a => a.getAttribute('href'))).toEqual(['/pg/membership', '/pg/moto']);
+    http.verify();
   });
 });

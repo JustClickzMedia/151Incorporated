@@ -8,11 +8,12 @@ import { WordpressService } from '../../Services/wordpress.service';
 import { SeoService } from '../../Services/seo.service';
 import { SidbarpostsComponent } from '../../Components/sidbarposts/sidbarposts.component';
 import { PagenotfoundComponent } from '../../Components/pagenotfound/pagenotfound.component';
+import { WpPage } from '../../Model/wp-page';
 
 /** loading: request in flight · found: page loaded · notfound: no page has that slug · error: request failed */
 type PageState =
   | { status: 'loading' }
-  | { status: 'found'; page: any }
+  | { status: 'found'; page: WpPage }
   | { status: 'notfound' }
   | { status: 'error' };
 
@@ -41,8 +42,7 @@ export class PagedetailsComponent {
   readonly page = computed(() => { const s = this.state(); return s.status === 'found' ? s.page : undefined; });
   readonly notFound = computed(() => this.state().status === 'notfound');
   /** Hero image; pages without a featured image just get no background instead of a template error. */
-  readonly heroUrl = computed<string | undefined>(() =>
-    this.page()?._embedded?.['wp:featuredmedia']?.[0]?.media_details?.sizes?.full?.source_url);
+  readonly heroUrl = computed<string | undefined>(() => this.page()?.featuredImage?.url);
 
   private load(slug: string): Observable<PageState> {
     if (!slug) {
@@ -55,15 +55,15 @@ export class PagedetailsComponent {
     );
   }
 
-  private applySeo(resp: any): void {
+  private applySeo(page: WpPage): void {
     try {
       this.seo.removeMetaTags();
       this.seo.addMetaTags();
-      this.seo.setTitle(resp['title']['rendered']);
-      this.seo.updateKeywordMetaTags(resp['post-custom-fields']['Keywords']);
-      this.seo.updateDescMetaTags(resp['post-custom-fields']['Description']);
+      this.seo.setTitle(page.title);
+      // The old 'post-custom-fields' Keywords/Description don't exist in REST or GraphQL; use the excerpt instead.
+      if (page.excerptText) { this.seo.updateDescMetaTags(page.excerptText); }
     } catch (err) {
-      // Same as before: a missing SEO field is logged, the content still renders.
+      // Same as before: an SEO problem is logged, the content still renders.
       console.error(err);
     }
   }
