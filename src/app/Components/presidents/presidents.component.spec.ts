@@ -71,6 +71,39 @@ describe('PresidentsComponent', () => {
     expect(text).not.toContain('Continue Read More');
   });
 
+  // Strategic Objectives / News used to exist twice: a desktop copy that only rendered once a homepage page had
+  // loaded, and a mobile copy hidden from 768px up — so tablets, laptops and desktops showed neither.
+  const visibleHeadings = (text: string) => Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('h2, h3'))
+    .filter(h => h.textContent?.includes(text));
+  const hiddenOnSomeScreens = (h: Element) => {
+    for (let e: Element | null = h; e && e !== fixture.nativeElement; e = e.parentElement) {
+      if (/\bd-(none|md-none|lg-none|xl-none)\b/.test(e.className)) { return true; }
+    }
+    return false;
+  };
+
+  it('shows Strategic Objectives and News exactly once, on every screen size, with no homepage page', async () => {
+    await setup('');
+    flushPosts([]);
+    await render();
+    for (const title of ['Strategic Objectives', 'News & Upcoming Events']) {
+      const headings = visibleHeadings(title);
+      expect(headings.length).withContext(title).toBe(1);
+      expect(hiddenOnSomeScreens(headings[0])).withContext(title + ' hidden by a d-*-none class').toBeFalse();
+    }
+  });
+
+  it('shows Strategic Objectives once, on every screen size, next to the homepage excerpt', async () => {
+    await setup('about-1-5-1');
+    pageBySlug('about-1-5-1').flush([{ id: 42, slug: 'about-1-5-1', title: { rendered: 'About' }, excerpt: { rendered: '<p>Excerpt text</p>' } }]);
+    flushPosts([]);
+    await render();
+    const headings = visibleHeadings('Strategic Objectives');
+    expect(headings.length).toBe(1);
+    expect(hiddenOnSomeScreens(headings[0])).toBeFalse();
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('Excerpt text');
+  });
+
   it('shows only the static sections when the slug matches no page', async () => {
     await setup('does-not-exist');
     pageBySlug('does-not-exist').flush([]);

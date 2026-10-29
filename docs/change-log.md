@@ -381,3 +381,19 @@
 - **Notes:**
   - The 146px matches the navbar height at the top of the page at every width. If the navbar changes (for example, the `Nav-changes` merge), update it.
   - `docs/wordpress-operations.md` now says only `desktopLandscapeImage` is used.
+
+## 2026-10-29 — Homepage: Strategic Objectives and News on every screen size
+
+- **Branch:** `feature/graphql-carousel`
+- **Problem:** `presidents.component.html` had two copies of Strategic Objectives and News.
+  - The desktop copy (`d-none d-md-block`) was inside `@if (page())`, so it only rendered once a homepage page loaded, and `homepageSlug` is still empty.
+  - The mobile copy was `d-lg-none d-md-none`.
+  - Result: from 768px up (tablet, laptop and desktop) neither showed.
+- **Fix:** one responsive block that always renders.
+  - With a homepage page: excerpt on the left (lg 6 columns), objectives and news on the right (lg 5 columns).
+  - Without one: objectives and news centred (lg 8 columns).
+  - Below lg: everything stacks full width.
+- **Checked on `ng serve`:** Strategic Objectives and News show exactly once at 393, 768, 1024, 1366 and 1920 px, with no horizontal overflow.
+- **Tested:** `ng test` **93/93 pass**.
+  - New: shown once and not hidden by any `d-*-none` class, both with and without a homepage page.
+  - Mutation: the old template fails both tests.
