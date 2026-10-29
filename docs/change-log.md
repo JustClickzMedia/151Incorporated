@@ -231,3 +231,19 @@
   - Turning on GraphQL in production is one line (`useGraphql: true` in `environment.prod.ts`) after promotion.
   - The navbar now asks for up to 20 pages (REST asked for 6); there are 6 today.
   - Posts, search, events and carousel are still REST or static (Tasks 5–7).
+
+## 2026-10-28 — Fix: SSR "op is not a function" in SeoService
+
+- **Branch:** `feature/graphql-client`
+- **Cause:**
+  - `SeoService.removeMetaTags()` used selectors with spaces around `=` (`'name = "author"'`). The server-side DOM (domino) throws on these, so during SSR `applySeo()` stopped before `setTitle()`, and server-rendered pages had no page title or description.
+  - It also used `httpEquiv` instead of `http-equiv`, so the Content-Type tag was never removed and was duplicated on every navigation.
+- **Files changed:**
+  - `src/app/Services/seo.service.ts`: `META_TAGS_TO_REMOVE` selectors with no spaces, removed with `meta.removeTag()`.
+  - `src/app/Services/seo.service.spec.ts`: no duplicate tags after repeated navigations; selector format check.
+  - `src/app/Components/home/home.component.ts`: removed the unused `HomebuttonsectionComponent` import (the NG8113 warning; the buttons are commented out in the template).
+- **Tested:**
+  - `ng test`: **74/74 pass**.
+  - Development build has no NG8113 warning.
+  - The old selector reproduces the error in domino; the new selectors parse.
+- **Note:** the "sanitizing HTML stripped some content" warning comes from Gutenberg's `data-type` / `data-id` attributes on a link in the `president` page. Angular removes `data-*` attributes from `[innerHTML]`. The link itself still works; this is harmless.

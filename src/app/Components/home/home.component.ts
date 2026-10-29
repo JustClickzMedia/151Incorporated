@@ -1,7 +1,6 @@
 import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import { SeoService } from '../../Services/seo.service';
 import { CarouselComponent } from '../../Components/carousel/carousel.component';
-import { HomebuttonsectionComponent } from '../../Components/homebuttonsection/homebuttonsection.component';
 import { PresidentsComponent } from '../../Components/presidents/presidents.component'
 
 @Component({
@@ -9,7 +8,7 @@ import { PresidentsComponent } from '../../Components/presidents/presidents.comp
     templateUrl: './home.component.html',
     styleUrls: ['./home.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [CarouselComponent, HomebuttonsectionComponent, PresidentsComponent]
+    imports: [CarouselComponent, PresidentsComponent]
 })
 export class HomeComponent implements OnInit {
   private seo = inject(SeoService);

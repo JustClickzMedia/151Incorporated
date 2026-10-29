@@ -2,6 +2,16 @@ import { Injectable, inject } from '@angular/core';
 import { Meta } from '@angular/platform-browser';
 import { Title } from '@angular/platform-browser';
 
+/** Attribute selectors (no spaces around '=') for the tags added by addMetaTags() and setTitle(). */
+export const META_TAGS_TO_REMOVE = [
+  'name="author"',
+  'name="date"',
+  'http-equiv="Content-Type"',
+  'charset',
+  'property="og:title"',
+  'property="og:type"',
+] as const;
+
 @Injectable({
   providedIn: 'root'
 })
@@ -39,7 +49,7 @@ export class SeoService {
     ]);
   } 
   getMetaTags() {
-      let metaEl: HTMLMetaElement = this.meta.getTag('name= "keywords"');
+      let metaEl: HTMLMetaElement = this.meta.getTag('name="keywords"');
       console.log(metaEl);
       console.log(metaEl.name);
       console.log(metaEl.content);
@@ -70,18 +80,11 @@ export class SeoService {
       this.meta.removeTag('name = "viewport"');
       this.meta.removeTag('name = "robots"');*/
       
-      //Using removeTagElement
-      let author: HTMLMetaElement = this.meta.getTag('name = "author"');
-      this.meta.removeTagElement(author);
-      let date: HTMLMetaElement = this.meta.getTag('name = "date"');
-      this.meta.removeTagElement(date);
-      let contentType: HTMLMetaElement = this.meta.getTag('httpEquiv = "Content-Type"');
-      this.meta.removeTagElement(contentType);
-      let charset: HTMLMetaElement = this.meta.getTag('charset');
-      this.meta.removeTagElement(charset);
-      let ogTitle: HTMLMetaElement = this.meta.getTag('property = "og:title"');
-      this.meta.removeTagElement(ogTitle);
-      let ogType: HTMLMetaElement = this.meta.getTag('property = "og:type"');          
-      this.meta.removeTagElement(ogType);
+      // Removes the tags addMetaTags() adds, so they aren't duplicated on every navigation.
+      // Selectors must have no spaces around '=': the server-side DOM (domino, used for SSR) throws
+      // "op is not a function" on 'name = "author"'. The attribute is 'http-equiv', not 'httpEquiv'.
+      for (const selector of META_TAGS_TO_REMOVE) {
+        this.meta.removeTag(selector);
+      }
   }       
 }
