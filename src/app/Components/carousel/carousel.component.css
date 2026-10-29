@@ -1,3 +1,76 @@
-.carousel-item{
-    background-color:#670001;
+/*
+ * Hero banner, sized like the Richmond Sigmas homepage hero: ONE wide photo on every screen, in a banner
+ * that keeps a fixed shape and simply gets shorter as the screen narrows (about 2.2:1 on desktop and
+ * tablet, about 1.75:1 on phones). The photo is cropped from the centre to fill the banner, with a maroon
+ * tint and a centred caption + button.
+ * The six per-screen images from WordPress are not used for now (only desktopLandscapeImage).
+ */
+/*
+ * Like Richmond, the banner starts BELOW the header instead of behind it (a short banner would be mostly
+ * hidden under the fixed, transparent navbar). The maroon band fills the 146px the navbar occupies at the
+ * top of the page (same at every width), so the header reads as a solid bar above the photo.
+ */
+.mycarousel {
+  border-top: 146px solid #670001;
+}
+
+.carousel-item {
+  background-color: #670001;
+  aspect-ratio: 1240 / 560;        /* desktop/tablet: ~2.2:1 (e.g. 1000x452) */
+}
+
+@media (max-width: 767.98px) {
+  .carousel-item { aspect-ratio: 480 / 275; }     /* phones: ~1.75:1 (e.g. 393x225) */
+}
+
+.carousel-item picture,
+.carousel-item > img {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.carousel-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;              /* fill the banner; crop evenly from the centre */
+  object-position: center;
+}
+
+/* Maroon tint (1-5-1 #670001) so the white caption stays readable on any photo */
+.carousel-item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(103, 0, 1, 0.55);
+}
+
+.carousel-caption {
+  z-index: 2;
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
+}
+
+.carousel-caption h1 {
+  font-size: clamp(1.25rem, 4.5vw, 3.5rem);
+}
+
+/* Controls and indicators above the overlay */
+.carousel-indicators,
+.carousel-control-prev,
+.carousel-control-next {
+  z-index: 3;
+}
+
+a.nav-item.btn:hover {
+  color: white;
+  background-color: #670001;
+}
+
+/* Phones: the banner is short (~225px), so keep the caption compact */
+@media (max-width: 767.98px) {
+  .carousel-caption { padding-top: 0; padding-bottom: 0; }
+  .carousel-caption .btn { font-size: 0.875rem; padding: 0.25rem 0.75rem; margin-top: 0.25rem !important; margin-bottom: 0 !important; }
+  .carousel-indicators { margin-bottom: 0.25rem; }
 }

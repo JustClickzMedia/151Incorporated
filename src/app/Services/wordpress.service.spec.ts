@@ -67,6 +67,12 @@ describe('WordpressService', () => {
       excerptText: 'E', date: 'd', featuredImage: { url: 'https://x/img.jpg', alt: 'alt' } });
   });
 
+  it('getHomepageCarousels() emits [] without a request when GraphQL is off', () => {
+    let result: any;
+    service.getHomepageCarousels().subscribe(s => result = s);
+    expect(result).toEqual([]);
+  });
+
   it('getMenuPages() maps REST pages to id/slug/title', () => {
     let result: any;
     service.getMenuPages().subscribe(p => result = p);
@@ -142,6 +148,28 @@ describe('WordpressService (GraphQL)', () => {
     expect(req.request.body.query).toContain('orderby: { field: MENU_ORDER, order: ASC }');
     req.flush({ data: { pages: { pageInfo: { hasNextPage: false, endCursor: null }, nodes: [{ databaseId: 29, slug: 'membership', title: 'Membership', uri: '/membership/' }] } } });
     expect(result).toEqual([{ id: 29, slug: 'membership', title: 'Membership' }]);
+  });
+
+  it('getHomepageCarousels() sends the contract query once and caches the slides', () => {
+    let a: any, b: any;
+    service.getHomepageCarousels().subscribe(s => a = s);
+    const req = gqlRequest();
+    expect(req.request.body.query).toContain('homepageCarousels(first: 10)');
+    expect(req.request.body.query).toContain('desktopportraitImage');
+    req.flush({ data: { homepageCarousels: { nodes: [{ databaseId: 107, title: 'T', carouselSmallToLarge: {
+      desktopLandscapeImage: { node: { sourceUrl: 'https://x/a.jpg', altText: '' } }, desktopportraitImage: null, tabletlandscapeimage: null,
+      tabletportraitimage: null, mobileLandscapeImage: null, mobileportraitimage: null } }] } } });
+    service.getHomepageCarousels().subscribe(s => b = s);
+    httpMock.expectNone(() => true);
+    expect(a.length).toBe(1);
+    expect(b).toBe(a);
+  });
+
+  it('getHomepageCarousels() does not cache a failure', () => {
+    service.getHomepageCarousels().subscribe({ error: () => {} });
+    gqlRequest().flush({ errors: [{ message: 'boom' }] });
+    service.getHomepageCarousels().subscribe();
+    gqlRequest().flush({ data: { homepageCarousels: { nodes: [] } } });
   });
 
   it('getPageSlugById() still uses REST (old-link redirects)', () => {

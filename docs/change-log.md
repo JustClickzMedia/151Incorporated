@@ -226,7 +226,7 @@
     - `Pages` returns all 6 slugs, `hasNextPage` false.
     - `PageBySlug` returns all 6 pages with featured images.
     - An unknown slug returns `page: null`.
-- **Not tested:** CORS from `http://localhost:4200` (needs `ng serve` on your Mac); a manual browser check.
+- **Browser check (2026-10-28, Kenneth):** `ng serve` on the Mac, pages load from staging GraphQL with no console or CORS errors (after the SEO fix below).
 - **Open issues:**
   - Turning on GraphQL in production is one line (`useGraphql: true` in `environment.prod.ts`) after promotion.
   - The navbar now asks for up to 20 pages (REST asked for 6); there are 6 today.
@@ -247,3 +247,153 @@
   - Development build has no NG8113 warning.
   - The old selector reproduces the error in domino; the new selectors parse.
 - **Note:** the "sanitizing HTML stripped some content" warning comes from Gutenberg's `data-type` / `data-id` attributes on a link in the `president` page. Angular removes `data-*` attributes from `[innerHTML]`. The link itself still works; this is harmless.
+
+## 2026-10-28 — Angular Task 5: homepage carousel from WordPress (GraphQL `homepageCarousels`)
+
+- **Branch:** `feature/graphql-carousel`
+- **Files changed:**
+  - New `src/app/Model/carousel-slide.ts`: maps each `homepageCarousels` item to a slide.
+    - Six images become a `<picture>`: five `<source>` media queries, with desktop landscape as the `<img>`.
+    - Missing sizes are skipped. If the desktop landscape image is missing, the next image that exists is used.
+    - `altText` falls back to the title (it's empty for all 3 items today).
+  - `src/app/Services/wp-queries.ts`: the `HomepageCarousels` query from the contract (plus `mediaDetails` for `width`/`height`).
+  - `src/app/Services/wordpress.service.ts`: new `getHomepageCarousels()`.
+    - GraphQL only (there's no REST equivalent). It returns `[]` when `useGraphql` is off.
+    - The result is cached for the session; a failed request isn't cached.
+  - `src/app/Components/carousel/*`: the component has three states:
+    - **WordPress slides** when GraphQL returns items.
+    - **The built-in slides** (unchanged) when GraphQL is off (**production until promotion**), empty, or failed. Failures are logged.
+    - **Nothing while loading**, so the built-in images aren't downloaded first.
+    - The first slide isn't lazy-loaded; the others are `loading="lazy"`.
+    - Indicators are generated per slide. The built-in set had 4 indicators for 5 slides; it now has 5.
+  - `src/app/Services/seo.service.ts`: `removeMetaTags()` removes **every** match, cleaning up duplicates. Its spec now starts from a clean `<head>`; it had been order-dependent.
+  - Specs: carousel (GraphQL on and off), `carousel-slide.spec.ts`, service carousel tests, SEO duplicates test.
+- **Breakpoints** (checked in Chrome with real staging images at each viewport):
+
+  | Viewport | Image used |
+  |---|---|
+  | Phone portrait (375×812) | `mobileportraitimage` |
+  | Phone landscape (812×375) | `mobileLandscapeImage` |
+  | Tablet portrait (768×1024) | `tabletportraitimage` |
+  | Tablet landscape (1180×820, 1024×768) | `tabletlandscapeimage` |
+  | Laptop (1366×768) | `desktopportraitImage` |
+  | Desktop (1920×1080) | `desktopLandscapeImage` |
+- **Tested:**
+  - `ng test`: **88/88 pass** (3 runs).
+  - Mutation checks: no active slide, or no alt fallback, each fail a test.
+  - Development and production builds succeed.
+  - The production SSR homepage renders the 5 built-in slides with no `<picture>` (GraphQL off).
+  - The exact query works on live staging: 3 items.
+- **Not tested:** the Bootstrap slide animation in a real browser with the WordPress slides.
+- **Open issues / content:**
+  - WordPress slides have **no captions or links**, because the type has no link field. The titles ("Brothers of 1-5-1", "The Michael J. Bryant Memorial Scholarship", "Membership Requirements") are used only as alt text. A link field would have to be added on the backend.
+  - The "desktop" images are only 1024 px wide (for example `bismarck1900landscape.jpg` is 1024×576), so they look soft on large screens. Re-upload at 1920 px to fix.
+
+## 2026-10-28 — Task 5 follow-up: live-site carousel design with responsive images
+
+- **Branch:** `feature/graphql-carousel`
+- **Finding:** the live site (brothersof1-5-1.org, Angular 17.3.1) is built from the **unmerged `Nav-changes` branch**, not `master`.
+  - Its carousel is full-screen (`height: 100vh`) with captions and "Learn About…" buttons.
+  - It stretches one 1296×624 image to the screen height, which is why phones showed a distorted desktop image.
+  - `master` never had that design.
+- **Files changed:**
+  - `carousel.component.css`: the full-screen design from `Nav-changes` (100vh/100svh, dark overlay, white caption, button hover).
+    - Images now use `object-fit: cover` (cropped, not stretched).
+    - The caption is vertically centred, not fixed at 400px, so it stays visible on short landscape phones.
+  - `carousel.component.html`:
+    - WordPress slides get a caption (title) and a button.
+    - The built-in slides are now the live site's 3 captioned slides.
+    - Links use slugs. The live site's Membership button pointed to page 13, which doesn't exist; it now goes to `/pg/membership`.
+  - New `carousel-links.ts`: button label and page slug per WordPress carousel ID (107 → `about-1-5-1`, 106 → `scholarship`, 105 → `membership`). Temporary until the carousel type gets a link field.
+- **Tested:**
+  - `ng test`: **90/90 pass** (captions, links, built-in slides, `object-fit: cover`).
+  - Chrome at 390×844 with the real staging images: the mobile portrait image is used, cropped to fill, with the caption and button centred.
+- **Open issues:**
+  - The rest of `Nav-changes` isn't in `master`: navbar logo and button colours, hover styles, removed page top margin, `.img-overlay`, a `homemainimage` component and a navbar rewrite. Deploying `master` would drop those; they need to be merged on purpose.
+  - Add a link field to the carousel type, then remove `carousel-links.ts`.
+
+## 2026-10-28 — Task 5 follow-up 2: slides sized to the image, not stretched to full screen height
+
+- **Branch:** `feature/graphql-carousel`
+- **Problem:**
+  - With `height: 100vh` plus `object-fit: cover`, phones got the right image (for example `BismarkMobile320X480.jpg`), but it was enlarged to fill the full screen height.
+  - On a 393×852 phone, a 320×480 image was scaled about 1.8×, and both sides were cut off, so it didn't look resized.
+- **Fix** (`carousel.component.css`):
+  - Each slide takes the shape of that screen size's images, using the same media queries as the `<picture>` sources: 16:9 desktop, 1024:493 laptop, 4:3 tablet landscape, 601:962 tablet portrait, 3:2 phone landscape, 9:16 phone portrait.
+  - Slides are capped at the screen height (`max-height: 100svh`).
+  - The whole photo now shows, scaled to the screen width. `cover` only trims images whose shape differs slightly from the standard.
+- **Checked live on `ng serve`** (Chrome on the Mac):
+
+  | Viewport | Slide size | Image |
+  |---|---|---|
+  | 393×852 phone | 393×699 | `…mobileportrait.jpg` (360×640) |
+  | 812×375 phone landscape | 812×375 | 480×320 |
+  | 768×1024 tablet | 768×1024 | 601×962 |
+  | 1180×820 tablet | 1180×820 | 1024×640 |
+  | 1366×768 laptop | 1366×658 | 1024×493 |
+  | 1920×1080 desktop | 1920×1080 | 1024×576 |
+- **Tested:** `ng test` **91/91 pass** (new: slide has an aspect ratio and is no taller than the screen).
+- **Content:** the phone images are only 320–360 px wide, so they look soft on 2× and 3× phone screens. Uploading phone images at about 1080×1920 and desktop images at 1920×1080 would make them sharp.
+
+## 2026-10-28 — Task 5 follow-up 3: whole image always visible (`object-fit: contain`)
+
+- **Branch:** `feature/graphql-carousel`
+- **Problem:** with `cover`, an image whose shape differs from its slot was enlarged and cut off at the edges.
+  - The Bismarck phone image is 320×480 (2:3) in the 9:16 phone slot, so it ran past the screen on both sides.
+  - A slide capped at the screen height had the same problem.
+- **Fix:** `object-fit: contain`. The whole image is always visible, scaled to fit. A mismatched image gets thin bars in the slide colour (#670001) instead of being cropped.
+- **Checked on `ng serve`** (393×852):
+
+  | Slide | Image | Drawn at |
+  |---|---|---|
+  | Scholarship | 360×640 | 393×699, fills the slot exactly |
+  | Membership | 360×640 | 393×699, fills the slot exactly |
+  | Bismarck | 320×480 | 393×590, full width, thin bars top and bottom |
+
+  No horizontal overflow (`scrollWidth` 393).
+- **Tested:** `ng test` **91/91 pass**.
+- **Content:** re-uploading the Bismarck phone image at 9:16 (e.g. 1080×1920) removes its bars.
+
+## 2026-10-29 — Task 5 follow-up 4: Richmond-style hero banner (dimensions + maroon tint)
+
+- **Branch:** `feature/graphql-carousel`
+- **Request:** behave like the richmondsigmas.org homepage hero. Only the behaviour and dimensions were reproduced; no assets, text or code were copied.
+  - **The same wide photo on every screen** (`desktopLandscapeImage`; the per-screen `<source>`s are removed).
+  - A banner with a fixed shape that gets shorter as the screen narrows: **1240:560 (≈2.2:1) from 768 px up, 480:275 (≈1.75:1) on phones**.
+  - The photo is cropped from the centre (`object-fit: cover`).
+  - **Maroon tint** `rgba(103,0,1,.55)`; Kenneth chose this over Richmond's blue.
+  - The banner starts **below** the fixed navbar: a 146px maroon band (`border-top`) sits behind the transparent header, so it reads as a solid bar, as on Richmond.
+  - Smaller caption and button on phones so they fit the shorter banner.
+- **Checked on `ng serve`:**
+
+  | Viewport | Banner |
+  |---|---|
+  | 393×852 | 393×225 |
+  | 768 | 768×347 |
+  | 1024 | 1024×462 |
+  | 1366 | 1366×617 |
+  | 1920 | 1920×867 |
+
+  The banner starts at 146px at every size, and the caption sits inside it.
+- **Tested:** `ng test` **91/91 pass**.
+  - New: banner shape, 146px band, maroon tint, `cover`, no `<source>`s.
+  - Mutation: making the banner full height fails a test.
+- **Notes:**
+  - The 146px matches the navbar height at the top of the page at every width. If the navbar changes (for example, the `Nav-changes` merge), update it.
+  - `docs/wordpress-operations.md` now says only `desktopLandscapeImage` is used.
+
+## 2026-10-29 — Homepage: Strategic Objectives and News on every screen size
+
+- **Branch:** `feature/graphql-carousel`
+- **Problem:** `presidents.component.html` had two copies of Strategic Objectives and News.
+  - The desktop copy (`d-none d-md-block`) was inside `@if (page())`, so it only rendered once a homepage page loaded, and `homepageSlug` is still empty.
+  - The mobile copy was `d-lg-none d-md-none`.
+  - Result: from 768px up (tablet, laptop and desktop) neither showed.
+- **Fix:** one responsive block that always renders.
+  - With a homepage page: excerpt on the left (lg 6 columns), objectives and news on the right (lg 5 columns).
+  - Without one: objectives and news centred (lg 8 columns).
+  - Below lg: everything stacks full width.
+- **Checked on `ng serve`:** Strategic Objectives and News show exactly once at 393, 768, 1024, 1366 and 1920 px, with no horizontal overflow.
+- **Tested:** `ng test` **93/93 pass**.
+  - New: shown once and not hidden by any `d-*-none` class, both with and without a homepage page.
+  - Mutation: the old template fails both tests.
