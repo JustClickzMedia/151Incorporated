@@ -288,3 +288,26 @@
 - **Open issues / content:**
   - WordPress slides have **no captions or links**, because the type has no link field. The titles ("Brothers of 1-5-1", "The Michael J. Bryant Memorial Scholarship", "Membership Requirements") are used only as alt text. A link field would have to be added on the backend.
   - The "desktop" images are only 1024 px wide (for example `bismarck1900landscape.jpg` is 1024×576), so they look soft on large screens. Re-upload at 1920 px to fix.
+
+## 2026-10-28 — Task 5 follow-up: live-site carousel design with responsive images
+
+- **Branch:** `feature/graphql-carousel`
+- **Finding:** the live site (brothersof1-5-1.org, Angular 17.3.1) is built from the **unmerged `Nav-changes` branch**, not `master`.
+  - Its carousel is full-screen (`height: 100vh`) with captions and "Learn About…" buttons.
+  - It stretches one 1296×624 image to the screen height, which is why phones showed a distorted desktop image.
+  - `master` never had that design.
+- **Files changed:**
+  - `carousel.component.css`: the full-screen design from `Nav-changes` (100vh/100svh, dark overlay, white caption, button hover).
+    - Images now use `object-fit: cover` (cropped, not stretched).
+    - The caption is vertically centred, not fixed at 400px, so it stays visible on short landscape phones.
+  - `carousel.component.html`:
+    - WordPress slides get a caption (title) and a button.
+    - The built-in slides are now the live site's 3 captioned slides.
+    - Links use slugs. The live site's Membership button pointed to page 13, which doesn't exist; it now goes to `/pg/membership`.
+  - New `carousel-links.ts`: button label and page slug per WordPress carousel ID (107 → `about-1-5-1`, 106 → `scholarship`, 105 → `membership`). Temporary until the carousel type gets a link field.
+- **Tested:**
+  - `ng test`: **90/90 pass** (captions, links, built-in slides, `object-fit: cover`).
+  - Chrome at 390×844 with the real staging images: the mobile portrait image is used, cropped to fill, with the caption and button centred.
+- **Open issues:**
+  - The rest of `Nav-changes` isn't in `master`: navbar logo and button colours, hover styles, removed page top margin, `.img-overlay`, a `homemainimage` component and a navbar rewrite. Deploying `master` would drop those; they need to be merged on purpose.
+  - Add a link field to the carousel type, then remove `carousel-links.ts`.

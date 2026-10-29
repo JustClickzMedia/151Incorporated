@@ -5,6 +5,7 @@ import { of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { WordpressService } from '../../Services/wordpress.service';
 import { CarouselSlide } from '../../Model/carousel-slide';
+import { CAROUSEL_LINKS } from './carousel-links';
 
 /** loading: request in flight · cms: slides from WordPress · static: the built-in slides (GraphQL off, empty or failed) */
 type CarouselState = { status: 'loading' } | { status: 'cms'; slides: CarouselSlide[] } | { status: 'static' };
@@ -30,4 +31,9 @@ export class CarouselComponent {
 
   readonly slides = computed(() => { const s = this.state(); return s.status === 'cms' ? s.slides : []; });
   readonly showStatic = computed(() => this.state().status === 'static');
+
+  /** Caption button for a WordPress slide (undefined = caption title only). */
+  linkFor(slide: CarouselSlide) {
+    return CAROUSEL_LINKS[slide.id];
+  }
 }

@@ -37,25 +37,37 @@ describe('CarouselComponent', () => {
 
   afterEach(() => http.verify());
 
+  it('crops images to fill the slide instead of stretching them (object-fit: cover)', async () => {
+    await setup(false);
+    document.body.appendChild(el());
+    await render();
+    const image = el().querySelector('.carousel-item.active img') as HTMLImageElement;
+    expect(getComputedStyle(image).objectFit).toBe('cover');
+    el().remove();
+  });
+
   describe('GraphQL off (production until promotion)', () => {
     beforeEach(() => setup(false));
 
-    it('makes no request and shows the built-in slides', async () => {
+    it('makes no request and shows the built-in slides (the live site\'s three)', async () => {
       http.expectNone(() => true);
       await render();
-      expect(el().querySelectorAll('.carousel-item').length).toBe(5);
+      expect(el().querySelectorAll('.carousel-item').length).toBe(3);
       expect(el().querySelectorAll('.carousel-item.active').length).toBe(1);
     });
 
-    it('has one indicator per built-in slide (was 4 for 5 slides)', async () => {
+    it('has one indicator per built-in slide', async () => {
       await render();
       expect(el().querySelectorAll('.carousel-indicators li').length).toBe(el().querySelectorAll('.carousel-item').length);
     });
 
-    it('links the History slide to the about-1-5-1 page by slug', async () => {
+    it('shows the live site captions with slug links (membership was page 13, which does not exist)', async () => {
       await render();
-      const link = Array.from(el().querySelectorAll('a')).find(a => a.textContent?.includes('Bismarck Hotel'));
-      expect(link?.getAttribute('href')).toBe('/pg/about-1-5-1');
+      const captions = Array.from(el().querySelectorAll('.carousel-caption'));
+      expect(captions.map(c => c.querySelector('h1')?.textContent?.trim())).toEqual(
+        ['THE BROTHERS OF 1-5-1', 'The Michael J. Bryant Memorial Scholarship', 'MEMBERSHIP REQUIREMENTS']);
+      expect(captions.map(c => c.querySelector('a')?.getAttribute('href'))).toEqual(
+        ['/pg/about-1-5-1', '/pg/scholarship', '/pg/membership']);
     });
   });
 
@@ -74,7 +86,7 @@ describe('CarouselComponent', () => {
       const indicators = Array.from(el().querySelectorAll('.carousel-indicators li'));
       expect(indicators.map(li => li.getAttribute('data-bs-slide-to'))).toEqual(['0', '1', '2']);
       expect(indicators[0].classList).toContain('active');
-      expect(el().textContent).not.toContain('Bismarck Hotel'); // built-in slides are not shown
+      expect(el().textContent).not.toContain('THE BROTHERS OF 1-5-1'); // built-in slides are not shown
     });
 
     it('builds a <picture> with the five smaller sizes as <source>s and desktop landscape as the <img>', async () => {
@@ -89,6 +101,21 @@ describe('CarouselComponent', () => {
       expect(image.getAttribute('src')).toBe('https://cms.test/staging/1848/bismarck-dl.jpg');
       expect(image.getAttribute('alt')).toBe('Brothers of 1-5-1'); // altText is empty -> title
       expect(image.getAttribute('loading')).toBeNull(); // first slide is not lazy
+    });
+
+    it('captions each slide with its title and the button from CAROUSEL_LINKS (by WordPress ID)', async () => {
+      carouselRequest().flush({ data: { homepageCarousels: { nodes: [
+        item(107, 'Brothers of 1-5-1', 'bismarck'), item(106, 'The Michael J. Bryant Memorial Scholarship', '32years'),
+        item(105, 'Membership Requirements', 'brotherhood'), item(999, 'New slide', 'new'),
+      ] } } });
+      await render();
+      const captions = Array.from(el().querySelectorAll('.carousel-caption'));
+      expect(captions.map(c => c.querySelector('h1')?.textContent?.trim())).toEqual(
+        ['Brothers of 1-5-1', 'The Michael J. Bryant Memorial Scholarship', 'Membership Requirements', 'New slide']);
+      expect(captions.map(c => c.querySelector('a')?.textContent?.trim() ?? null)).toEqual(
+        ['Learn About 1-5-1', 'Learn About Our Scholarship', 'Learn About Membership', null]);
+      expect(captions.slice(0, 3).map(c => c.querySelector('a')?.getAttribute('href'))).toEqual(
+        ['/pg/about-1-5-1', '/pg/scholarship', '/pg/membership']);
     });
 
     it('lazy-loads slides after the first', async () => {
@@ -107,14 +134,14 @@ describe('CarouselComponent', () => {
     it('falls back to the built-in slides when WordPress has no items', async () => {
       carouselRequest().flush({ data: { homepageCarousels: { nodes: [] } } });
       await render();
-      expect(el().querySelectorAll('.carousel-item').length).toBe(5);
+      expect(el().querySelectorAll('.carousel-item').length).toBe(3);
     });
 
     it('falls back to the built-in slides (and logs) on a GraphQL error', async () => {
       spyOn(console, 'error');
       carouselRequest().flush({ data: null, errors: [{ message: 'Cannot query field "homepageCarousels"' }] });
       await render();
-      expect(el().querySelectorAll('.carousel-item').length).toBe(5);
+      expect(el().querySelectorAll('.carousel-item').length).toBe(3);
       expect(console.error).toHaveBeenCalled();
     });
   });
