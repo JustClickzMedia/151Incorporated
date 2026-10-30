@@ -129,4 +129,12 @@ describe('PresidentsComponent', () => {
     expect(text).not.toContain('Continue Read More');
     expect(console.error).toHaveBeenCalled();
   });
+
+  it('starts with the "God Before All" band: no empty strip above it', async () => {
+    await setup('');
+    await render();
+    const section = (fixture.nativeElement as HTMLElement).querySelector('section')!;
+    expect(section.querySelector('#presidentheader')).toBeNull();
+    expect(section.firstElementChild?.classList).toContain('bgTitle');
+  });
 });

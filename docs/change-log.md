@@ -614,3 +614,9 @@
   - Our History heading now Newsreader (was Georgia), keeping its small caps.
 - **Testing:** 117/117 unit tests (font checks in history and footer specs also confirm colours are unchanged); dev build OK; screenshots at 1280px and 390px.
 - **Note:** the earlier full-design attempts are kept on `feature/design-system` (not for merge).
+
+## 2026-10-30 — Remove the strip above "God Before All"
+
+- **Branch:** `feature/fonts`
+- **What changed:** removed the empty `#presidentheader` block (40px of faded bat photo) that sat between Our History and the "God Before All" band; the band now follows Our History directly.
+- **Testing:** 118/118 unit tests (new check that the band is the section's first element); screenshot at 1280px.
