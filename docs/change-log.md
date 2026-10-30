@@ -620,3 +620,12 @@
 - **Branch:** `feature/fonts`
 - **What changed:** removed the empty `#presidentheader` block (40px of faded bat photo) that sat between Our History and the "God Before All" band; the band now follows Our History directly.
 - **Testing:** 118/118 unit tests (new check that the band is the section's first element); screenshot at 1280px.
+
+## 2026-10-30 — LEADERSHIP menu label; Pay Dues pop-up
+
+- **Branch:** `feature/fonts`
+- **What changed:**
+  - The `president` page now shows as **LEADERSHIP** in the menu (`NAV_LABELS`); its URL stays `/pg/president`. The footer link "President's Message" is unchanged.
+  - **Pay Dues** (MEMBERSHIP dropdown) opens the Square checkout in a pop-up frame over the page instead of a new tab. Close with ×, the dark backdrop or Escape; the page behind doesn't scroll while it's open. A "Checkout not loading? Open the secure checkout in a new tab" link is in the pop-up as a fallback. The Facebook tracking parameter (`fbclid`) was dropped from the checkout URL.
+- **Testing:** 120/120 unit tests (pop-up opens without navigating, iframe points at the Square checkout, closes via × and Escape; LEADERSHIP label); screenshots at 1280px and 390px.
+- **To verify in a real browser:** that Square allows its checkout to be shown inside a frame. If the frame stays blank, Square is blocking embedding and the fallback link is the way to pay.

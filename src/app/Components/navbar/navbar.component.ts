@@ -6,6 +6,7 @@ import { WordpressService } from '../../Services/wordpress.service';
 import { withFallback } from '../../Services/rx-fallback';
 import { WpPageLink } from '../../Model/wp-page';
 import { CommonModule } from '@angular/common'
+import { DomSanitizer } from '@angular/platform-browser';
 import { RouterLinkActive, RouterLink } from '@angular/router';
 //import { SearchboxComponent } from '../../Components/searchbox/searchbox.component'
 
@@ -15,7 +16,11 @@ export const MEMBERSHIP_SLUG = 'membership';
 /** Menu labels that differ from the page slug. */
 export const NAV_LABELS: Record<string, string> = {
   'about-1-5-1': 'About',
+  'president': 'Leadership',
 };
+
+/** Square checkout for membership dues. Shown in a pop-up frame so visitors stay on the site. */
+export const PAY_DUES_URL = 'https://checkout.square.site/merchant/4ZBJEDVN0C8CN/checkout/C6GENNAL37VOT5NCEZJ24W2J';
 
 @Component({
     selector: 'app-navbar',
@@ -28,6 +33,7 @@ export class NavbarComponent implements OnInit {
   private document = inject<Document>(DOCUMENT);
   private router = inject(Router);
   private wp = inject(WordpressService);
+  private sanitizer = inject(DomSanitizer);
 
 
  
@@ -68,9 +74,34 @@ export class NavbarComponent implements OnInit {
 
   /** Close the Membership dropdown when clicking anywhere else, or pressing Escape. */
   @HostListener('document:click')
-  @HostListener('document:keydown.escape')
   closeMembership() {
     this.membershipOpen.set(false);
+  }
+
+  /** Escape closes the dropdown and the Pay Dues pop-up. */
+  @HostListener('document:keydown.escape')
+  onEscape() {
+    this.membershipOpen.set(false);
+    this.closePayDues();
+  }
+
+  /** Pay Dues pop-up: the Square checkout in a frame over the page, so the visitor never leaves the site. */
+  readonly payDuesUrl = PAY_DUES_URL;
+  readonly payDuesFrameUrl = this.sanitizer.bypassSecurityTrustResourceUrl(PAY_DUES_URL);
+  readonly payDuesOpen = signal(false);
+
+  openPayDues(event: Event) {
+    event.preventDefault();          // keep the visitor here instead of following the link
+    event.stopPropagation();
+    this.closeNavbar();
+    this.payDuesOpen.set(true);
+    this.document.body.classList.add('modal-open');   // Bootstrap: stop the page scrolling behind the pop-up
+  }
+
+  closePayDues() {
+    if (!this.payDuesOpen()) { return; }
+    this.payDuesOpen.set(false);
+    this.document.body.classList.remove('modal-open');
   }
 
   /** After choosing a page, close the phone/tablet menu (on desktop the menu is always visible). */
