@@ -51,8 +51,6 @@ describe('NavbarComponent', () => {
     expect(items.map(a => a.textContent?.trim())).toEqual(['Membership Requirements', 'Pay Dues']);
     expect(items[0].getAttribute('href')).toBe('/pg/membership');
     expect(items[1].href).toContain('checkout.square.site');
-    expect(items[1].target).toBe('_blank');
-    expect(items[1].rel).toContain('noopener');
 
     document.body.click();
     fixture.detectChanges();
@@ -95,6 +93,48 @@ describe('NavbarComponent', () => {
     expect(toggleRule!.style.fontSize).toBe('');
     expect(toggleRule!.style.fontWeight).toBe('');
     el.remove();
+  });
+
+  it('Pay Dues opens the Square checkout in a pop-up frame on this site (no navigation, no new tab)', async () => {
+    http.expectOne(r => r.url.startsWith(environment.restUrl + 'pages?_embed')).flush([]);
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    (el.querySelector('#membership-toggle') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    const payDues = Array.from(el.querySelectorAll('#membership-menu a')).find(a => a.textContent?.trim() === 'Pay Dues') as HTMLAnchorElement;
+    expect(payDues.target).toBe('');                     // not a new tab
+
+    const click = new MouseEvent('click', { bubbles: true, cancelable: true });
+    payDues.dispatchEvent(click);
+    fixture.detectChanges();
+    expect(click.defaultPrevented).toBeTrue();           // the browser does not leave the site
+    const frame = el.querySelector('.paydues-modal iframe') as HTMLIFrameElement;
+    expect(frame).not.toBeNull();
+    expect(frame.src).toContain('checkout.square.site/merchant/4ZBJEDVN0C8CN');
+    expect(el.querySelector('.paydues-modal')?.getAttribute('role')).toBe('dialog');
+    expect(document.body.classList).toContain('modal-open');
+    expect(el.querySelector('#membership-menu')!.classList).not.toContain('show');
+
+    (el.querySelector('.paydues-modal .btn-close') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(el.querySelector('.paydues-modal')).toBeNull();
+    expect(document.body.classList).not.toContain('modal-open');
+
+    payDues.click();
+    fixture.detectChanges();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    fixture.detectChanges();
+    expect(el.querySelector('.paydues-modal')).toBeNull();   // Escape closes it too
+  });
+
+  it('labels the president page "LEADERSHIP"', async () => {
+    http.expectOne(r => r.url.startsWith(environment.restUrl + 'pages?_embed'))
+      .flush([{ id: 13, slug: 'president', title: { rendered: "President's Message" } }]);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const items = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.navbar-nav.mr-auto > li > .nav-link'));
+    expect(items.map(a => a.textContent?.trim())).toEqual(['HOME', 'LEADERSHIP', 'MEMBERSHIP']);
+    expect(items[1].getAttribute('href')).toBe('/pg/president');
   });
 
   it('labels the about-1-5-1 page "ABOUT" (other pages keep their slug)', async () => {

@@ -42,4 +42,37 @@ describe('FooterComponent', () => {
   it('shows the current year in the copyright (was hard-coded 2018)', () => {
     expect(el().querySelector('.copyright')?.textContent).toContain(String(new Date().getFullYear()));
   });
+
+  it('keeps "1 - 5 - 1 Incorporated" and the tagline each on one line, sized to the column', () => {
+    document.body.appendChild(el());
+    const col = el().querySelector('.footer-brand') as HTMLElement;
+    const inner = col.clientWidth - parseFloat(getComputedStyle(col).paddingLeft) - parseFloat(getComputedStyle(col).paddingRight);
+    for (const sel of ['h4', 'p']) {
+      const e = col.querySelector(sel) as HTMLElement;
+      expect(getComputedStyle(e).whiteSpace).withContext(sel).toBe('nowrap');
+      const range = document.createRange();
+      range.selectNodeContents(e);
+      const rects = Array.from(range.getClientRects());
+      expect(new Set(rects.map(r => Math.round(r.top))).size).withContext(sel + ' lines').toBe(1);
+      expect(Math.max(...rects.map(r => r.width))).withContext(sel + ' width').toBeLessThanOrEqual(inner + 1);
+    }
+    // The tagline keeps clear of column 2: at most ~90% of its column.
+    const range = document.createRange();
+    range.selectNodeContents(col.querySelector('p')!);
+    expect(Math.max(...Array.from(range.getClientRects()).map(r => r.width))).toBeLessThanOrEqual(inner * 0.9);
+    // ...and is never larger than 0.8rem (12.8px), whatever the column width.
+    expect(parseFloat(getComputedStyle(col.querySelector('p')!).fontSize)).toBeLessThanOrEqual(12.8);
+    el().remove();
+  });
+
+  it('uses the Collegiate Heritage fonts: italic Newsreader motto, Work Sans column titles; colours unchanged', () => {
+    const root = fixture.nativeElement as HTMLElement;
+    document.body.appendChild(root);
+    const motto = getComputedStyle(root.querySelector('.motto h2')!);
+    expect(motto.fontFamily).toContain('Newsreader');
+    expect(motto.fontStyle).toBe('italic');
+    expect(getComputedStyle(root.querySelector('h5')!).fontFamily).toContain('Work Sans');
+    expect(getComputedStyle(root.querySelector('footer.footer')!).backgroundColor).toBe('rgb(103, 0, 1)');
+    root.remove();
+  });
 });

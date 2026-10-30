@@ -88,6 +88,15 @@ for (const source of [REST, GRAPHQL]) {
       expect(TestBed.inject(Meta).getTag('name="description"')?.content).toBe('Body 19');
     });
 
+    it('does not show the date the page was created', async () => {
+      await setup('about-1-5-1');
+      source.request(http, 'about-1-5-1').flush(source.found(19, 'about-1-5-1', '1-5-1 History'));
+      await render();
+      expect(el().textContent).toContain('1-5-1 History');
+      expect(el().textContent).not.toMatch(/January|2026/);   // the page date is 2026-01-02
+      expect(el().querySelector('.bgPage h6')).toBeNull();
+    });
+
     it('re-fetches when the route slug changes', async () => {
       await setup('about-1-5-1');
       source.request(http, 'about-1-5-1').flush(source.found(19, 'about-1-5-1', '1-5-1 History'));

@@ -42,7 +42,8 @@
                   (click)="toggleMembership($event)">MEMBERSHIP</button>
           <ul class="dropdown-menu" id="membership-menu" aria-labelledby="membership-toggle" [class.show]="membershipOpen()">
             <li><a class="dropdown-item" (click)="closeNavbar()" routerLink="/pg/membership">Membership Requirements</a></li>
-            <li><a class="dropdown-item" (click)="closeNavbar()" href="https://checkout.square.site/merchant/4ZBJEDVN0C8CN/checkout/C6GENNAL37VOT5NCEZJ24W2J?fbclid=IwAR1EB1chPlhZpQ7nmtcrwSrmTETl9lR9f07NONqKYVaEe31Yq9gSYDiHmN0_aem_ATapbJl3Wzjrs2KVn8U7htNJZ0fSBP45IK18gjUnm8VL-Ngl9DvQ9wHtIwn7Wfn_rEv5JBMJEphfEzFZDOEIgLyf" target="_blank" rel="noopener">Pay Dues</a></li>
+            <!-- Opens the Square checkout in a pop-up frame (the href is only a fallback, e.g. middle-click) -->
+            <li><a class="dropdown-item" [href]="payDuesUrl" (click)="openPayDues($event)">Pay Dues</a></li>
           </ul>
         </li>
       </ul>
@@ -50,3 +51,17 @@
   </div>
 </nav>
 
+<!-- Pay Dues pop-up: Square checkout in a frame over the page -->
+@if (payDuesOpen()) {
+  <div class="paydues-backdrop" (click)="closePayDues()"></div>
+  <div class="paydues-modal" role="dialog" aria-modal="true" aria-labelledby="paydues-title">
+    <div class="paydues-header">
+      <h2 id="paydues-title">Pay Dues</h2>
+      <button type="button" class="btn-close btn-close-white" aria-label="Close" (click)="closePayDues()"></button>
+    </div>
+    <iframe class="paydues-frame" [src]="payDuesFrameUrl" title="Pay dues — secure Square checkout"
+            allow="payment" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    <p class="paydues-help">Checkout not loading?
+      <a [href]="payDuesUrl" target="_blank" rel="noopener">Open the secure checkout in a new tab</a></p>
+  </div>
+}

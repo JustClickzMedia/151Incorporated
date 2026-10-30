@@ -184,3 +184,68 @@
     margin-top: 0.25rem;
   }
 }
+
+/* Collegiate Heritage: navigation in Work Sans (label-lg letter-spacing) */
+#header .nav-link,
+#header .membership-menu .dropdown-item {
+  font-family: var(--font-sans);
+  letter-spacing: 0.04em;
+}
+
+/* Pay Dues pop-up: Square checkout in a frame, over a dimmed page */
+.paydues-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.paydues-modal {
+  position: fixed;
+  z-index: 2001;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(720px, calc(100vw - 2rem));
+  height: min(860px, calc(100dvh - 2rem));
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+}
+
+.paydues-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background-color: #670001;
+  color: #fff;
+}
+
+.paydues-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.paydues-frame {
+  flex: 1;
+  width: 100%;
+  border: 0;
+}
+
+.paydues-help {
+  margin: 0;
+  padding: 0.5rem 1rem;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  text-align: center;
+  border-top: 1px solid #ddd;
+}
+
+.paydues-help a {
+  color: #670001;
+  font-weight: 600;
+}

@@ -582,3 +582,56 @@
   - Phones: hero hidden as before (`d-none d-md-block`).
   - Homepage slide unchanged at 1366: 1366×650, starting at 118px.
 - **Tested:** `ng test` **114/114 pass** (new: 154px hero, `cover`, centred, image unchanged). Development build has no warnings.
+
+## 2026-10-30 — Footer: "1 - 5 - 1 Incorporated" and the tagline each on one line
+
+- **Branch:** `feature/footer-brand` (from `master` after PRs #15 and #16)
+- **Problem:** in the footer's brand column, the name and "A brotherhood rooted in music since 1982." wrapped onto two lines each.
+- **Fix** (`footer.component.css`):
+  - Both are `white-space: nowrap`.
+  - Their font size scales with the column's width using container query units: the name is `min(1.35rem, 8.5cqi)`, the tagline `min(0.95rem, 4.8cqi)`. They shrink only where the column is narrow.
+- **Checked on `ng serve`:** one line each, fitting the column, with no page overflow.
+
+  | Width | Name | Tagline |
+  |---|---|---|
+  | 393 and 768px | 21.6px | 15.2px |
+  | 992–1199px (column 216px) | 18.4px | 10.4px |
+  | 1366px | 21.6px | 12.5px |
+  | 1920px | 21.6px | 15.2px |
+- **Tested:** `ng test` **115/115 pass** (new: one line each, within the column). Mutation: removing `nowrap` fails the test.
+- **Follow-up, same day: tagline made smaller.**
+  - It filled its column and almost touched column 2, so it's now `min(0.8rem, 4.2cqi)`, at most about 85% of the column.
+  - Checked on `ng serve`: 1920px 12.8px (83%, 76px clear of column 2); 1366px 11px (85%, 63px clear); 992px 9.1px (87%, 52px clear); 768px and phones 12.8px.
+  - The spec now also checks the tagline is ≤ 90% of the column and ≤ 12.8px. The previous size fails it.
+- **Note:** at 992–1199px the tagline is small (about 9px), because the 4-column footer leaves 216px for it on one line.
+
+## 2026-10-30 — Collegiate Heritage fonts only
+
+- **Branch:** `feature/fonts` (from `feature/footer-brand`)
+- **What changed (fonts only — colours and backgrounds unchanged, still #670001):**
+  - Newsreader (Google Fonts) for headings and body text; italic for the footer motto and the President's band title.
+  - Work Sans for the menu, MEMBERSHIP dropdown, buttons (uppercase, 0.06em), footer column titles, contact details, quick links and copyright.
+  - Our History heading now Newsreader (was Georgia), keeping its small caps.
+- **Testing:** 117/117 unit tests (font checks in history and footer specs also confirm colours are unchanged); dev build OK; screenshots at 1280px and 390px.
+- **Note:** the earlier full-design attempts are kept on `feature/design-system` (not for merge).
+
+## 2026-10-30 — Remove the strip above "God Before All"
+
+- **Branch:** `feature/fonts`
+- **What changed:** removed the empty `#presidentheader` block (40px of faded bat photo) that sat between Our History and the "God Before All" band; the band now follows Our History directly.
+- **Testing:** 118/118 unit tests (new check that the band is the section's first element); screenshot at 1280px.
+
+## 2026-10-30 — LEADERSHIP menu label; Pay Dues pop-up
+
+- **Branch:** `feature/fonts`
+- **What changed:**
+  - The `president` page now shows as **LEADERSHIP** in the menu (`NAV_LABELS`); its URL stays `/pg/president`. The footer link "President's Message" is unchanged.
+  - **Pay Dues** (MEMBERSHIP dropdown) opens the Square checkout in a pop-up frame over the page instead of a new tab. Close with ×, the dark backdrop or Escape; the page behind doesn't scroll while it's open. A "Checkout not loading? Open the secure checkout in a new tab" link is in the pop-up as a fallback. The Facebook tracking parameter (`fbclid`) was dropped from the checkout URL.
+- **Testing:** 120/120 unit tests (pop-up opens without navigating, iframe points at the Square checkout, closes via × and Escape; LEADERSHIP label); screenshots at 1280px and 390px.
+- **To verify in a real browser:** that Square allows its checkout to be shown inside a frame. If the frame stays blank, Square is blocking embedding and the fallback link is the way to pay.
+
+## 2026-10-30 — No more created dates on pages
+
+- **Branch:** `feature/fonts`
+- **What changed:** removed the date shown under the title on every WordPress page (`/pg/...`) and post (`/pst/...`), and the date/time next to each search result. The spacing under page titles is kept.
+- **Testing:** 122/122 unit tests (checks that pages, posts and search results no longer show the date).
