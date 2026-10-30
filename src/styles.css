@@ -25,7 +25,8 @@
     }
 }
 
-@media screen and (min-width: 900px) {
+/* From 741px (was 900px): tablets 741-899px had no top margin, so the page hero sat hidden under the fixed header */
+@media screen and (min-width: 741px) {
     #margintransition{
         margin-top: 120px;
         background-color:#fff;

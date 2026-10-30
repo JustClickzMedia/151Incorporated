@@ -565,3 +565,20 @@
   - New: menu order, dropdown items, links and open/close, no header buttons, matching font.
   - Mutation: putting `font: inherit` back fails a test.
   - Development build has no warnings.
+
+## 2026-10-30 — Page hero: short banner (154px) instead of 600px; homepage unchanged
+
+- **Branch:** `feature/page-hero` (from `feature/menu-membership`)
+- **Problem:** on page and post views, the featured-image hero (`#margintransition .jumbotron`) was 600px tall.
+  - Bootstrap 5 has no `.jumbotron` styles, so the image was drawn at its full natural size and only the top-left of the photo showed.
+- **Fix** (`pagedetails.component.css`, `postdetails.component.css`):
+  - Height **154px**, matching the richmondsigmas.org page header.
+  - `background-size: cover`, `background-position: center`, `no-repeat`: the image is scaled down to the banner's width and centred. The WordPress images themselves are unchanged.
+  - The 40% opacity and black bottom border are kept.
+- **Tablet fix** (`styles.css`): the `#margintransition` top margin (120px under the fixed header) now starts at **741px** instead of 900px. At 741–899px the hero sat hidden under the header.
+  - `#margintransition` exists only on page and post views. **The homepage is not changed.**
+- **Checked on `ng serve`:**
+  - 768, 820, 1185, 1366 and 1920px: hero is full width × 154px, starts at 120px (just under the 118px header), with the title right below.
+  - Phones: hero hidden as before (`d-none d-md-block`).
+  - Homepage slide unchanged at 1366: 1366×650, starting at 118px.
+- **Tested:** `ng test` **114/114 pass** (new: 154px hero, `cover`, centred, image unchanged). Development build has no warnings.
