@@ -47,6 +47,7 @@ export class NavbarComponent implements OnInit {
     var yOffset = 0
     var currYOffSet = window.pageYOffset;
     var imglarge = "https://tzin.brothersof1-5-1.org/wp-content/uploads/2024/04/brother151logo2-1.png";
+    var imgsmall = "https://tzin.brothersof1-5-1.org/wp-content/uploads/2024/04/Brothers-of-1-5-1-Incorporated-219-x-52-px-1.png";
     
     var elheader = document.getElementById('header');
     var element = document.getElementById('header-container');
@@ -55,12 +56,10 @@ export class NavbarComponent implements OnInit {
     if(yOffset < currYOffSet) {
       elheader.classList.add('bgnav');
       element.classList.add('fixed-theme');
-      this.buttonbrdcolor.set('rgb(255,255,255)'); // header stays burgundy, so the hamburger border stays white
+      this.buttonbrdcolor.set('rgb(103,0,1)');
       this.iconlnimage.set('test');
       //"background-image: url(\"data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(103,0,1,1)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 8h24M4 16h24M4 24h24'/%3E%3C/svg%3E\")";
-      // Keep the white-text logo on the burgundy header (the small logo has dark text made for a white
-      // header); CSS shrinks it while scrolled (.fixed-theme).
-      container[0].setAttribute('src', imglarge);
+      container[0].setAttribute('src', imgsmall);
       transitionelement.style.marginTop = '30px';
     }
     else if(currYOffSet == yOffset){
