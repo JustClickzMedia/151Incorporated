@@ -41,7 +41,7 @@
 }
 
 .history h2 {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-serif);
   font-variant: small-caps;
   letter-spacing: 0.06em;
   font-size: clamp(1.6rem, 3vw, 2.5rem);

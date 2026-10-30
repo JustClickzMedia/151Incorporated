@@ -1,4 +1,34 @@
 /* You can add global styles to this file, and also import other style files */
+
+/*
+ * Typography from the Collegiate Heritage design file (DESIGN (3).md) — FONTS ONLY.
+ * Colours and backgrounds are deliberately unchanged.
+ *   Newsreader: headlines and body text (italic for mottos)
+ *   Work Sans:  labels, navigation, buttons and small metadata
+ */
+:root {
+    --font-serif: "Newsreader", Georgia, "Times New Roman", serif;
+    --font-sans: "Work Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --bs-body-font-family: var(--font-serif);
+}
+
+body {
+    font-family: var(--font-serif);
+}
+
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+}
+
+/* label-lg: buttons, uppercase with engraved letter-spacing */
+.btn {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
 .bg-dark {
     background-color: #670001!important;
 }

@@ -10,7 +10,12 @@
   padding: 1rem 0 0.5rem;
 }
 
+/* Motto: Newsreader italic */
 .motto h2 {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0.02em;
   font-size: clamp(1.25rem, 3vw, 2rem);
 }
 
@@ -19,10 +24,13 @@
   padding-bottom: 2rem;
 }
 
+/* Column titles: Work Sans label */
 .footer h5 {
-  font-weight: 700;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   margin-bottom: 1rem;
 }
 
@@ -63,6 +71,13 @@
 .footer-brand p {
   white-space: nowrap;
   font-size: min(0.8rem, 4.2cqi);   /* ~85% of the column at most, so it stays clear of column 2 */
+}
+
+/* Contact details, links and copyright: Work Sans metadata */
+.footer-columns p,
+.quick-links,
+.copyright p {
+  font-family: var(--font-sans);
 }
 
 .quick-links li {

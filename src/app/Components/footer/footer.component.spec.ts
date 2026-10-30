@@ -64,4 +64,15 @@ describe('FooterComponent', () => {
     expect(parseFloat(getComputedStyle(col.querySelector('p')!).fontSize)).toBeLessThanOrEqual(12.8);
     el().remove();
   });
+
+  it('uses the Collegiate Heritage fonts: italic Newsreader motto, Work Sans column titles; colours unchanged', () => {
+    const root = fixture.nativeElement as HTMLElement;
+    document.body.appendChild(root);
+    const motto = getComputedStyle(root.querySelector('.motto h2')!);
+    expect(motto.fontFamily).toContain('Newsreader');
+    expect(motto.fontStyle).toBe('italic');
+    expect(getComputedStyle(root.querySelector('h5')!).fontFamily).toContain('Work Sans');
+    expect(getComputedStyle(root.querySelector('footer.footer')!).backgroundColor).toBe('rgb(103, 0, 1)');
+    root.remove();
+  });
 });

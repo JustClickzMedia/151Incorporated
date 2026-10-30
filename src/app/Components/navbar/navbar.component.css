@@ -184,3 +184,10 @@
     margin-top: 0.25rem;
   }
 }
+
+/* Collegiate Heritage: navigation in Work Sans (label-lg letter-spacing) */
+#header .nav-link,
+#header .membership-menu .dropdown-item {
+  font-family: var(--font-sans);
+  letter-spacing: 0.04em;
+}

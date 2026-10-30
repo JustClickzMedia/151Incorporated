@@ -44,4 +44,12 @@ describe('HistoryComponent', () => {
     expect(el().querySelector('.rule-top')).not.toBeNull();
     expect(el().querySelector('.rule-bottom')).not.toBeNull();
   });
+
+  it('uses the Collegiate Heritage fonts (Newsreader) without changing colours', () => {
+    document.body.appendChild(el());
+    expect(getComputedStyle(el().querySelector('h2')!).fontFamily).toContain('Newsreader');
+    expect(getComputedStyle(el().querySelector('p')!).fontFamily).toContain('Newsreader');
+    expect(getComputedStyle(el().querySelector('.rule-top')!).backgroundColor).toBe('rgb(103, 0, 1)'); // colour unchanged
+    el().remove();
+  });
 });

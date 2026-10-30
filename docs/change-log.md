@@ -604,3 +604,13 @@
   - Checked on `ng serve`: 1920px 12.8px (83%, 76px clear of column 2); 1366px 11px (85%, 63px clear); 992px 9.1px (87%, 52px clear); 768px and phones 12.8px.
   - The spec now also checks the tagline is ≤ 90% of the column and ≤ 12.8px. The previous size fails it.
 - **Note:** at 992–1199px the tagline is small (about 9px), because the 4-column footer leaves 216px for it on one line.
+
+## 2026-10-30 — Collegiate Heritage fonts only
+
+- **Branch:** `feature/fonts` (from `feature/footer-brand`)
+- **What changed (fonts only — colours and backgrounds unchanged, still #670001):**
+  - Newsreader (Google Fonts) for headings and body text; italic for the footer motto and the President's band title.
+  - Work Sans for the menu, MEMBERSHIP dropdown, buttons (uppercase, 0.06em), footer column titles, contact details, quick links and copyright.
+  - Our History heading now Newsreader (was Georgia), keeping its small caps.
+- **Testing:** 117/117 unit tests (font checks in history and footer specs also confirm colours are unchanged); dev build OK; screenshots at 1280px and 390px.
+- **Note:** the earlier full-design attempts are kept on `feature/design-system` (not for merge).
