@@ -36,6 +36,7 @@ describe('SearchresultsComponent', () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.textContent).toContain('Search results for dues');
     expect(el.textContent).toContain('Dues info');
+    expect(el.textContent).not.toMatch(/January|2026|10:00/); // no post dates
   });
 
   it('searches again when the term changes', async () => {

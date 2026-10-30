@@ -14,7 +14,7 @@
    /* margin: -100px 0px;*/ 
 }
 
-.hddate{
+.hddate{   /* spacing under the page title (the date row was removed) */
     margin-bottom: 20px;
 }
 

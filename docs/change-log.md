@@ -629,3 +629,9 @@
   - **Pay Dues** (MEMBERSHIP dropdown) opens the Square checkout in a pop-up frame over the page instead of a new tab. Close with ×, the dark backdrop or Escape; the page behind doesn't scroll while it's open. A "Checkout not loading? Open the secure checkout in a new tab" link is in the pop-up as a fallback. The Facebook tracking parameter (`fbclid`) was dropped from the checkout URL.
 - **Testing:** 120/120 unit tests (pop-up opens without navigating, iframe points at the Square checkout, closes via × and Escape; LEADERSHIP label); screenshots at 1280px and 390px.
 - **To verify in a real browser:** that Square allows its checkout to be shown inside a frame. If the frame stays blank, Square is blocking embedding and the fallback link is the way to pay.
+
+## 2026-10-30 — No more created dates on pages
+
+- **Branch:** `feature/fonts`
+- **What changed:** removed the date shown under the title on every WordPress page (`/pg/...`) and post (`/pst/...`), and the date/time next to each search result. The spacing under page titles is kept.
+- **Testing:** 122/122 unit tests (checks that pages, posts and search results no longer show the date).
