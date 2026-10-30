@@ -23,15 +23,78 @@ describe('NavbarComponent', () => {
 
   afterEach(() => http.verify());
 
-  it('renders a menu item per WordPress page', async () => {
+  it('menu order: HOME first, then the WordPress pages, then MEMBERSHIP last', async () => {
     http.expectOne(r => r.url.startsWith(environment.restUrl + 'pages?_embed'))
       .flush([{ id: 2, slug: 'membership', title: { rendered: 'Membership' } },
               { id: 3, slug: 'moto', title: { rendered: 'Moto' } }]);
     fixture.detectChanges();
     await fixture.whenStable();
-    const links = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.navbar-nav.mr-auto a'));
-    expect(links.map(a => a.textContent?.trim())).toEqual(['MEMBERSHIP', 'MOTO']);
-    expect(links.map(a => a.getAttribute('href'))).toEqual(['/pg/membership', '/pg/moto']);
+    const items = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.navbar-nav.mr-auto > li > .nav-link'));
+    expect(items.map(a => a.textContent?.trim())).toEqual(['HOME', 'MOTO', 'MEMBERSHIP']);
+    expect(items.map(a => a.getAttribute('href'))).toEqual(['/', '/pg/moto', null]); // MEMBERSHIP is the dropdown button
+  });
+
+  it('MEMBERSHIP opens a dropdown with the Membership page and Pay Dues; it closes on an outside click or Escape', async () => {
+    http.expectOne(r => r.url.startsWith(environment.restUrl + 'pages?_embed')).flush([]);
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    const toggle = el.querySelector('#membership-toggle') as HTMLButtonElement;
+    const menu = () => el.querySelector('#membership-menu') as HTMLElement;
+    expect(menu().classList).not.toContain('show');
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+
+    toggle.click();
+    fixture.detectChanges();
+    expect(menu().classList).toContain('show');
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    const items = Array.from(menu().querySelectorAll('a')) as HTMLAnchorElement[];
+    expect(items.map(a => a.textContent?.trim())).toEqual(['Membership Requirements', 'Pay Dues']);
+    expect(items[0].getAttribute('href')).toBe('/pg/membership');
+    expect(items[1].href).toContain('checkout.square.site');
+    expect(items[1].target).toBe('_blank');
+    expect(items[1].rel).toContain('noopener');
+
+    document.body.click();
+    fixture.detectChanges();
+    expect(menu().classList).not.toContain('show');
+
+    toggle.click();
+    fixture.detectChanges();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    fixture.detectChanges();
+    expect(menu().classList).not.toContain('show');
+  });
+
+  it('has no PAY DUES or GIVE BACK buttons in the header any more', () => {
+    http.expectOne(r => r.url.startsWith(environment.restUrl + 'pages?_embed')).flush([]);
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('.navbar-buttons')).toBeNull();
+    const texts = Array.from(el.querySelectorAll('#header a.btn')).map(a => a.textContent?.trim());
+    expect(texts).toEqual([]);
+  });
+
+  it('the MEMBERSHIP button uses the same font as the other menu links', async () => {
+    http.expectOne(r => r.url.startsWith(environment.restUrl + 'pages?_embed'))
+      .flush([{ id: 3, slug: 'moto', title: { rendered: 'Moto' } }]);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    document.body.appendChild(fixture.nativeElement);
+    const el = fixture.nativeElement as HTMLElement;
+    const link = getComputedStyle(el.querySelector('.navbar-nav.mr-auto > li > a.nav-link')!);
+    const button = getComputedStyle(el.querySelector('#membership-toggle')!);
+    for (const prop of ['fontFamily', 'fontSize', 'fontWeight', 'textTransform', 'color', 'lineHeight'] as const) {
+      expect(button[prop]).withContext(prop).toBe(link[prop]);
+    }
+    // The desktop size/weight live in a (min-width: 992px) rule the test browser may be too narrow for, so also
+    // check the button's own rule doesn't override them (a `font` shorthand there made MEMBERSHIP 18px / 400).
+    const toggleRule = Array.from(document.styleSheets)
+      .flatMap(sheet => { try { return Array.from(sheet.cssRules); } catch { return []; } })
+      .find((r): r is CSSStyleRule => r instanceof CSSStyleRule && /membership-menu[^,]*\.dropdown-toggle/.test(r.selectorText));
+    expect(toggleRule).toBeDefined();
+    expect(toggleRule!.style.fontSize).toBe('');
+    expect(toggleRule!.style.fontWeight).toBe('');
+    el.remove();
   });
 
   it('labels the about-1-5-1 page "ABOUT" (other pages keep their slug)', async () => {
@@ -41,9 +104,9 @@ describe('NavbarComponent', () => {
               { id: 17, slug: 'moto', title: { rendered: 'Moto' } }]);
     fixture.detectChanges();
     await fixture.whenStable();
-    const links = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.navbar-nav.mr-auto a'));
-    expect(links.map(a => a.textContent?.trim())).toEqual(['ABOUT', 'MOTO']);
-    expect(links[0].getAttribute('href')).toBe('/pg/about-1-5-1');
+    const items = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.navbar-nav.mr-auto > li > .nav-link'));
+    expect(items.map(a => a.textContent?.trim())).toEqual(['HOME', 'ABOUT', 'MOTO', 'MEMBERSHIP']);
+    expect(items[1].getAttribute('href')).toBe('/pg/about-1-5-1');
   });
 
   it('is a regular horizontal menu on desktop (navbar-expand-lg: hamburger only below 992px)', () => {
@@ -91,9 +154,9 @@ describe('NavbarComponent (GraphQL)', () => {
               { databaseId: 17, slug: 'moto', title: 'Moto', uri: '/moto/' }] } } });
     fixture.detectChanges();
     await fixture.whenStable();
-    const links = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.navbar-nav.mr-auto a'));
-    expect(links.map(a => a.textContent?.trim())).toEqual(['MEMBERSHIP', 'MOTO']);
-    expect(links.map(a => a.getAttribute('href'))).toEqual(['/pg/membership', '/pg/moto']);
+    const items = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.navbar-nav.mr-auto > li > .nav-link'));
+    expect(items.map(a => a.textContent?.trim())).toEqual(['HOME', 'MOTO', 'MEMBERSHIP']);
+    expect(items.map(a => a.getAttribute('href'))).toEqual(['/', '/pg/moto', null]);
     http.verify();
   });
 });

@@ -543,3 +543,25 @@
   - **Screenshot comparison, 5.2.3 vs 5.3.8:** homepage and `/pg/membership`, at 393px and 1366px, at the top and scrolled, with mocked WordPress data. After the bullet fix, **all 8 are pixel-identical**.
 - **After pulling:** run `npm install` (or `npm ci`) so `node_modules` gets the official package.
 - **Not changed:** the templates still contain some Bootstrap 4 class names that do nothing in 5.x: `mr-auto`, `ml-auto`, `sr-only`, `jumbotron`, `text-justify`, `d-xs-block`. That's a separate cleanup.
+
+## 2026-10-30 — Menu: HOME first, MEMBERSHIP dropdown last (with Pay Dues), Give Back removed
+
+- **Branch:** `feature/menu-membership`
+- **Menu order:** **HOME** (links to `/`) | the WordPress pages except Membership (PRESIDENT, ABOUT, MOTO, SCHOLARSHIP, FOUNDATION) | **MEMBERSHIP** last.
+- **MEMBERSHIP is a dropdown** with:
+  - **Membership Requirements**, linking to `/pg/membership`.
+  - **Pay Dues**, the same Square checkout link as before, now opening in a new tab (`rel="noopener"`).
+- **How the dropdown works:**
+  - It's Angular-controlled (a `membershipOpen` signal) rather than Bootstrap's JavaScript.
+  - It closes on an outside click, on Escape, or after choosing an item, and has `aria-expanded` / `aria-controls`.
+  - MEMBERSHIP is highlighted while on `/pg/membership`.
+  - On desktop it opens under the toggle, right-aligned. Inside the phone/tablet hamburger menu it opens in place.
+- **Removed:** the PAY DUES and GIVE BACK header buttons (`.navbar-buttons` and its CSS). Give Back pointed to the same Square checkout link as Pay Dues.
+- **Font fix:** MEMBERSHIP is a `<button>`. A `font: inherit` reset overrode the desktop menu size/weight (18px/400 vs 14px/600), so it now resets only `font-family`.
+- **Checked on `ng serve`:**
+  - 1185px: one row reading HOME | PRESIDENT | ABOUT | MOTO | SCHOLARSHIP | FOUNDATION | MEMBERSHIP. The button's font, size, weight, case and colour match the links, at the top and when scrolled (white when scrolled).
+  - 393px (hamburger) and 1024px: the dropdown shows both items inside the screen and closes on an outside click; no horizontal overflow.
+- **Tested:** `ng test` **112/112 pass**.
+  - New: menu order, dropdown items, links and open/close, no header buttons, matching font.
+  - Mutation: putting `font: inherit` back fails a test.
+  - Development build has no warnings.

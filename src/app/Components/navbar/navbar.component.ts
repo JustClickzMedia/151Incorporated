@@ -1,6 +1,6 @@
-import { Component, HostListener, OnInit, DOCUMENT, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { Component, HostListener, OnInit, DOCUMENT, ChangeDetectionStrategy, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 
 import { WordpressService } from '../../Services/wordpress.service';
 import { withFallback } from '../../Services/rx-fallback';
@@ -8,6 +8,9 @@ import { WpPageLink } from '../../Model/wp-page';
 import { CommonModule } from '@angular/common'
 import { RouterLinkActive, RouterLink } from '@angular/router';
 //import { SearchboxComponent } from '../../Components/searchbox/searchbox.component'
+
+/** The Membership page is shown inside the MEMBERSHIP dropdown at the end of the menu. */
+export const MEMBERSHIP_SLUG = 'membership';
 
 /** Menu labels that differ from the page slug. */
 export const NAV_LABELS: Record<string, string> = {
@@ -31,6 +34,17 @@ export class NavbarComponent implements OnInit {
   logo:any = "/images/151Logo.png";
   readonly NavMenu = toSignal(this.wp.getMenuPages().pipe(withFallback<WpPageLink[]>([])), { initialValue: [] as WpPageLink[] });
   readonly navbarOpen = signal(false);
+  /** The Membership dropdown (Membership page + Pay Dues). */
+  readonly membershipOpen = signal(false);
+  private readonly currentUrl = signal(this.router.url);
+  /** Highlight MEMBERSHIP while the Membership page is open. */
+  readonly membershipActive = computed(() => this.currentUrl().startsWith('/pg/membership'));
+  /** WordPress pages for the menu, without Membership (it is the dropdown at the end). */
+  readonly pageMenu = computed(() => this.NavMenu().filter(p => p.slug !== MEMBERSHIP_SLUG));
+
+  constructor() {
+    this.router.events.subscribe(e => { if (e instanceof NavigationEnd) { this.currentUrl.set(e.urlAfterRedirects); } });
+  }
   readonly buttonbrdcolor = signal('rgb(103,0,1)'); // maroon on the white header at the top of the page
   readonly iconlnimage = signal('');
 
@@ -47,9 +61,22 @@ export class NavbarComponent implements OnInit {
     return NAV_LABELS[item.slug] ?? item.slug;
   }
 
+  toggleMembership(event: Event) {
+    event.stopPropagation();
+    this.membershipOpen.update(open => !open);
+  }
+
+  /** Close the Membership dropdown when clicking anywhere else, or pressing Escape. */
+  @HostListener('document:click')
+  @HostListener('document:keydown.escape')
+  closeMembership() {
+    this.membershipOpen.set(false);
+  }
+
   /** After choosing a page, close the phone/tablet menu (on desktop the menu is always visible). */
   closeNavbar() {
     this.navbarOpen.set(false);
+    this.membershipOpen.set(false);
   }
 
   @HostListener('document:scroll')
