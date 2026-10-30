@@ -524,3 +524,22 @@
 - **Tested:** `ng test` **109/109 pass**.
   - New: no posts request and no News section on the homepage, page and post views; the content row is full width; ABOUT label.
   - Development build has no warnings.
+
+## 2026-10-30 — Bootstrap 5.2.3 (personal GitHub copy) → 5.3.8 (official npm package)
+
+- **Branch:** `chore/bootstrap-5.3.8` (from `master`)
+- **Before:** `"bootstrap": "github:TCB13/bootstrap#jo-ssr-friendly"`.
+  - That's a personal copy of Bootstrap 5.2.3, installed over SSH (`git+ssh://git@github.com/...`).
+  - `npm install` needed GitHub SSH access, the version was stuck at 5.2.3, and the build depended on someone else's repository.
+- **After:** `"bootstrap": "^5.3.8"` from the official npm registry. 5.3.8 is the latest stable release; 6.0.0 is only an alpha.
+  - `@popperjs/core` 2.11.8 is unchanged (Bootstrap's peer dependency).
+  - Bootstrap Icons is unchanged.
+  - `angular.json` paths are unchanged (`node_modules/bootstrap/dist/...`).
+  - The copy's server-rendering workaround isn't needed: Bootstrap's JS is loaded only in the browser, through the `scripts` array in `angular.json`, and SSR returns 200 for `/`, `/pg/membership` and `/pg/19/x`.
+- **Only visual change found and fixed:** Bootstrap 5.3 no longer removes list bullets from `.carousel-indicators`, and ours are `<li>`s. Dots appeared under the slide indicators, so `carousel.component.css` now sets `list-style: none`.
+- **Tested:**
+  - `ng test` **96/96 pass**.
+  - Development and production builds succeed. The production CSS is Bootstrap 5.3.8.
+  - **Screenshot comparison, 5.2.3 vs 5.3.8:** homepage and `/pg/membership`, at 393px and 1366px, at the top and scrolled, with mocked WordPress data. After the bullet fix, **all 8 are pixel-identical**.
+- **After pulling:** run `npm install` (or `npm ci`) so `node_modules` gets the official package.
+- **Not changed:** the templates still contain some Bootstrap 4 class names that do nothing in 5.x: `mr-auto`, `ml-auto`, `sr-only`, `jumbotron`, `text-justify`, `d-xs-block`. That's a separate cleanup.

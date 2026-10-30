@@ -85,3 +85,8 @@ a.nav-item.btn:hover {
   .carousel-caption .btn { font-size: 0.875rem; padding: 0.25rem 0.75rem; margin-top: 0.25rem !important; margin-bottom: 0 !important; }
   .carousel-indicators { margin-bottom: 0.25rem; }
 }
+
+/* The indicators are <li>s; Bootstrap 5.3 no longer removes list bullets from .carousel-indicators */
+.carousel-indicators {
+  list-style: none;
+}
