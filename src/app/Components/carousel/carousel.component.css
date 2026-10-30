@@ -7,11 +7,11 @@
  */
 /*
  * Like Richmond, the banner starts BELOW the header instead of behind it (a short banner would be mostly
- * hidden under the fixed, transparent navbar). The maroon band fills the 146px the navbar occupies at the
- * top of the page (same at every width), so the header reads as a solid bar above the photo.
+ * hidden under the fixed navbar). The white band fills the space the navbar occupies at the top of the
+ * page, matching the white header shown there.
  */
 .mycarousel {
-  border-top: 146px solid #670001;
+  border-top: 118px solid #fff;   /* header height at the top of the page (white header, 52px logo) */
 }
 
 .carousel-item {

@@ -419,3 +419,26 @@
   - Menu labels are still the page slugs in capitals (for example "ABOUT-1-5-1").
   - At 992–1199px the header is 121px tall (the logo shrinks), so the 146px banner band shows about 25px of maroon below it.
   - `ng serve` on the Mac was stopped during this check, so it wasn't re-checked there.
+
+## 2026-10-30 — Navbar: two header looks that switch on scroll (the always-burgundy change is reverted)
+
+- **Branch:** `feature/desktop-menu`
+- Commit `453bfc9` (always-burgundy header) is reverted (`442986c`). Kenneth wants the header to switch between two looks:
+
+  | When | Background | Logo | Links, buttons, hamburger |
+  |---|---|---|---|
+  | **At the very top of the page** | White | Dark-text 219×52 "Brothers of 1-5-1 Incorporated" | Maroon |
+  | **Once scrolled** (`.bgnav`, added by the existing scroll handler) | Burgundy `#670001`, with shadow | White-text logo, 48px tall | White |
+
+  This is the reverse of the old behaviour (transparent header with the white logo at the top, white header with the dark logo when scrolled).
+- **Files changed:**
+  - `navbar.component.css`: colours for both looks.
+  - `navbar.component.html`: the dark-text logo is the starting logo.
+  - `navbar.component.ts`: the scroll handler swaps the logos the other way round; the hamburger border is maroon at the top and white when scrolled.
+    - **Bug fix:** the handler used `#margintransition`, which only exists on page views. On the homepage every scroll threw `Cannot read properties of null (reading 'style')`. It's now null-guarded.
+  - `carousel.component.css`: the band behind the header is now **white** and **118px**, matching the white header at the top (118px at most widths, 100px at 992–1199px).
+- **Checked on `ng serve`:** homepage at 1920px.
+  - Top: white header, dark logo, maroon links and buttons, banner starts at 146px.
+  - Scrolled: burgundy header, white logo and links.
+  - Scrolling back up returns to white.
+- **Tested:** `ng test` **96/96 pass** (new: both looks and logos via the scroll handler). Development build succeeds.
