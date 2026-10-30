@@ -582,3 +582,21 @@
   - Phones: hero hidden as before (`d-none d-md-block`).
   - Homepage slide unchanged at 1366: 1366×650, starting at 118px.
 - **Tested:** `ng test` **114/114 pass** (new: 154px hero, `cover`, centred, image unchanged). Development build has no warnings.
+
+## 2026-10-30 — Footer: "1 - 5 - 1 Incorporated" and the tagline each on one line
+
+- **Branch:** `feature/footer-brand` (from `master` after PRs #15 and #16)
+- **Problem:** in the footer's brand column, the name and "A brotherhood rooted in music since 1982." wrapped onto two lines each.
+- **Fix** (`footer.component.css`):
+  - Both are `white-space: nowrap`.
+  - Their font size scales with the column's width using container query units: the name is `min(1.35rem, 8.5cqi)`, the tagline `min(0.95rem, 4.8cqi)`. They shrink only where the column is narrow.
+- **Checked on `ng serve`:** one line each, fitting the column, with no page overflow.
+
+  | Width | Name | Tagline |
+  |---|---|---|
+  | 393 and 768px | 21.6px | 15.2px |
+  | 992–1199px (column 216px) | 18.4px | 10.4px |
+  | 1366px | 21.6px | 12.5px |
+  | 1920px | 21.6px | 15.2px |
+- **Tested:** `ng test` **115/115 pass** (new: one line each, within the column). Mutation: removing `nowrap` fails the test.
+- **Note:** at 992–1199px the tagline is small (about 10px), because the 4-column footer leaves 216px for it on one line.

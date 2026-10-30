@@ -44,6 +44,27 @@
   margin-bottom: 0.75rem;
 }
 
+/*
+ * "1 - 5 - 1 Incorporated" and the tagline each stay on ONE line. The font scales with the column's width
+ * (container query units), so they fit the narrow 4-column desktop layout as well as tablets and phones,
+ * capped at a comfortable maximum.
+ */
+.footer-brand {
+  container-type: inline-size;
+}
+
+.footer-brand h4 {
+  white-space: nowrap;
+  font-size: min(1.35rem, 8.5cqi);
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.footer-brand p {
+  white-space: nowrap;
+  font-size: min(0.95rem, 4.8cqi);
+}
+
 .quick-links li {
   margin-bottom: 0.4rem;
 }

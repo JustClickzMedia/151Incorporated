@@ -42,4 +42,20 @@ describe('FooterComponent', () => {
   it('shows the current year in the copyright (was hard-coded 2018)', () => {
     expect(el().querySelector('.copyright')?.textContent).toContain(String(new Date().getFullYear()));
   });
+
+  it('keeps "1 - 5 - 1 Incorporated" and the tagline each on one line, sized to the column', () => {
+    document.body.appendChild(el());
+    const col = el().querySelector('.footer-brand') as HTMLElement;
+    const inner = col.clientWidth - parseFloat(getComputedStyle(col).paddingLeft) - parseFloat(getComputedStyle(col).paddingRight);
+    for (const sel of ['h4', 'p']) {
+      const e = col.querySelector(sel) as HTMLElement;
+      expect(getComputedStyle(e).whiteSpace).withContext(sel).toBe('nowrap');
+      const range = document.createRange();
+      range.selectNodeContents(e);
+      const rects = Array.from(range.getClientRects());
+      expect(new Set(rects.map(r => Math.round(r.top))).size).withContext(sel + ' lines').toBe(1);
+      expect(Math.max(...rects.map(r => r.width))).withContext(sel + ' width').toBeLessThanOrEqual(inner + 1);
+    }
+    el().remove();
+  });
 });
