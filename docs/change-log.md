@@ -506,3 +506,21 @@
   - 393px: shield above the title, section 1022px tall.
   - No horizontal overflow.
 - **Tested:** `ng test` **107/107 pass** (new history spec: shield, key facts, link, layout, accent rules). Development build succeeds.
+
+## 2026-10-30 — News & Upcoming Events removed site-wide; menu label "ABOUT"
+
+- **Branch:** `feature/home-layout`
+- **News & Upcoming Events removed from every page:**
+  - **Homepage:** the box under Strategic Objectives (`presidents.component`) is gone, and the homepage no longer requests posts.
+  - **Page and post views:** the "News & Upcoming Events" sidebar (`SidbarpostsComponent`, deleted) is gone from `pagedetails` and `postdetails`.
+    - **Its row is removed too:** the content now spans the full row (`col-12`), instead of 6 columns plus a spacer and the 5-column sidebar.
+  - `WordpressService.getPosts()` is kept (REST path; posts and search are a later task).
+  - The unused `RouterLink` import in `PresidentsComponent` is removed (NG8113).
+- **Navbar:** the `about-1-5-1` page now shows as **ABOUT** (`NAV_LABELS` in `navbar.component.ts`); other pages keep their slug. The link is still `/pg/about-1-5-1`.
+- **Checked on `ng serve`:**
+  - No "News & Upcoming Events" on `/`, `/pg/about-1-5-1` or `/pg/membership`.
+  - Menu reads MEMBERSHIP, PRESIDENT, ABOUT, MOTO, SCHOLARSHIP, FOUNDATION.
+  - Page content fills the 960px container.
+- **Tested:** `ng test` **109/109 pass**.
+  - New: no posts request and no News section on the homepage, page and post views; the content row is full width; ABOUT label.
+  - Development build has no warnings.

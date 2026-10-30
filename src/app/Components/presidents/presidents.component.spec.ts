@@ -25,8 +25,9 @@ describe('PresidentsComponent', () => {
 
   afterEach(() => http.verify());
 
-  const flushPosts = (body: any) =>
-    http.expectOne(r => r.url === environment.restUrl + 'posts?_embed').flush(body);
+  /** News & Upcoming Events was removed (2026-10-30), so the homepage no longer requests posts. */
+  const noPostsRequest = () =>
+    http.expectNone(r => r.url.startsWith(environment.restUrl + 'posts'));
   const pageBySlug = (slug: string) =>
     http.expectOne(r => r.url === environment.restUrl + 'pages' && r.params.get('slug') === slug && r.params.has('_embed'));
   const render = async () => { fixture.detectChanges(); await fixture.whenStable(); return (fixture.nativeElement as HTMLElement).textContent ?? ''; };
@@ -34,21 +35,20 @@ describe('PresidentsComponent', () => {
   it('makes no page request (and no page-13 call) while no homepage slug is configured', async () => {
     await setup('');
     http.expectNone(r => r.url.startsWith(environment.restUrl + 'pages'));
-    flushPosts([{ id: 7, title: { rendered: 'Post A' }, date: '2026-01-02T10:00:00' }]);
+    noPostsRequest();
     const text = await render();
     expect(text).toContain('God Before All');
     expect(text).toContain('Strategic Objectives');
     expect(text).not.toContain('Continue Read More');
   });
 
-  it('loads the homepage page by slug and renders its excerpt and the posts', async () => {
+  it('loads the homepage page by slug and renders its excerpt', async () => {
     await setup('about-1-5-1');
     pageBySlug('about-1-5-1').flush([{ id: 42, slug: 'about-1-5-1', title: { rendered: 'About' }, excerpt: { rendered: '<p>Excerpt text</p>' } }]);
-    flushPosts([{ id: 7, title: { rendered: 'Post A' }, date: '2026-01-02T10:00:00' }]);
+    noPostsRequest();
     const text = await render();
     expect(text).toContain('Excerpt text');
     expect(text).toContain('Continue Read More');
-    expect(text).toContain('Post A');
     expect((fixture.nativeElement as HTMLElement).innerHTML).toContain('href="/pg/about-1-5-1"');
   });
 
@@ -56,7 +56,7 @@ describe('PresidentsComponent', () => {
     await setup('about-1-5-1', true);
     http.expectOne(r => r.method === 'POST' && r.url === environment.graphqlUrl && r.body?.variables?.slug === 'about-1-5-1')
       .flush({ data: { page: { databaseId: 19, slug: 'about-1-5-1', title: '1-5-1 History', date: null, content: '<p>Founded in <b>1982</b>.</p>', featuredImage: null } } });
-    flushPosts([]);
+    noPostsRequest();
     const text = await render();
     expect(text).toContain('Founded in 1982.');
     expect((fixture.nativeElement as HTMLElement).innerHTML).toContain('href="/pg/about-1-5-1"');
@@ -65,7 +65,7 @@ describe('PresidentsComponent', () => {
   it('GraphQL: page null = only the static sections', async () => {
     await setup('nope', true);
     http.expectOne(r => r.method === 'POST' && r.url === environment.graphqlUrl).flush({ data: { page: null } });
-    flushPosts([]);
+    noPostsRequest();
     const text = await render();
     expect(text).toContain('Strategic Objectives');
     expect(text).not.toContain('Continue Read More');
@@ -82,21 +82,27 @@ describe('PresidentsComponent', () => {
     return false;
   };
 
-  it('shows Strategic Objectives and News exactly once, on every screen size, with no homepage page', async () => {
+  it('shows Strategic Objectives exactly once, on every screen size, with no homepage page', async () => {
     await setup('');
-    flushPosts([]);
+    noPostsRequest();
     await render();
-    for (const title of ['Strategic Objectives', 'News & Upcoming Events']) {
-      const headings = visibleHeadings(title);
-      expect(headings.length).withContext(title).toBe(1);
-      expect(hiddenOnSomeScreens(headings[0])).withContext(title + ' hidden by a d-*-none class').toBeFalse();
-    }
+    const headings = visibleHeadings('Strategic Objectives');
+    expect(headings.length).toBe(1);
+    expect(hiddenOnSomeScreens(headings[0])).withContext('hidden by a d-*-none class').toBeFalse();
+  });
+
+  it('no longer has a News & Upcoming Events section', async () => {
+    await setup('');
+    noPostsRequest();
+    const text = await render();
+    expect(text).not.toContain('News & Upcoming Events');
+    expect((fixture.nativeElement as HTMLElement).querySelector('#postNav')).toBeNull();
   });
 
   it('shows Strategic Objectives once, on every screen size, next to the homepage excerpt', async () => {
     await setup('about-1-5-1');
     pageBySlug('about-1-5-1').flush([{ id: 42, slug: 'about-1-5-1', title: { rendered: 'About' }, excerpt: { rendered: '<p>Excerpt text</p>' } }]);
-    flushPosts([]);
+    noPostsRequest();
     await render();
     const headings = visibleHeadings('Strategic Objectives');
     expect(headings.length).toBe(1);
@@ -107,7 +113,7 @@ describe('PresidentsComponent', () => {
   it('shows only the static sections when the slug matches no page', async () => {
     await setup('does-not-exist');
     pageBySlug('does-not-exist').flush([]);
-    flushPosts([]);
+    noPostsRequest();
     const text = await render();
     expect(text).toContain('Strategic Objectives');
     expect(text).not.toContain('Continue Read More');
@@ -117,7 +123,7 @@ describe('PresidentsComponent', () => {
     spyOn(console, 'error');
     await setup('about-1-5-1');
     pageBySlug('about-1-5-1').flush({}, { status: 500, statusText: 'Server Error' });
-    flushPosts([]);
+    noPostsRequest();
     const text = await render();
     expect(text).toContain('Strategic Objectives');
     expect(text).not.toContain('Continue Read More');

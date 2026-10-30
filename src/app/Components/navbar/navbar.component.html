@@ -29,7 +29,7 @@
       <ul class="navbar-nav mr-auto">
         @for (NavItem of NavMenu(); track NavItem.id) {
           <li class="nav-item" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
-            <a class="nav-link" (click)="closeNavbar()" [routerLink]="['/pg', NavItem.slug]">{{ NavItem.slug | uppercase }}</a>
+            <a class="nav-link" (click)="closeNavbar()" [routerLink]="['/pg', NavItem.slug]">{{ menuLabel(NavItem) | uppercase }}</a>
           </li>
         }
       </ul>

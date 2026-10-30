@@ -20,9 +20,9 @@ describe('PostdetailsComponent', () => {
     'post-custom-fields': { Keywords: 'k', Description: 'd' },
   });
 
-  /** The sidebar requests posts too; flush those so verify() only checks what this spec cares about. */
+  /** The News & Upcoming Events sidebar was removed (2026-10-30): the page must not request posts. */
   const flushSidebar = () =>
-    http.match(r => r.url === environment.restUrl + 'posts?_embed').forEach(r => r.flush([]));
+    http.expectNone(r => r.url === environment.restUrl + 'posts?_embed'); // no News & Upcoming Events sidebar any more
 
   beforeEach(async () => {
     params = new BehaviorSubject<ParamMap>(convertToParamMap({ id: '5', title: 'x' }));

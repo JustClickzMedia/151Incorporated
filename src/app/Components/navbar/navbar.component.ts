@@ -9,6 +9,11 @@ import { CommonModule } from '@angular/common'
 import { RouterLinkActive, RouterLink } from '@angular/router';
 //import { SearchboxComponent } from '../../Components/searchbox/searchbox.component'
 
+/** Menu labels that differ from the page slug. */
+export const NAV_LABELS: Record<string, string> = {
+  'about-1-5-1': 'About',
+};
+
 @Component({
     selector: 'app-navbar',
     templateUrl: './navbar.component.html',
@@ -35,6 +40,11 @@ export class NavbarComponent implements OnInit {
 
   toggleNavbar() {
     this.navbarOpen.update(open => !open);
+  }
+
+  /** Menu text for a page: its slug, except where a shorter label reads better (about-1-5-1 -> About). */
+  menuLabel(item: WpPageLink): string {
+    return NAV_LABELS[item.slug] ?? item.slug;
   }
 
   /** After choosing a page, close the phone/tablet menu (on desktop the menu is always visible). */

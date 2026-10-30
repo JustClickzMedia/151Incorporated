@@ -1,9 +1,0 @@
-<h2 class="sbtitle text-center">News & Upcoming Events</h2>
-<ul id="postNav">
-  @for (post of posts(); track post.id) {
-    <li class="nav-item">
-      <a class="nav-link" routerLink="/pst/{{ post.id }}/{{ post.title.rendered }}">{{ post.title.rendered }}</a>
-      <!--<p>{{ post.date | date:'longDate' }} | {{ post.date | date:'shortTime' }}</p>-->
-    </li>
-  }
-</ul>

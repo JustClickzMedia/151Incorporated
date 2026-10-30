@@ -9,9 +9,9 @@
       <!--
         One responsive layout for every screen (it used to be two copies: the desktop one only rendered once a
         homepage page had loaded, and the mobile one was hidden from 768px up, so tablets/laptops/desktops showed
-        neither). Strategic Objectives and News always show:
-          - homepage page configured: excerpt on the left (lg: 6 cols), objectives + news on the right (lg: 5 cols)
-          - no homepage page yet: objectives + news centred (lg: 8 cols)
+        neither). Strategic Objectives always shows (News & Upcoming Events was removed 2026-10-30):
+          - homepage page configured: excerpt on the left (lg: 6 cols), objectives on the right (lg: 5 cols)
+          - no homepage page yet: objectives centred (lg: 8 cols)
           - below lg: everything stacks full width
       -->
       <div class="row">
@@ -36,19 +36,6 @@
             <div class="row">
               <div class="col-2 col-md-1 col-lg-2"><img class="mt-md-0 imgbat img-fluid" src="../../../assets/images/icons8-bat-50.png" alt="1-5-1 Bat"/></div>
               <div class="col-10 col-md-11 col-lg-10"><p>To establish a solid foundation for the development of the brotherhood.</p></div>
-            </div>
-          </div>
-          <div class="container bg crnRds news" style="margin-top: 30px;">
-            <h2 class="algncenter">News & Upcoming Events</h2>
-            <div class="row">
-              <ul id="postNav">
-                @for (post of posts(); track post.id) {
-                  <li class="nav-item">
-                    <a class="nav-link" routerLink="/pst/{{ post.id }}/{{ post.title.rendered }}">{{ post.title.rendered }}</a>
-                    <p>{{ post.date | date:'longDate' }} | {{ post.date | date:'shortTime' }}</p>
-                  </li>
-                }
-              </ul>
             </div>
           </div>
         </div>
