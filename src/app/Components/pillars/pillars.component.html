@@ -1,0 +1,14 @@
+<section class="pillars">
+  <div class="container">
+    <div class="row gx-4 gy-5 justify-content-center">
+      @for (pillar of pillars; track pillar.title) {
+        <div class="col-12 col-md-4 text-center">
+          <div class="pillar-icon" aria-hidden="true"><fa-icon [icon]="pillar.icon"></fa-icon></div>
+          <h3>{{ pillar.title }}</h3>
+          <p>{{ pillar.text }}</p>
+          <a class="pillar-link" [routerLink]="['/pg', pillar.slug]">{{ pillar.linkLabel }} &rsaquo;</a>
+        </div>
+      }
+    </div>
+  </div>
+</section>

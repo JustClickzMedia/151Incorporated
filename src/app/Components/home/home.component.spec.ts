@@ -26,4 +26,9 @@ describe('HomeComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('shows the carousel, then the three pillars, then the God Before All section', () => {
+    const order = Array.from((fixture.nativeElement as HTMLElement).children).map(c => c.tagName.toLowerCase());
+    expect(order).toEqual(['app-carousel', 'app-pillars', 'app-presidents']);
+  });
 });

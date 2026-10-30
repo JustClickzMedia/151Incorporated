@@ -442,3 +442,46 @@
   - Scrolled: burgundy header, white logo and links.
   - Scrolling back up returns to white.
 - **Tested:** `ng test` **96/96 pass** (new: both looks and logos via the scroll handler). Development build succeeds.
+
+## 2026-10-30 — Homepage in the richmondsigmas.org layout: full-screen carousel, three pillars, four-column footer
+
+- **Branch:** `feature/home-layout` (from `master` after PR #12)
+- **Scope** (Kenneth's choices): homepage only.
+  - Full-screen carousel, three icon columns and a four-column footer.
+  - **Not** Upcoming Events.
+  - **Kept:** God Before All, Strategic Objectives and News.
+  - **Unchanged:** the phone banner and the scroll-switching navbar.
+  - The layout follows richmondsigmas.org, but all text, images and code are 1-5-1's own.
+- **Carousel** (`carousel.component.css`):
+  - **From 768px up the slide fills the window below the 118px white header band** (`height: calc(100svh - 118px)`, minimum 420px).
+  - Phones (< 768px) keep the 480:275 banner.
+- **New `PillarsComponent`** (between the carousel and God Before All): Brotherhood, Scholarship and Service, each with a round maroon Font Awesome icon, a short paragraph and a link.
+  - The text is drawn from the WordPress History, Scholarship and Foundation pages.
+  - Links go to `/pg/about-1-5-1`, `/pg/scholarship` and `/pg/foundation`.
+  - Three across from 768px, stacked on phones.
+- **Footer** (rewritten):
+  - The motto band stays.
+  - Then four columns: shield logo and tagline | Contact Us | Quick Links (6 slug links) | Follow Us. Four across from 992px, two on tablets, stacked and centred on phones.
+  - The social links are now real links using Bootstrap Icons (the old Font Awesome `<i>` tags had no icon font loaded, so they rendered as empty circles).
+  - The copyright shows the current year (was 2018).
+- **Checked on `ng serve`:**
+
+  | Viewport | Slide |
+  |---|---|
+  | 393 | 393×225 (unchanged) |
+  | 768×1024 | 768×906 |
+  | 1024×768 | 1024×650 |
+  | 1366×768 | 1366×650 |
+  | 1920×1080 | 1920×962 |
+
+  - Pillars: 1 row from 768px, 3 rows on phones.
+  - Footer: 4 across at 1024px and up, 2 rows at 768px, 4 rows on phones.
+  - No horizontal overflow at 393, 768 or 1366px. This fixed a gutter overflow on phones: footer side padding was zeroed, and the pillars used `g-5`.
+- **Tested:** `ng test` **104/104 pass**.
+  - New: pillars, footer and homepage order specs, plus a carousel full-screen rule test.
+  - Mutation: removing the full-screen rule fails a test.
+  - Development build succeeds.
+- **Content to confirm:**
+  - The pillar wording.
+  - **The footer address is still the old placeholder "P.O. Box 11111, Hampton, VA 22222"**, marked TODO.
+  - The email is info@1-5-1.org.

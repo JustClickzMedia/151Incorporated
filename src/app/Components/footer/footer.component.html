@@ -1,78 +1,57 @@
-<footer class="footer navbar-fixed-bottom">
-  <div class="container d-xs-block d-sm-block d-lg-none d-md-none">  
-    <div class="row">
-      <div class="col-12 col-sm-12 mgSep"> 
-        <div class="container">        
-            <h4><i>Perseverance Even In The Face Of Darkness</i></h4>
-        </div> 
-      </div>
-      <div class="col-12 col-sm-12 seperator mgSep"> 
-        <div class="container">        
-          <h3>1 - 5 - 1 Incorporated</h3>    
-          <p>P.O. Box 11111  <br/>  
-          Hampton VA, 22222</p>    
-          <p><img src="../../assets/images/shield1_1 (3).png" class="img-fluid img-thumbnail removeattr"/></p>
-        </div> 
-      </div>
-      <div class="col-12 col-sm-12 cold-left mt-2"> 
-        <button class="icon-btn icon-btn-minus twitter" onclick="window.open('https://twitter.com/Brothers_of_151');"> 
-          <i class="fab fa-twitter"></i>
-        </button>
-        <button class="icon-btn email" onclick="window.location.href='mailto:info@1-5-1.org';"> 
-          <i class="fas fa-envelope"></i>          
-        </button>
-        <button class="icon-btn facebook" onclick="window.open('https://www.facebook.com/The-Brothers-of-1-5-1-Inc-826091857440723/');"> 
-          <i class="fab fa-facebook-f"></i> 
-        </button>
-        <!--<button class="icon-btn google-plus" onclick="window.open('https://plus.google.com/');"> 
-          <i class="fab fa-google-plus-g"></i> 
-        </button>-->
-        <button class="icon-btn instagram" onclick="window.open('https://www.instagram.com/151_incorporated/');"> 
-          <i class="fab  fa-instagram"></i>
-        </button>
-      </div>
-      <div class="col-12 col-sm-12 cold-left mt-1"> 
-          <p class="copyRight">© Copyright 2018 - 1-5-1 Incorporated</p>
-      </div>  
+<!--
+  Four-column footer (the layout of the richmondsigmas.org footer, with 1-5-1's own content):
+  brand + motto | contact | quick links | follow us, then a copyright bar.
+  Four across from 992px, two across on tablets, stacked on phones.
+-->
+<footer class="footer">
+  <div class="motto">
+    <div class="container">
+      <h2><i>Perseverance Even In The Face Of Darkness</i></h2>
     </div>
   </div>
 
-  <div class="container d-none d-md-block d-lg-block">  
-    <div class="row">
-        <div class="col-md-12 col-lg-12  mt-1 bgTitle">
-          <h2><i>Perseverance Even In The Face Of Darkness</i></h2>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12 col-lg-12 mgSep seperator">
-            <div class="container mt-1">        
-              <h4>1 - 5 - 1 Incorporated</h4>    
-              <p>P.O. Box 11111 | Hampton VA, 22222</p>    
-              <img src="../../assets/images/shield1_1 (3).png" class="w-25 img-fluid img-thumbnail removeattr"/>
-            </div> 
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12 col-lg-12 mt-md-3">
-            <button class="icon-btn icon-btn-minus twitter" onclick="window.open('https://twitter.com/Brothers_of_151');"> 
-              <i class="fab fa-twitter"></i>
-            </button>
-            <button class="icon-btn email" onclick="window.location.href='mailto:info@1-5-1.org';"> 
-              <i class="fas fa-envelope"></i> 
-            </button>
-            <button class="icon-btn facebook" onclick="window.open('https://www.facebook.com/The-Brothers-of-1-5-1-Inc-826091857440723/');"> 
-              <i class="fab fa-facebook-f"></i> 
-            </button>
-            <button class="icon-btn instagram" onclick="window.open('https://www.instagram.com/151_incorporated/');"> 
-              <i class="fab fa-instagram"></i>
-            </button>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12 col-lg-12 text-left mt-1">
-          <p class="copyRight">© Copyright 2018 - 1-5-1 Incorporated</p>
+  <div class="container footer-columns">
+    <div class="row g-4">
+      <div class="col-12 col-md-6 col-lg-3 footer-brand">
+        <img src="../../assets/images/shield1_1 (3).png" class="img-fluid" alt="1-5-1 Incorporated shield"/>
+        <h4>1 - 5 - 1 Incorporated</h4>
+        <p>A brotherhood rooted in music since 1982.</p>
+      </div>
+
+      <div class="col-12 col-md-6 col-lg-3">
+        <h5>Contact Us</h5>
+        <!-- TODO(content): placeholder address from the old footer; replace with the real mailing address -->
+        <p>P.O. Box 11111<br/>Hampton, VA 22222</p>
+        <p><a href="mailto:info@1-5-1.org"><i class="bi bi-envelope" aria-hidden="true"></i> info&#64;1-5-1.org</a></p>
+      </div>
+
+      <div class="col-12 col-md-6 col-lg-3">
+        <h5>Quick Links</h5>
+        <ul class="list-unstyled quick-links">
+          <li><a routerLink="/">Home</a></li>
+          <li><a routerLink="/pg/about-1-5-1">Our History</a></li>
+          <li><a routerLink="/pg/membership">Membership</a></li>
+          <li><a routerLink="/pg/scholarship">Scholarship</a></li>
+          <li><a routerLink="/pg/foundation">Foundation</a></li>
+          <li><a routerLink="/pg/president">President's Message</a></li>
+        </ul>
+      </div>
+
+      <div class="col-12 col-md-6 col-lg-3">
+        <h5>Follow Us</h5>
+        <div class="social">
+          <a href="https://www.facebook.com/The-Brothers-of-1-5-1-Inc-826091857440723/" target="_blank" rel="noopener" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+          <a href="https://www.instagram.com/151_incorporated/" target="_blank" rel="noopener" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+          <a href="https://twitter.com/Brothers_of_151" target="_blank" rel="noopener" aria-label="X (Twitter)"><i class="bi bi-twitter-x"></i></a>
+          <a href="mailto:info@1-5-1.org" aria-label="Email"><i class="bi bi-envelope"></i></a>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div class="copyright">
+    <div class="container">
+      <p>&copy; {{ year }} 1-5-1 Incorporated. All rights reserved.</p>
+    </div>
   </div>
 </footer>
-

@@ -47,18 +47,44 @@ describe('CarouselComponent', () => {
     el().remove();
   });
 
-  it('is a banner with a fixed shape below the header (Richmond-style), not full screen', async () => {
+  it('is a banner on phones and full screen from 768px, below the header', async () => {
     await setup(false);
     document.body.appendChild(el());
     await render();
     const carousel = el().querySelector('#brothercarousel') as HTMLElement;
     const slide = el().querySelector('.carousel-item.active') as HTMLElement;
     expect(getComputedStyle(carousel).borderTopWidth).toBe('118px');           // white band behind the fixed navbar
-    expect(['1240 / 560', '480 / 275']).toContain(getComputedStyle(slide).aspectRatio); // 2.2:1 desktop, 1.75:1 phone
     const r = slide.getBoundingClientRect();
-    expect(r.width / r.height).toBeCloseTo(window.innerWidth < 768 ? 480 / 275 : 1240 / 560, 1);
+    if (window.innerWidth < 768) {
+      // phones: unchanged ~1.75:1 banner
+      expect(getComputedStyle(slide).aspectRatio).toBe('480 / 275');
+      expect(r.width / r.height).toBeCloseTo(480 / 275, 1);
+    } else {
+      // tablets and up: full screen below the 118px header band (min 420px)
+      expect(r.height).toBeCloseTo(Math.max(window.innerHeight - 118, 420), 0);
+    }
     expect(getComputedStyle(slide, '::after').backgroundColor).toBe('rgba(103, 0, 1, 0.55)'); // maroon tint
     el().remove();
+  });
+
+  it('has a full-screen rule from 768px up (height = window minus the 118px header band); phones keep the banner', async () => {
+    await setup(false);
+    await render();
+    // The test browser may be narrower than 768px, so check the stylesheet rule itself.
+    const rules = Array.from(document.styleSheets).flatMap(sheet => {
+      try { return Array.from(sheet.cssRules); } catch { return []; }
+    });
+    const tablet = rules.filter((r): r is CSSMediaRule => r instanceof CSSMediaRule && r.conditionText.includes('min-width: 768px'))
+      .flatMap(m => Array.from(m.cssRules) as CSSStyleRule[])
+      .find(r => r.selectorText?.includes('carousel-item'));
+    expect(tablet).withContext('min-width: 768px rule for .carousel-item').toBeDefined();
+    expect(tablet!.style.height.replace(/\s/g, '')).toMatch(/100svh/);
+    expect(tablet!.style.height).toContain('118px');
+    expect(tablet!.style.aspectRatio).toBe('auto');
+    const phone = rules.filter((r): r is CSSMediaRule => r instanceof CSSMediaRule && r.conditionText.includes('max-width: 767.98px'))
+      .flatMap(m => Array.from(m.cssRules) as CSSStyleRule[])
+      .find(r => r.selectorText?.includes('carousel-item'));
+    expect(phone!.style.aspectRatio).toBe('480 / 275');
   });
 
   describe('GraphQL off (production until promotion)', () => {
