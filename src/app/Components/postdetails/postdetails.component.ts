@@ -6,7 +6,6 @@ import { map, switchMap, tap } from 'rxjs/operators';
 import { WordpressService } from '../../Services/wordpress.service';
 import { withFallback } from '../../Services/rx-fallback';
 import { SeoService } from '../../Services/seo.service';
-import { SidbarpostsComponent } from '../../Components/sidbarposts/sidbarposts.component';
 
 
 @Component({
@@ -14,7 +13,7 @@ import { SidbarpostsComponent } from '../../Components/sidbarposts/sidbarposts.c
     templateUrl: './postdetails.component.html',
     styleUrls: ['./postdetails.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [CommonModule, SidbarpostsComponent]
+    imports: [CommonModule]
 })
 export class PostdetailsComponent {
   private route = inject(ActivatedRoute);

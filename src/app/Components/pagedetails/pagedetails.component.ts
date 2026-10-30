@@ -6,7 +6,6 @@ import { Observable, of } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { WordpressService } from '../../Services/wordpress.service';
 import { SeoService } from '../../Services/seo.service';
-import { SidbarpostsComponent } from '../../Components/sidbarposts/sidbarposts.component';
 import { PagenotfoundComponent } from '../../Components/pagenotfound/pagenotfound.component';
 import { WpPage } from '../../Model/wp-page';
 
@@ -22,7 +21,7 @@ type PageState =
     templateUrl: './pagedetails.component.html',
     styleUrls: ['./pagedetails.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [CommonModule, SidbarpostsComponent, PagenotfoundComponent]
+    imports: [CommonModule, PagenotfoundComponent]
 })
 export class PagedetailsComponent {
   private route = inject(ActivatedRoute);

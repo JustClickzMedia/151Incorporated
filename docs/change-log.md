@@ -442,3 +442,85 @@
   - Scrolled: burgundy header, white logo and links.
   - Scrolling back up returns to white.
 - **Tested:** `ng test` **96/96 pass** (new: both looks and logos via the scroll handler). Development build succeeds.
+
+## 2026-10-30 — Homepage in the richmondsigmas.org layout: full-screen carousel, three pillars, four-column footer
+
+- **Branch:** `feature/home-layout` (from `master` after PR #12)
+- **Scope** (Kenneth's choices): homepage only.
+  - Full-screen carousel, three icon columns and a four-column footer.
+  - **Not** Upcoming Events.
+  - **Kept:** God Before All, Strategic Objectives and News.
+  - **Unchanged:** the phone banner and the scroll-switching navbar.
+  - The layout follows richmondsigmas.org, but all text, images and code are 1-5-1's own.
+- **Carousel** (`carousel.component.css`):
+  - **From 768px up the slide fills the window below the 118px white header band** (`height: calc(100svh - 118px)`, minimum 420px).
+  - Phones (< 768px) keep the 480:275 banner.
+- **New `PillarsComponent`** (between the carousel and God Before All): Brotherhood, Scholarship and Service, each with a round maroon Font Awesome icon, a short paragraph and a link.
+  - The text is drawn from the WordPress History, Scholarship and Foundation pages.
+  - Links go to `/pg/about-1-5-1`, `/pg/scholarship` and `/pg/foundation`.
+  - Three across from 768px, stacked on phones.
+- **Footer** (rewritten):
+  - The motto band stays.
+  - Then four columns: shield logo and tagline | Contact Us | Quick Links (6 slug links) | Follow Us. Four across from 992px, two on tablets, stacked and centred on phones.
+  - The social links are now real links using Bootstrap Icons (the old Font Awesome `<i>` tags had no icon font loaded, so they rendered as empty circles).
+  - The copyright shows the current year (was 2018).
+- **Checked on `ng serve`:**
+
+  | Viewport | Slide |
+  |---|---|
+  | 393 | 393×225 (unchanged) |
+  | 768×1024 | 768×906 |
+  | 1024×768 | 1024×650 |
+  | 1366×768 | 1366×650 |
+  | 1920×1080 | 1920×962 |
+
+  - Pillars: 1 row from 768px, 3 rows on phones.
+  - Footer: 4 across at 1024px and up, 2 rows at 768px, 4 rows on phones.
+  - No horizontal overflow at 393, 768 or 1366px. This fixed a gutter overflow on phones: footer side padding was zeroed, and the pillars used `g-5`.
+- **Tested:** `ng test` **104/104 pass**.
+  - New: pillars, footer and homepage order specs, plus a carousel full-screen rule test.
+  - Mutation: removing the full-screen rule fails a test.
+  - Development build succeeds.
+- **Content to confirm:**
+  - The pillar wording.
+  - **The footer address is still the old placeholder "P.O. Box 11111, Hampton, VA 22222"**, marked TODO.
+  - The email is info@1-5-1.org.
+
+## 2026-10-30 — Homepage: "Our History" section replaces the three pillars
+
+- **Branch:** `feature/home-layout`
+- **What:** Kenneth asked to replace Brotherhood / Scholarship / Service with the history of 1-5-1, using a fraternity history banner he shared as inspiration.
+- **New `HistoryComponent`** (between the carousel and God Before All):
+  - The 1-5-1 shield on the left, with the heading "The Brothers of 1-5-1, Incorporated" in a serif small-caps style.
+  - Two paragraphs of history, summarised from the WordPress "1-5-1 History" page: founded March 6, 1982 at the Bismarck Hotel in Chicago by six Hampton University Concert Choir members on tour; four more pledged before the tour ended; membership opened to band musicians; the bat mascot, motto and creed; members today.
+  - A "Read our full history" link to `/pg/about-1-5-1`.
+  - Background: a faded black-and-white brotherhood photo, with maroon accent rules at the top-left and bottom-left.
+  - Shield beside the text from 768px; stacked and centred on phones.
+- **Images** (web-sized copies; the originals are kept):
+  - `assets/images/shield-history.png`, 434×456, 138 KB: the transparent shield from `shield1_1.png`, trimmed. (`shield1_1 (3).png`, used in the footer, has a solid maroon square background.)
+  - `assets/images/history-bg.jpg`, 122 KB: a greyscale JPEG of `32YearsBrotherhood-1296X972.png` (2 MB).
+- **Removed:** `PillarsComponent` and its spec.
+- **Checked on `ng serve`:**
+  - 1920px: shield beside the text.
+  - 768px: shield beside the text, section 759px tall.
+  - 393px: shield above the title, section 1022px tall.
+  - No horizontal overflow.
+- **Tested:** `ng test` **107/107 pass** (new history spec: shield, key facts, link, layout, accent rules). Development build succeeds.
+
+## 2026-10-30 — News & Upcoming Events removed site-wide; menu label "ABOUT"
+
+- **Branch:** `feature/home-layout`
+- **News & Upcoming Events removed from every page:**
+  - **Homepage:** the box under Strategic Objectives (`presidents.component`) is gone, and the homepage no longer requests posts.
+  - **Page and post views:** the "News & Upcoming Events" sidebar (`SidbarpostsComponent`, deleted) is gone from `pagedetails` and `postdetails`.
+    - **Its row is removed too:** the content now spans the full row (`col-12`), instead of 6 columns plus a spacer and the 5-column sidebar.
+  - `WordpressService.getPosts()` is kept (REST path; posts and search are a later task).
+  - The unused `RouterLink` import in `PresidentsComponent` is removed (NG8113).
+- **Navbar:** the `about-1-5-1` page now shows as **ABOUT** (`NAV_LABELS` in `navbar.component.ts`); other pages keep their slug. The link is still `/pg/about-1-5-1`.
+- **Checked on `ng serve`:**
+  - No "News & Upcoming Events" on `/`, `/pg/about-1-5-1` or `/pg/membership`.
+  - Menu reads MEMBERSHIP, PRESIDENT, ABOUT, MOTO, SCHOLARSHIP, FOUNDATION.
+  - Page content fills the 960px container.
+- **Tested:** `ng test` **109/109 pass**.
+  - New: no posts request and no News section on the homepage, page and post views; the content row is full width; ABOUT label.
+  - Development build has no warnings.

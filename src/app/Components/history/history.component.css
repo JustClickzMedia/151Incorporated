@@ -1,0 +1,72 @@
+/*
+ * Faded black-and-white brotherhood photo behind the section, with maroon accent rules along the top-left
+ * and bottom-left edges.
+ */
+.history {
+  position: relative;
+  overflow: hidden;
+  padding: 5rem 0;
+  background-color: #f4f4f4;
+}
+
+.history::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("../../../assets/images/history-bg.jpg") center / cover no-repeat;
+  opacity: 0.14;
+}
+
+.rule {
+  position: absolute;
+  left: 0;
+  height: 6px;
+  background-color: #670001;
+  z-index: 1;
+}
+
+.rule-top { top: 0; width: 47%; }
+.rule-bottom { bottom: 0; width: 50%; }
+
+.history .container {
+  position: relative;
+  z-index: 1;
+}
+
+.shield {
+  max-width: 300px;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.2));
+}
+
+.history h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-variant: small-caps;
+  letter-spacing: 0.06em;
+  font-size: clamp(1.6rem, 3vw, 2.5rem);
+  color: #1a1a1a;
+  margin-bottom: 1.25rem;
+}
+
+.history p {
+  color: #444;
+  font-size: 1.1rem;
+  line-height: 1.75;
+}
+
+.history-link {
+  color: #670001;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.history-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 767.98px) {
+  .history { padding: 3rem 0; text-align: center; }
+  .history p { text-align: left; }
+  .shield { max-width: 200px; }
+}

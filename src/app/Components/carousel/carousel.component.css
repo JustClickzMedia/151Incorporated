@@ -20,7 +20,18 @@
 }
 
 @media (max-width: 767.98px) {
-  .carousel-item { aspect-ratio: 480 / 275; }     /* phones: ~1.75:1 (e.g. 393x225) */
+  .carousel-item { aspect-ratio: 480 / 275; }     /* phones: ~1.75:1 (e.g. 393x225) — unchanged */
+}
+
+/* Tablets and up: full screen, like the richmondsigmas.org homepage — the slide fills the window below the
+   white header band (118px). Phones keep the banner above. */
+@media (min-width: 768px) {
+  .carousel-item {
+    aspect-ratio: auto;
+    height: calc(100vh - 118px);
+    height: calc(100svh - 118px);
+    min-height: 420px;
+  }
 }
 
 .carousel-item picture,

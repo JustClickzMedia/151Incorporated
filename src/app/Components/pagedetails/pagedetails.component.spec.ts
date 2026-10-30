@@ -52,9 +52,9 @@ for (const source of [REST, GRAPHQL]) {
     let http: HttpTestingController;
     let params: BehaviorSubject<ParamMap>;
 
-    /** The sidebar requests posts (REST) too; flush those so verify() only checks what this spec cares about. */
+    /** The News & Upcoming Events sidebar was removed (2026-10-30): the page must not request posts. */
     const flushSidebar = () =>
-      http.match(r => r.url === environment.restUrl + 'posts?_embed').forEach(r => r.flush([]));
+      http.expectNone(r => r.url === environment.restUrl + 'posts?_embed'); // no News & Upcoming Events sidebar any more
 
     const el = () => fixture.nativeElement as HTMLElement;
     const render = async () => { fixture.detectChanges(); await fixture.whenStable(); };
@@ -104,6 +104,17 @@ for (const source of [REST, GRAPHQL]) {
       expect(el().querySelector('app-pagenotfound')).not.toBeNull();
       expect(el().textContent).toContain('404');
       expect(el().querySelector('section.error_section a')?.getAttribute('href')).toBe('/');
+    });
+
+    it('has no News & Upcoming Events sidebar; the page content uses the full row', async () => {
+      await setup('about-1-5-1');
+      source.request(http, 'about-1-5-1').flush(source.found(19, 'about-1-5-1', '1-5-1 History'));
+      await render();
+      expect(el().querySelector('app-sidbarposts')).toBeNull();
+      expect(el().textContent).not.toContain('News & Upcoming Events');
+      const content = Array.from(el().querySelectorAll('.bgPage .row > div')).find(d => d.textContent?.includes('Body 19'))!;
+      expect(content.className.trim()).toBe('col-12 text-justify');
+      expect(content.parentElement!.children.length).toBe(1);
     });
 
     it('renders a page without a featured image (no hero background, no error)', async () => {
