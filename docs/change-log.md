@@ -397,3 +397,48 @@
 - **Tested:** `ng test` **93/93 pass**.
   - New: shown once and not hidden by any `d-*-none` class, both with and without a homepage page.
   - Mutation: the old template fails both tests.
+
+## 2026-10-29 — Navbar: regular menu on desktop (hamburger only on phones and tablets)
+
+- **Branch:** `feature/desktop-menu`
+- **Files changed:**
+  - `navbar.component.html`: `navbar-expand-lg`. From 992px up, the page links and the Pay Dues and Give Back buttons show in one horizontal row next to the logo, and the hamburger is hidden. Below 992px, the hamburger menu is unchanged.
+  - `navbar.component.css`, desktop only:
+    - Links are white over the maroon header band and turn maroon when the header goes white on scroll (`.bgnav`).
+    - The underline shows on hover and on the active page.
+    - Spacing is tighter than the stacked phone menu, and tighter again at 992–1199px.
+    - Outline buttons turn maroon on the white scrolled header.
+  - `navbar.component.ts`: new `closeNavbar()`. Choosing a page now closes the phone menu instead of toggling it.
+  - Specs: `navbar-expand-lg` present; choosing a page closes the menu.
+- **Checked** (Playwright, development build, mocked WordPress data, real-size logo):
+  - 992, 1024, 1280, 1366 and 1920 px: hamburger hidden, all 6 links on one row, no horizontal overflow.
+  - 393 and 768 px: hamburger shown.
+  - Scrolled at 1366: white header, maroon links and buttons.
+- **Tested:** `ng test` **95/95 pass**.
+- **Notes:**
+  - Menu labels are still the page slugs in capitals (for example "ABOUT-1-5-1").
+  - At 992–1199px the header is 121px tall (the logo shrinks), so the 146px banner band shows about 25px of maroon below it.
+  - `ng serve` on the Mac was stopped during this check, so it wasn't re-checked there.
+
+## 2026-10-30 — Navbar: two header looks that switch on scroll (the always-burgundy change is reverted)
+
+- **Branch:** `feature/desktop-menu`
+- Commit `453bfc9` (always-burgundy header) is reverted (`442986c`). Kenneth wants the header to switch between two looks:
+
+  | When | Background | Logo | Links, buttons, hamburger |
+  |---|---|---|---|
+  | **At the very top of the page** | White | Dark-text 219×52 "Brothers of 1-5-1 Incorporated" | Maroon |
+  | **Once scrolled** (`.bgnav`, added by the existing scroll handler) | Burgundy `#670001`, with shadow | White-text logo, 48px tall | White |
+
+  This is the reverse of the old behaviour (transparent header with the white logo at the top, white header with the dark logo when scrolled).
+- **Files changed:**
+  - `navbar.component.css`: colours for both looks.
+  - `navbar.component.html`: the dark-text logo is the starting logo.
+  - `navbar.component.ts`: the scroll handler swaps the logos the other way round; the hamburger border is maroon at the top and white when scrolled.
+    - **Bug fix:** the handler used `#margintransition`, which only exists on page views. On the homepage every scroll threw `Cannot read properties of null (reading 'style')`. It's now null-guarded.
+  - `carousel.component.css`: the band behind the header is now **white** and **118px**, matching the white header at the top (118px at most widths, 100px at 992–1199px).
+- **Checked on `ng serve`:** homepage at 1920px.
+  - Top: white header, dark logo, maroon links and buttons, banner starts at 146px.
+  - Scrolled: burgundy header, white logo and links.
+  - Scrolling back up returns to white.
+- **Tested:** `ng test` **96/96 pass** (new: both looks and logos via the scroll handler). Development build succeeds.

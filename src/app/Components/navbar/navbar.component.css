@@ -18,8 +18,60 @@
     font-size: 8px;
 }
 
-.bgnav{
-    background-color: white;
+/*
+ * Two header looks (switched by the scroll handler in navbar.component.ts):
+ *   - at the very top of the page: WHITE header, dark-text logo, maroon links/buttons/hamburger
+ *   - once scrolled (.bgnav): BURGUNDY header, white-text logo, white links/buttons/hamburger
+ */
+#header {
+    background-color: #fff;
+}
+
+#header .nav-link {
+    color: #670001;
+}
+
+#header .navbar-buttons .btn {
+    color: #670001;
+    border-color: #670001;
+}
+
+#header .navbar-buttons .btn:hover {
+    color: #fff;
+    background-color: #670001;
+}
+
+#header .custom-toggler .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(103,0,1,1)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 8h24M4 16h24M4 24h24'/%3E%3C/svg%3E");
+}
+
+#header.bgnav {
+    background-color: #670001;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+#header.bgnav .nav-link {
+    color: #fff;
+}
+
+#header.bgnav .navbar-buttons .btn {
+    color: #fff;
+    border-color: #fff;
+}
+
+#header.bgnav .navbar-buttons .btn:hover {
+    color: #670001;
+    background-color: #fff;
+}
+
+#header.bgnav .custom-toggler .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255,255,255,0.9)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 8h24M4 16h24M4 24h24'/%3E%3C/svg%3E");
+}
+
+/* Scrolled: the white-text logo, a bit smaller */
+.navbar-container.fixed-theme .navbar-brand img {
+    height: 48px;
+    width: auto !important;
 }
 
 /* .dditem:hover{
@@ -68,4 +120,42 @@
 
 .custom-toggler .navbar-toggler-icon {
   background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255,255,255, 0.7)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 8h24M4 16h24M4 24h24'/%3E%3C/svg%3E");
+}
+/*
+ * Desktop (>= 992px, navbar-expand-lg): regular horizontal menu instead of the hamburger.
+ * Colours for both header looks are set above. Spacing is tighter than the stacked phone menu so the six pages + two buttons fit.
+ */
+@media (min-width: 992px) {
+  .navbar-nav li {
+    padding-right: 0;
+  }
+
+  .navbar-nav .nav-link {
+    font-size: 16px;
+    font-weight: 600;
+    padding: 0.5rem 0.75rem;
+    white-space: nowrap;
+  }
+
+  .navbar-nav .nav-link:hover,
+  .navbar-nav .active > .nav-link {
+    text-decoration: underline;
+    text-underline-offset: 6px;
+  }
+
+
+  .navbar-buttons .btn {
+    font-size: 15px;
+    padding: 0.375rem 0.75rem;
+    white-space: nowrap;
+  }
+
+}
+
+/* Laptops (992-1199px): a little tighter still */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .navbar-nav .nav-link {
+    font-size: 14px;
+    padding: 0.5rem 0.5rem;
+  }
 }

@@ -53,7 +53,7 @@ describe('CarouselComponent', () => {
     await render();
     const carousel = el().querySelector('#brothercarousel') as HTMLElement;
     const slide = el().querySelector('.carousel-item.active') as HTMLElement;
-    expect(getComputedStyle(carousel).borderTopWidth).toBe('146px');           // band behind the fixed navbar
+    expect(getComputedStyle(carousel).borderTopWidth).toBe('118px');           // white band behind the fixed navbar
     expect(['1240 / 560', '480 / 275']).toContain(getComputedStyle(slide).aspectRatio); // 2.2:1 desktop, 1.75:1 phone
     const r = slide.getBoundingClientRect();
     expect(r.width / r.height).toBeCloseTo(window.innerWidth < 768 ? 480 / 275 : 1240 / 560, 1);
