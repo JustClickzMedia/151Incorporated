@@ -635,3 +635,14 @@
 - **Branch:** `feature/fonts`
 - **What changed:** removed the date shown under the title on every WordPress page (`/pg/...`) and post (`/pst/...`), and the date/time next to each search result. The spacing under page titles is kept.
 - **Testing:** 122/122 unit tests (checks that pages, posts and search results no longer show the date).
+
+## 2026-10-30 — Production uses GraphQL (same as staging)
+
+- **Branch:** `feature/prod-graphql`
+- **Checked against production WordPress (2026-10-30):**
+  - Production GraphQL already uses the new names: `homepageCarousels` works, the old `allHomepageCarousel` is gone; `events` works (no events yet).
+  - The app's own queries (menu pages, page by slug, carousel with all six image fields) return the same results on production as on staging: pages `membership`, `president`, `about-1-5-1`, `moto`, `scholarship`, `foundation`; carousel items 105–107 with images.
+  - CORS: GraphQL and REST requests from `https://brothersof1-5-1.org` succeed.
+- **What changed:** `environment.prod.ts` → `useGraphql: true` (was `false`), and the outdated "don't call production GraphQL" comment was updated. Without this, the production homepage would show only the 3 built-in carousel slides instead of the WordPress carousel.
+- **Testing:** 122/122 unit tests; production build OK and points at `https://tzin.brothersof1-5-1.org/graphql`.
+- **Still open (backend):** `/wp-json/wp/v2/users` returns 200 on production, so the API hardening plugin step of the promotion checklist (`wordpress-operations.md`) is not done yet. It doesn't block the frontend.
