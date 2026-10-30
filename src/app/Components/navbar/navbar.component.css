@@ -20,8 +20,8 @@
 
 /*
  * Two header looks (switched by the scroll handler in navbar.component.ts):
- *   - at the very top of the page: WHITE header, dark-text logo, maroon links/buttons/hamburger
- *   - once scrolled (.bgnav): BURGUNDY header, white-text logo, white links/buttons/hamburger
+ *   - at the very top of the page: WHITE header, dark-text logo, maroon links/hamburger
+ *   - once scrolled (.bgnav): BURGUNDY header, white-text logo, white links/hamburger
  */
 #header {
     background-color: #fff;
@@ -31,15 +31,7 @@
     color: #670001;
 }
 
-#header .navbar-buttons .btn {
-    color: #670001;
-    border-color: #670001;
-}
 
-#header .navbar-buttons .btn:hover {
-    color: #fff;
-    background-color: #670001;
-}
 
 #header .custom-toggler .navbar-toggler-icon {
   background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(103,0,1,1)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 8h24M4 16h24M4 24h24'/%3E%3C/svg%3E");
@@ -54,15 +46,7 @@
     color: #fff;
 }
 
-#header.bgnav .navbar-buttons .btn {
-    color: #fff;
-    border-color: #fff;
-}
 
-#header.bgnav .navbar-buttons .btn:hover {
-    color: #670001;
-    background-color: #fff;
-}
 
 #header.bgnav .custom-toggler .navbar-toggler-icon {
   background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255,255,255,0.9)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 8h24M4 16h24M4 24h24'/%3E%3C/svg%3E");
@@ -123,7 +107,7 @@
 }
 /*
  * Desktop (>= 992px, navbar-expand-lg): regular horizontal menu instead of the hamburger.
- * Colours for both header looks are set above. Spacing is tighter than the stacked phone menu so the six pages + two buttons fit.
+ * Colours for both header looks are set above. Spacing is tighter than the stacked phone menu so HOME, the pages and MEMBERSHIP fit on one row.
  */
 @media (min-width: 992px) {
   .navbar-nav li {
@@ -144,11 +128,6 @@
   }
 
 
-  .navbar-buttons .btn {
-    font-size: 15px;
-    padding: 0.375rem 0.75rem;
-    white-space: nowrap;
-  }
 
 }
 
@@ -157,5 +136,51 @@
   .navbar-nav .nav-link {
     font-size: 14px;
     padding: 0.5rem 0.5rem;
+  }
+}
+
+/* MEMBERSHIP dropdown (Membership page + Pay Dues) — opened by click, closed by clicking elsewhere / Escape */
+/* A <button>, styled exactly like the other menu links: only reset the button look; size/weight/colour come
+   from the .nav-link rules (a `font` shorthand here would override them). */
+.membership-menu .dropdown-toggle {
+  background: none;
+  border: 0;
+  font-family: inherit;
+}
+
+#header .membership-menu .dropdown-menu {
+  border: 1px solid rgba(103, 0, 1, 0.25);
+  border-radius: 0.375rem;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  padding: 0.25rem 0;
+}
+
+#header .membership-menu .dropdown-item {
+  color: #670001;
+  font-weight: 600;
+  padding: 0.5rem 1.25rem;
+}
+
+#header .membership-menu .dropdown-item:hover,
+#header .membership-menu .dropdown-item:focus {
+  color: #fff;
+  background-color: #670001;
+}
+
+/* Phones/tablets: inside the hamburger menu the dropdown opens in place */
+@media (max-width: 991.98px) {
+  #header .membership-menu .dropdown-menu {
+    position: static;
+    box-shadow: none;
+  }
+}
+
+/* Desktop: keep the opened list under the toggle, aligned to its right edge so it never runs off-screen */
+@media (min-width: 992px) {
+  #header .membership-menu .dropdown-menu {
+    position: absolute;
+    right: 0;
+    left: auto;
+    margin-top: 0.25rem;
   }
 }

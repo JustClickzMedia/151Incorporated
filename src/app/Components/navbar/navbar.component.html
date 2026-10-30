@@ -26,19 +26,26 @@
       <span class="navbar-toggler-icon" [ngStyle]="{'background-image': iconlnimage() }"></span>
     </button>
     <div class="collapse navbar-collapse" [ngClass]="{ 'show': navbarOpen() }">
+      <!-- Menu order: HOME, the WordPress pages, then MEMBERSHIP (a dropdown with the Membership page and Pay Dues) -->
       <ul class="navbar-nav mr-auto">
-        @for (NavItem of NavMenu(); track NavItem.id) {
+        <li class="nav-item" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+          <a class="nav-link" (click)="closeNavbar()" routerLink="/">HOME</a>
+        </li>
+        @for (NavItem of pageMenu(); track NavItem.id) {
           <li class="nav-item" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
             <a class="nav-link" (click)="closeNavbar()" [routerLink]="['/pg', NavItem.slug]">{{ menuLabel(NavItem) | uppercase }}</a>
           </li>
         }
+        <li class="nav-item dropdown membership-menu" [class.active]="membershipActive()">
+          <button type="button" class="nav-link dropdown-toggle" id="membership-toggle"
+                  [attr.aria-expanded]="membershipOpen()" aria-haspopup="true" aria-controls="membership-menu"
+                  (click)="toggleMembership($event)">MEMBERSHIP</button>
+          <ul class="dropdown-menu" id="membership-menu" aria-labelledby="membership-toggle" [class.show]="membershipOpen()">
+            <li><a class="dropdown-item" (click)="closeNavbar()" routerLink="/pg/membership">Membership Requirements</a></li>
+            <li><a class="dropdown-item" (click)="closeNavbar()" href="https://checkout.square.site/merchant/4ZBJEDVN0C8CN/checkout/C6GENNAL37VOT5NCEZJ24W2J?fbclid=IwAR1EB1chPlhZpQ7nmtcrwSrmTETl9lR9f07NONqKYVaEe31Yq9gSYDiHmN0_aem_ATapbJl3Wzjrs2KVn8U7htNJZ0fSBP45IK18gjUnm8VL-Ngl9DvQ9wHtIwn7Wfn_rEv5JBMJEphfEzFZDOEIgLyf" target="_blank" rel="noopener">Pay Dues</a></li>
+          </ul>
+        </li>
       </ul>
-      <div class="navbar-nav navbar-buttons">
-        <a title="Pay Dues" href="https://checkout.square.site/merchant/4ZBJEDVN0C8CN/checkout/C6GENNAL37VOT5NCEZJ24W2J?fbclid=IwAR1EB1chPlhZpQ7nmtcrwSrmTETl9lR9f07NONqKYVaEe31Yq9gSYDiHmN0_aem_ATapbJl3Wzjrs2KVn8U7htNJZ0fSBP45IK18gjUnm8VL-Ngl9DvQ9wHtIwn7Wfn_rEv5JBMJEphfEzFZDOEIgLyf"
-        class="nav-item btn btn-outline-light btn-lg mt-3 mb-3 my-lg-0 me-lg-2">PAY DUES</a>
-        <a title="Pay Dues" href="https://checkout.square.site/merchant/4ZBJEDVN0C8CN/checkout/C6GENNAL37VOT5NCEZJ24W2J?fbclid=IwAR1EB1chPlhZpQ7nmtcrwSrmTETl9lR9f07NONqKYVaEe31Yq9gSYDiHmN0_aem_ATapbJl3Wzjrs2KVn8U7htNJZ0fSBP45IK18gjUnm8VL-Ngl9DvQ9wHtIwn7Wfn_rEv5JBMJEphfEzFZDOEIgLyf"
-        class="nav-item btn btn-outline-light btn-lg">GIVE BACK</a>
-      </div>
     </div>
   </div>
 </nav>
