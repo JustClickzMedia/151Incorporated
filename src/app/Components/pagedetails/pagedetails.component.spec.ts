@@ -117,6 +117,21 @@ for (const source of [REST, GRAPHQL]) {
       expect(content.parentElement!.children.length).toBe(1);
     });
 
+    it('shows the featured image in a short 154px hero, scaled to fit (cover, centred) instead of at full size', async () => {
+      await setup('about-1-5-1');
+      source.request(http, 'about-1-5-1').flush(source.found(19, 'about-1-5-1', '1-5-1 History'));
+      await render();
+      document.body.appendChild(el());
+      const hero = el().querySelector('#margintransition') as HTMLElement;
+      const cs = getComputedStyle(hero);
+      expect(cs.height).toBe('154px');
+      expect(cs.backgroundSize).toBe('cover');
+      expect(cs.backgroundPosition).toBe('50% 50%');
+      expect(cs.backgroundRepeat).toBe('no-repeat');
+      expect(hero.style.backgroundImage).toContain(IMG); // the WordPress image itself is unchanged
+      el().remove();
+    });
+
     it('renders a page without a featured image (no hero background, no error)', async () => {
       await setup('moto');
       source.request(http, 'moto').flush(source.found(17, 'moto', 'Moto', false));

@@ -1,5 +1,14 @@
+/*
+ * Page hero: a short banner like the richmondsigmas.org page headers (154px tall), instead of 600px.
+ * The WordPress featured image itself is unchanged; it is scaled down to the banner's width and centred
+ * (background-size: cover), rather than shown at its full natural size. Bootstrap 5 has no .jumbotron
+ * styles, so nothing else sizes it.
+ */
 .jumbotron{
-    height: 600px;
+    height: 154px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     opacity: .4;
     border-bottom: 4px solid #000000;
    /* margin: -100px 0px;*/ 
