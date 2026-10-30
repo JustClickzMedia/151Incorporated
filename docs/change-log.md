@@ -599,4 +599,8 @@
   | 1366px | 21.6px | 12.5px |
   | 1920px | 21.6px | 15.2px |
 - **Tested:** `ng test` **115/115 pass** (new: one line each, within the column). Mutation: removing `nowrap` fails the test.
-- **Note:** at 992–1199px the tagline is small (about 10px), because the 4-column footer leaves 216px for it on one line.
+- **Follow-up, same day: tagline made smaller.**
+  - It filled its column and almost touched column 2, so it's now `min(0.8rem, 4.2cqi)`, at most about 85% of the column.
+  - Checked on `ng serve`: 1920px 12.8px (83%, 76px clear of column 2); 1366px 11px (85%, 63px clear); 992px 9.1px (87%, 52px clear); 768px and phones 12.8px.
+  - The spec now also checks the tagline is ≤ 90% of the column and ≤ 12.8px. The previous size fails it.
+- **Note:** at 992–1199px the tagline is small (about 9px), because the 4-column footer leaves 216px for it on one line.

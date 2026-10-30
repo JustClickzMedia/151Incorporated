@@ -62,7 +62,7 @@
 
 .footer-brand p {
   white-space: nowrap;
-  font-size: min(0.95rem, 4.8cqi);
+  font-size: min(0.8rem, 4.2cqi);   /* ~85% of the column at most, so it stays clear of column 2 */
 }
 
 .quick-links li {

@@ -56,6 +56,12 @@ describe('FooterComponent', () => {
       expect(new Set(rects.map(r => Math.round(r.top))).size).withContext(sel + ' lines').toBe(1);
       expect(Math.max(...rects.map(r => r.width))).withContext(sel + ' width').toBeLessThanOrEqual(inner + 1);
     }
+    // The tagline keeps clear of column 2: at most ~90% of its column.
+    const range = document.createRange();
+    range.selectNodeContents(col.querySelector('p')!);
+    expect(Math.max(...Array.from(range.getClientRects()).map(r => r.width))).toBeLessThanOrEqual(inner * 0.9);
+    // ...and is never larger than 0.8rem (12.8px), whatever the column width.
+    expect(parseFloat(getComputedStyle(col.querySelector('p')!).fontSize)).toBeLessThanOrEqual(12.8);
     el().remove();
   });
 });
