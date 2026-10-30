@@ -40,6 +40,16 @@ describe('NavbarComponent', () => {
     expect(nav.classList).toContain('navbar-expand-lg');
   });
 
+  it('has a burgundy header on every page, before and after scrolling (white links were invisible on white)', async () => {
+    http.expectOne(r => r.url.startsWith(environment.restUrl + 'pages?_embed')).flush([]);
+    document.body.appendChild(fixture.nativeElement);
+    const header = (fixture.nativeElement as HTMLElement).querySelector('#header') as HTMLElement;
+    expect(getComputedStyle(header).backgroundColor).toBe('rgb(103, 0, 1)');
+    header.classList.add('bgnav'); // what the scroll handler adds
+    expect(getComputedStyle(header).backgroundColor).toBe('rgb(103, 0, 1)');
+    (fixture.nativeElement as HTMLElement).remove();
+  });
+
   it('closes the phone menu after a page is chosen', async () => {
     http.expectOne(r => r.url.startsWith(environment.restUrl + 'pages?_embed'))
       .flush([{ id: 2, slug: 'membership', title: { rendered: 'Membership' } }]);

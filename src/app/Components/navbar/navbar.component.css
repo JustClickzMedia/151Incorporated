@@ -18,8 +18,24 @@
     font-size: 8px;
 }
 
-.bgnav{
-    background-color: white;
+/*
+ * The header is always burgundy (#670001), on every page and after scrolling. It used to be transparent
+ * (only the homepage banner put maroon behind it) and turned white on scroll, so on inner pages the white
+ * links and the white-text logo were invisible.
+ */
+#header,
+#header.bgnav {
+    background-color: #670001;
+}
+
+#header.bgnav {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+/* While scrolled, the same logo is shown smaller */
+.navbar-container.fixed-theme .navbar-brand img {
+    height: 48px;
+    width: auto !important;
 }
 
 /* .dditem:hover{
@@ -71,8 +87,7 @@
 }
 /*
  * Desktop (>= 992px, navbar-expand-lg): regular horizontal menu instead of the hamburger.
- * Links are white over the maroon band at the top of the page, and maroon once the header turns white
- * on scroll (.bgnav). Spacing is tighter than the stacked phone menu so the six pages + two buttons fit.
+ * White links on the burgundy header. Spacing is tighter than the stacked phone menu so the six pages + two buttons fit.
  */
 @media (min-width: 992px) {
   .navbar-nav li {
@@ -93,9 +108,6 @@
     text-underline-offset: 6px;
   }
 
-  .bgnav .navbar-nav .nav-link {
-    color: #670001;
-  }
 
   .navbar-buttons .btn {
     font-size: 15px;
@@ -103,15 +115,9 @@
     white-space: nowrap;
   }
 
-  /* White header after scrolling: outline buttons in maroon so they stay visible */
-  .bgnav .navbar-buttons .btn {
+  .navbar-buttons .btn:hover {
     color: #670001;
-    border-color: #670001;
-  }
-
-  .bgnav .navbar-buttons .btn:hover {
-    color: #fff;
-    background-color: #670001;
+    background-color: #fff;
   }
 }
 
