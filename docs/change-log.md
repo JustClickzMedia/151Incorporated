@@ -485,3 +485,24 @@
   - The pillar wording.
   - **The footer address is still the old placeholder "P.O. Box 11111, Hampton, VA 22222"**, marked TODO.
   - The email is info@1-5-1.org.
+
+## 2026-10-30 — Homepage: "Our History" section replaces the three pillars
+
+- **Branch:** `feature/home-layout`
+- **What:** Kenneth asked to replace Brotherhood / Scholarship / Service with the history of 1-5-1, using a fraternity history banner he shared as inspiration.
+- **New `HistoryComponent`** (between the carousel and God Before All):
+  - The 1-5-1 shield on the left, with the heading "The Brothers of 1-5-1, Incorporated" in a serif small-caps style.
+  - Two paragraphs of history, summarised from the WordPress "1-5-1 History" page: founded March 6, 1982 at the Bismarck Hotel in Chicago by six Hampton University Concert Choir members on tour; four more pledged before the tour ended; membership opened to band musicians; the bat mascot, motto and creed; members today.
+  - A "Read our full history" link to `/pg/about-1-5-1`.
+  - Background: a faded black-and-white brotherhood photo, with maroon accent rules at the top-left and bottom-left.
+  - Shield beside the text from 768px; stacked and centred on phones.
+- **Images** (web-sized copies; the originals are kept):
+  - `assets/images/shield-history.png`, 434×456, 138 KB: the transparent shield from `shield1_1.png`, trimmed. (`shield1_1 (3).png`, used in the footer, has a solid maroon square background.)
+  - `assets/images/history-bg.jpg`, 122 KB: a greyscale JPEG of `32YearsBrotherhood-1296X972.png` (2 MB).
+- **Removed:** `PillarsComponent` and its spec.
+- **Checked on `ng serve`:**
+  - 1920px: shield beside the text.
+  - 768px: shield beside the text, section 759px tall.
+  - 393px: shield above the title, section 1022px tall.
+  - No horizontal overflow.
+- **Tested:** `ng test` **107/107 pass** (new history spec: shield, key facts, link, layout, accent rules). Development build succeeds.
