@@ -42,3 +42,10 @@ The site picks the fields up automatically (it falls back to title/description/i
 - Set the event's **Featured Image**; it's shown at full width, uncropped.
 - Wide images (about 2.5:1, e.g. 1500×600) look best in the homepage column; tall flyers work too but take more space.
 - Add **Alt Text** to the image in the Media Library for screen readers.
+
+## Events page (menu UPDATE → Events)
+
+- `/events` lists **every current event** (expired ones are left out), soonest first; events without a date come last.
+- A **List / Grid** button switches between rows (picture, title, date/time/location, short description) and cards (3 across on desktop, 2 on tablets, 1 on phones). The choice is remembered in the visitor's browser.
+- Every row or card is one link to the event's page (`/event/<slug>`).
+- With no current events the page says **"There are no new events at this time."** and hides the List/Grid button.

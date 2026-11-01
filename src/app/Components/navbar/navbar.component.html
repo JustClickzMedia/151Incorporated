@@ -26,7 +26,7 @@
       <span class="navbar-toggler-icon" [ngStyle]="{'background-image': iconlnimage() }"></span>
     </button>
     <div class="collapse navbar-collapse" [ngClass]="{ 'show': navbarOpen() }">
-      <!-- Menu order: HOME, the WordPress pages, then MEMBERSHIP (a dropdown with the Membership page and Pay Dues) -->
+      <!-- Menu order: HOME, the WordPress pages, UPDATE (dropdown: Events), then MEMBERSHIP (dropdown: Membership page, Pay Dues) -->
       <ul class="navbar-nav mr-auto">
         <li class="nav-item" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
           <a class="nav-link" (click)="closeNavbar()" routerLink="/">HOME</a>
@@ -36,6 +36,15 @@
             <a class="nav-link" (click)="closeNavbar()" [routerLink]="['/pg', NavItem.slug]">{{ menuLabel(NavItem) | uppercase }}</a>
           </li>
         }
+        <!-- Same dropdown styling as MEMBERSHIP (membership-menu class) -->
+        <li class="nav-item dropdown membership-menu update-menu" [class.active]="updateActive()">
+          <button type="button" class="nav-link dropdown-toggle" id="update-toggle"
+                  [attr.aria-expanded]="updateOpen()" aria-haspopup="true" aria-controls="update-menu"
+                  (click)="toggleUpdate($event)">UPDATE</button>
+          <ul class="dropdown-menu" id="update-menu" aria-labelledby="update-toggle" [class.show]="updateOpen()">
+            <li><a class="dropdown-item" (click)="closeNavbar()" routerLink="/events">Events</a></li>
+          </ul>
+        </li>
         <li class="nav-item dropdown membership-menu" [class.active]="membershipActive()">
           <button type="button" class="nav-link dropdown-toggle" id="membership-toggle"
                   [attr.aria-expanded]="membershipOpen()" aria-haspopup="true" aria-controls="membership-menu"

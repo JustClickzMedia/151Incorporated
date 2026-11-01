@@ -133,3 +133,12 @@ export function eventBadge(event: WpEvent): { month: string; day: string } | und
   const [y, m, d] = event.startDate.split('-').map(Number);
   return { month: new Date(y, m - 1, d).toLocaleDateString('en-US', { month: 'short' }).toUpperCase(), day: String(d) };
 }
+
+/** All current (not expired) events for the Events page: soonest first, events without a date last (newest first). */
+export function upcomingEvents(events: WpEvent[], now: Date): WpEvent[] {
+  return events.filter(e => !isExpired(e, now)).sort((a, b) => {
+    if (a.startDate && b.startDate) { return a.startDate.localeCompare(b.startDate) || b.publishedAt.localeCompare(a.publishedAt); }
+    if (a.startDate || b.startDate) { return a.startDate ? -1 : 1; }
+    return b.publishedAt.localeCompare(a.publishedAt);
+  });
+}

@@ -7,6 +7,7 @@ import { DetailsComponent } from './Components/details/details.component';
 import { SearchresultsComponent } from './Components/searchresults/searchresults.component';
 import { legacyPageRedirectGuard } from './legacy-page-redirect.guard';
 import { EventdetailsComponent } from './Components/eventdetails/eventdetails.component';
+import { EventslistComponent } from './Components/eventslist/eventslist.component';
 
 export const routes: Routes = [
     {
@@ -28,6 +29,11 @@ export const routes: Routes = [
         path : 'pg/:id/:title',
         canActivate : [legacyPageRedirectGuard],
         children : []
+      },
+      {
+        // All current events, list or grid view (menu UPDATE → Events)
+        path : 'events',
+        component : EventslistComponent
       },
       {
         // One WordPress event, e.g. /event/got-skillz-6-is-back-the-ultimate-summer-spades-bid-whist-showdown

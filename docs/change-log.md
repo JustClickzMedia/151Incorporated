@@ -663,3 +663,13 @@
 - **To do in WordPress:** create the Event Details ACF group (docs/events.md) so events get dates and expire automatically.
 - **Follow-up (same day):** moved Upcoming Events to the **last** homepage section (after "God Before All" / Strategic Objectives, above the footer). 139/139 tests.
 - **Follow-up 2 (same day):** moved Upcoming Events into the footer, directly **under the "Perseverance Even In The Face Of Darkness" motto band** and above the footer columns, on the homepage only (`FooterComponent.isHome`). The section keeps its white background and dark text inside the burgundy footer. 140/140 tests (new: shown under the motto on `/`, not on other pages).
+
+## 2026-11-01 — UPDATE menu with an Events page (list/grid)
+
+- **Branch:** `feature/events`
+- **What changed:**
+  - New menu dropdown **UPDATE** (between the WordPress pages and MEMBERSHIP) with **Events**; same look and behaviour as MEMBERSHIP (one dropdown open at a time, closes on outside click/Escape, highlighted on `/events` and `/event/...`).
+  - New page `/events`: every current event, soonest first, with a **List / Grid** toggle (choice remembered in the browser). Each row/card is one link to its event page.
+  - No current events → "There are no new events at this time." (toggle hidden). Loading and error messages included.
+  - Files: `Components/eventslist/*`, `navbar.component.{ts,html,spec.ts}`, `Model/wp-event.ts` (`upcomingEvents`), `app.routes.ts`, `docs/events.md`.
+- **Testing:** 145/145 unit tests. Rendered with sample events at 1280px and 390px: list, grid, empty message; clicking a card opens `/event/<slug>`; UPDATE dropdown screenshot. Production build OK.
