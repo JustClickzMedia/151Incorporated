@@ -1,0 +1,30 @@
+<div id="margintransition" class="event-page">
+  @if (event(); as ev) {
+    <article class="container">
+      <a class="back" routerLink="/">&lsaquo; Back to Home</a>
+      @if (past()) {
+        <p class="past-note">This event has already taken place.</p>
+      }
+      <h1>{{ ev.title }}</h1>
+      @if (dateLabel() || ev.time || ev.location) {
+        <div class="meta">
+          @if (dateLabel(); as when) { <span><i class="bi bi-calendar-event" aria-hidden="true"></i> {{ when }}@if (ev.time) { · {{ ev.time }} }</span> }
+          @if (ev.location) { <span><i class="bi bi-geo-alt" aria-hidden="true"></i> {{ ev.location }}</span> }
+        </div>
+      }
+      @if (ev.image; as img) {
+        <img class="flyer" [src]="img.url" [alt]="img.alt" [attr.width]="img.width ?? null" [attr.height]="img.height ?? null"/>
+      }
+      <div class="content" [innerHTML]="ev.contentHtml"></div>
+    </article>
+  } @else if (notFound()) {
+    <app-pagenotfound></app-pagenotfound>
+  } @else if (failed()) {
+    <div class="container status">
+      <p>Sorry, this event couldn't be loaded right now. Please try again in a moment.</p>
+      <a routerLink="/">&lsaquo; Back to Home</a>
+    </div>
+  } @else if (loading()) {
+    <div class="container status" aria-live="polite"><p>Loading event…</p></div>
+  }
+</div>

@@ -646,3 +646,18 @@
 - **What changed:** `environment.prod.ts` → `useGraphql: true` (was `false`), and the outdated "don't call production GraphQL" comment was updated. Without this, the production homepage would show only the 3 built-in carousel slides instead of the WordPress carousel.
 - **Testing:** 122/122 unit tests; production build OK and points at `https://tzin.brothersof1-5-1.org/graphql`.
 - **Still open (backend):** `/wp-json/wp/v2/users` returns 200 on production, so the API hardening plugin step of the promotion checklist (`wordpress-operations.md`) is not done yet. It doesn't block the frontend.
+
+## 2026-11-01 — Homepage Upcoming Events + event pages
+
+- **Branch:** `feature/events`
+- **What changed:**
+  - New homepage section **Upcoming Events** (under the carousel), from the WordPress Events post type:
+    - no current events (none, or all expired) → section hidden;
+    - one → two columns: picture + title, date/time/location, short description, "Event Details" button;
+    - several → the newest event's picture as the advertisement (title/date under it) + a list of the other current events, soonest first, with date badges.
+  - New event page `/event/:slug`: full uncropped flyer, date, time, location, description, "Back to Home"; past events say so; unknown slug → 404 view; load failure → friendly message.
+  - Events are never fetched while prerendering, so they're always live (not frozen into the build).
+  - Optional ACF group `eventDetails` (`eventDate`, `eventEndDate`, `startTime`, `location`) is used when it exists; until then the site retries without it and events don't expire. Setup steps: `docs/events.md`.
+  - Files: `Model/wp-event.ts`, `Model/now.ts`, `Components/events/*`, `Components/eventdetails/*`, `Services/wordpress.service.ts` (`getEvents`, `getEventBySlug`), `Services/wp-queries.ts`, `app.routes.ts`, `home.component.*`.
+- **Testing:** 139/139 unit tests (date parsing, expiry, featured/list selection, hidden/one/many layouts, links, ACF fallback, no request during prerender, event page states). Rendered with mocked WordPress data at 1280px and 390px: one event, four events, none (hidden); clicking "Event Details" opens `/event/event-170`.
+- **To do in WordPress:** create the Event Details ACF group (docs/events.md) so events get dates and expire automatically.

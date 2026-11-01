@@ -1,0 +1,173 @@
+/* Homepage "Upcoming Events": white section, site burgundy #670001, Newsreader/Work Sans from styles.css */
+.events {
+  padding: 4rem 0;
+  background-color: #fff;
+}
+
+.events-title {
+  text-align: center;
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  margin-bottom: 2.5rem;
+}
+
+.events-title::after {
+  content: "";
+  display: block;
+  width: 64px;
+  height: 3px;
+  margin: 0.75rem auto 0;
+  background-color: #670001;
+}
+
+/* The advertisement: the event's own picture, uncropped */
+.featured {
+  display: block;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.featured:hover,
+.featured:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+}
+
+.featured-img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.featured-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+  padding: 2rem;
+  background-color: #670001;
+  color: #fff;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.featured-caption h3 {
+  margin: 1rem 0 0.25rem;
+  font-size: 1.35rem;
+}
+
+.events a {
+  color: #670001;
+  text-decoration: none;
+}
+
+.meta {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* Column 2, several events: list */
+.list-title {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.event-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid #e5e5e5;
+}
+
+.event-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 0.25rem;
+  border-bottom: 1px solid #e5e5e5;
+  color: #1a1a1a !important;
+}
+
+.event-item:hover .item-title,
+.event-item:focus-visible .item-title {
+  color: #670001;
+  text-decoration: underline;
+}
+
+.badge-date {
+  flex: 0 0 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 56px;
+  border-radius: 4px;
+  background-color: #670001;
+  color: #fff;
+  font-family: var(--font-sans);
+  line-height: 1;
+}
+
+.badge-date .m { font-size: 0.7rem; letter-spacing: 0.08em; font-weight: 600; }
+.badge-date .d { font-size: 1.35rem; font-weight: 600; margin-top: 2px; }
+.badge-nodate { font-size: 1.4rem; }
+
+.item-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.item-title {
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.chevron {
+  font-size: 1.5rem;
+  color: #670001;
+}
+
+/* Column 2, one event: its description */
+.description h3 {
+  font-size: clamp(1.4rem, 2.5vw, 1.9rem);
+  margin-bottom: 0.75rem;
+}
+
+.description .meta i {
+  color: #670001;
+  margin-right: 0.25rem;
+}
+
+.summary {
+  margin: 1rem 0 1.25rem;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.details-link {
+  display: inline-block;
+  padding: 0.6rem 1.4rem;
+  border: 1.5px solid #670001;
+  border-radius: 4px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.details-link:hover,
+.details-link:focus-visible {
+  background-color: #670001;
+  color: #fff !important;
+}
+
+@media (max-width: 991.98px) {
+  .events { padding: 3rem 0; }
+}

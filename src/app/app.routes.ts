@@ -6,6 +6,7 @@ import { PagenotfoundComponent } from './Components/pagenotfound/pagenotfound.co
 import { DetailsComponent } from './Components/details/details.component';
 import { SearchresultsComponent } from './Components/searchresults/searchresults.component';
 import { legacyPageRedirectGuard } from './legacy-page-redirect.guard';
+import { EventdetailsComponent } from './Components/eventdetails/eventdetails.component';
 
 export const routes: Routes = [
     {
@@ -27,6 +28,11 @@ export const routes: Routes = [
         path : 'pg/:id/:title',
         canActivate : [legacyPageRedirectGuard],
         children : []
+      },
+      {
+        // One WordPress event, e.g. /event/got-skillz-6-is-back-the-ultimate-summer-spades-bid-whist-showdown
+        path : 'event/:slug',
+        component : EventdetailsComponent
       },
       {
         path : '404',

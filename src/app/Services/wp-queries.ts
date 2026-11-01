@@ -30,3 +30,18 @@ export const HOMEPAGE_CAROUSELS = `query HomepageCarousels {
     }
   }
 }`;
+
+/**
+ * Events (custom post type). EVENT_FIELDS asks for the optional ACF group `eventDetails`; while that group
+ * doesn't exist in WordPress the query fails with 'Cannot query field "eventDetails"', and the service retries
+ * with EVENT_FIELDS_BASIC (no dates/location). See docs/events.md.
+ */
+const EVENT_FIELDS_BASIC = `databaseId slug title date content
+      featuredImage { node { sourceUrl altText mediaDetails { width height } } }`;
+const EVENT_FIELDS = EVENT_FIELDS_BASIC + `
+      eventDetails { eventDate eventEndDate startTime location }`;
+
+export const EVENTS = `query Events { events(first: 50, where: { status: PUBLISH }) { nodes { ${EVENT_FIELDS} } } }`;
+export const EVENTS_BASIC = `query Events { events(first: 50, where: { status: PUBLISH }) { nodes { ${EVENT_FIELDS_BASIC} } } }`;
+export const EVENT_BY_SLUG = `query EventBySlug($slug: ID!) { event(id: $slug, idType: SLUG) { ${EVENT_FIELDS} } }`;
+export const EVENT_BY_SLUG_BASIC = `query EventBySlug($slug: ID!) { event(id: $slug, idType: SLUG) { ${EVENT_FIELDS_BASIC} } }`;
