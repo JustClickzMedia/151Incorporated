@@ -2,6 +2,7 @@
 .events {
   padding: 4rem 0;
   background-color: #fff;
+  color: #212529;   /* it sits inside the footer, which sets white text */
 }
 
 .events-title {

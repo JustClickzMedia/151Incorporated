@@ -10,6 +10,11 @@
     </div>
   </div>
 
+  <!-- Homepage only: Upcoming Events, right under the motto band (hidden when there are no current events) -->
+  @if (isHome()) {
+    <app-events></app-events>
+  }
+
   <div class="container footer-columns">
     <div class="row g-4">
       <div class="col-12 col-md-6 col-lg-3 footer-brand">

@@ -1,7 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
+import { Component } from '@angular/core';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { FooterComponent } from './footer.component';
+
+@Component({ template: '' }) class Blank {}
 
 describe('FooterComponent', () => {
   let fixture: ComponentFixture<FooterComponent>;
@@ -10,10 +15,24 @@ describe('FooterComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [FooterComponent],
-      providers: [provideRouter([])],
+      providers: [provideRouter([{ path: '', component: Blank }, { path: 'pg/:slug', component: Blank }]), provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
     fixture = TestBed.createComponent(FooterComponent);
     fixture.detectChanges();
+  });
+
+  it('shows Upcoming Events right under the motto band on the homepage only', async () => {
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/');
+    fixture.detectChanges();
+    const events = el().querySelector('app-events');
+    expect(events).not.toBeNull();
+    expect(events!.previousElementSibling?.classList).toContain('motto');
+    expect(events!.nextElementSibling?.classList).toContain('footer-columns');
+
+    await router.navigateByUrl('/pg/membership');
+    fixture.detectChanges();
+    expect(el().querySelector('app-events')).toBeNull();
   });
 
   it('keeps the motto band', () => {
