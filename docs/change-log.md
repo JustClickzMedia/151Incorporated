@@ -651,7 +651,7 @@
 
 - **Branch:** `feature/events`
 - **What changed:**
-  - New homepage section **Upcoming Events** (under the carousel), from the WordPress Events post type:
+  - New homepage section **Upcoming Events** (last section on the homepage, above the footer), from the WordPress Events post type:
     - no current events (none, or all expired) → section hidden;
     - one → two columns: picture + title, date/time/location, short description, "Event Details" button;
     - several → the newest event's picture as the advertisement (title/date under it) + a list of the other current events, soonest first, with date badges.
@@ -661,3 +661,4 @@
   - Files: `Model/wp-event.ts`, `Model/now.ts`, `Components/events/*`, `Components/eventdetails/*`, `Services/wordpress.service.ts` (`getEvents`, `getEventBySlug`), `Services/wp-queries.ts`, `app.routes.ts`, `home.component.*`.
 - **Testing:** 139/139 unit tests (date parsing, expiry, featured/list selection, hidden/one/many layouts, links, ACF fallback, no request during prerender, event page states). Rendered with mocked WordPress data at 1280px and 390px: one event, four events, none (hidden); clicking "Event Details" opens `/event/event-170`.
 - **To do in WordPress:** create the Event Details ACF group (docs/events.md) so events get dates and expire automatically.
+- **Follow-up (same day):** moved Upcoming Events to the **last** homepage section (after "God Before All" / Strategic Objectives, above the footer). 139/139 tests.

@@ -1,6 +1,6 @@
 # Events on the homepage
 
-The homepage shows an **Upcoming Events** section (under the carousel) built from the WordPress **Events** post type, and every event has its own page at `/event/<slug>`.
+The homepage shows an **Upcoming Events** section (the last section, above the footer) built from the WordPress **Events** post type, and every event has its own page at `/event/<slug>`.
 
 ## How the section behaves
 
