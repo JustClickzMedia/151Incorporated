@@ -21,18 +21,20 @@ describe('FooterComponent', () => {
     fixture.detectChanges();
   });
 
-  it('shows Upcoming Events right under the motto band on the homepage only', async () => {
+  it('shows Upcoming Events right under the motto band, then the blog carousel, on the homepage only', async () => {
     const router = TestBed.inject(Router);
     await router.navigateByUrl('/');
     fixture.detectChanges();
     const events = el().querySelector('app-events');
     expect(events).not.toBeNull();
     expect(events!.previousElementSibling?.classList).toContain('motto');
-    expect(events!.nextElementSibling?.classList).toContain('footer-columns');
+    expect(events!.nextElementSibling?.tagName.toLowerCase()).toBe('app-blog-carousel');
+    expect(events!.nextElementSibling!.nextElementSibling?.classList).toContain('footer-columns');
 
     await router.navigateByUrl('/pg/membership');
     fixture.detectChanges();
     expect(el().querySelector('app-events')).toBeNull();
+    expect(el().querySelector('app-blog-carousel')).toBeNull();
   });
 
   it('keeps the motto band', () => {

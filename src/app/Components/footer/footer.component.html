@@ -10,9 +10,10 @@
     </div>
   </div>
 
-  <!-- Homepage only: Upcoming Events, right under the motto band (hidden when there are no current events) -->
+  <!-- Homepage only: Upcoming Events right under the motto band, then the blog carousel (each hidden when empty) -->
   @if (isHome()) {
     <app-events></app-events>
+    <app-blog-carousel></app-blog-carousel>
   }
 
   <div class="container footer-columns">

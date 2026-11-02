@@ -1,0 +1,67 @@
+<div id="margintransition" class="blog-page">
+  <div class="container">
+    <div class="page-head">
+      <h1>Blog</h1>
+      @if (posts().length) {
+        <div class="btn-group view-toggle" role="group" aria-label="Show posts as">
+          <button type="button" class="btn" [class.active]="view() === 'list'" [attr.aria-pressed]="view() === 'list'"
+                  (click)="setView('list')"><i class="bi bi-list-ul" aria-hidden="true"></i> List</button>
+          <button type="button" class="btn" [class.active]="view() === 'grid'" [attr.aria-pressed]="view() === 'grid'"
+                  (click)="setView('grid')"><i class="bi bi-grid-3x3-gap" aria-hidden="true"></i> Grid</button>
+        </div>
+      }
+    </div>
+
+    @if (loading()) {
+      <p class="status" aria-live="polite">Loading posts…</p>
+    } @else if (failed()) {
+      <p class="status">Sorry, the blog couldn't be loaded right now. Please try again in a moment.</p>
+    } @else if (empty()) {
+      <div class="no-posts">
+        <i class="bi bi-journal-text" aria-hidden="true"></i>
+        <h2>There are no blog posts yet.</h2>
+        <p>Please check back soon.</p>
+      </div>
+    } @else if (view() === 'list') {
+      <ul class="post-rows">
+        @for (post of posts(); track post.id) {
+          <li>
+            <a class="post-row" [routerLink]="['/blog', post.slug]">
+              @if (post.image; as img) {
+                <img class="row-img" [src]="img.url" [alt]="img.alt" loading="lazy"/>
+              } @else {
+                <span class="row-img placeholder" aria-hidden="true"><i class="bi bi-journal-text"></i></span>
+              }
+              <span class="row-text">
+                <span class="meta">{{ dateLabel(post) }}@if (post.categories.length) { · {{ post.categories.join(', ') }} }</span>
+                <span class="title" [innerHTML]="post.title"></span>
+                <span class="excerpt" [innerHTML]="post.excerptHtml"></span>
+                <span class="more">Read More &rsaquo;</span>
+              </span>
+            </a>
+          </li>
+        }
+      </ul>
+    } @else {
+      <div class="row g-4 post-grid">
+        @for (post of posts(); track post.id) {
+          <div class="col-12 col-md-6 col-lg-4">
+            <a class="post-card" [routerLink]="['/blog', post.slug]">
+              @if (post.image; as img) {
+                <img class="card-img" [src]="img.url" [alt]="img.alt" loading="lazy"/>
+              } @else {
+                <span class="card-img placeholder" aria-hidden="true"><i class="bi bi-journal-text"></i></span>
+              }
+              <span class="card-text">
+                <span class="meta">{{ dateLabel(post) }}</span>
+                <span class="title" [innerHTML]="post.title"></span>
+                <span class="excerpt" [innerHTML]="post.excerptHtml"></span>
+                <span class="more">Read More &rsaquo;</span>
+              </span>
+            </a>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

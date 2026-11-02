@@ -5,8 +5,9 @@ import { Observable, of, throwError } from 'rxjs';
 import { catchError, map, shareReplay } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { GraphqlError, GraphqlService } from './graphql.service';
-import { EVENTS, EVENTS_BASIC, EVENT_BY_SLUG, EVENT_BY_SLUG_BASIC, HOMEPAGE_CAROUSELS, PAGE_BY_SLUG, PAGES } from './wp-queries';
+import { BLOG_POSTS, BLOG_POST_BY_SLUG, EVENTS, EVENTS_BASIC, EVENT_BY_SLUG, EVENT_BY_SLUG_BASIC, HOMEPAGE_CAROUSELS, PAGE_BY_SLUG, PAGES } from './wp-queries';
 import { GqlEvent, WpEvent, eventFromGraphql } from '../Model/wp-event';
+import { GqlPost, WpPost, postFromGraphql } from '../Model/wp-post';
 import { GqlPage, WpPage, WpPageLink, pageFromGraphql, pageFromRest } from '../Model/wp-page';
 import { CarouselSlide, GqlHomepageCarousel, slideFromGraphql } from '../Model/carousel-slide';
 
@@ -143,6 +144,27 @@ export class WordpressService {
       this.gql.query<Res>(EVENT_BY_SLUG, { slug }),
       () => this.gql.query<Res>(EVENT_BY_SLUG_BASIC, { slug })
     ).pipe(map(d => d.event ? eventFromGraphql(d.event) : undefined));
+  }
+
+  /**
+   * The newest published blog posts (WordPress Posts). Like events, never fetched while prerendering, so new
+   * posts show on the homepage without rebuilding the site. Emits [] when GraphQL is off.
+   */
+  getBlogPosts(first = 12): Observable<WpPost[]> {
+    if (!this.useGraphql || this.isServer) {
+      return of([]);
+    }
+    return this.gql.query<{ posts: { nodes: GqlPost[] } | null }>(BLOG_POSTS, { first })
+      .pipe(map(d => (d.posts?.nodes ?? []).map(postFromGraphql)));
+  }
+
+  /** One blog post with its full content, by slug; undefined when there is none. */
+  getBlogPost(slug: string): Observable<WpPost | undefined> {
+    if (!this.useGraphql) {
+      return of(undefined);
+    }
+    return this.gql.query<{ post: GqlPost | null }>(BLOG_POST_BY_SLUG, { slug })
+      .pipe(map(d => d.post ? postFromGraphql(d.post) : undefined));
   }
 
   /** Run `full`; if WordPress has no eventDetails ACF group yet, run `basic` instead. Other errors pass through. */

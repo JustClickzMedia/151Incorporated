@@ -3,13 +3,14 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter, map } from 'rxjs/operators';
 import { EventsComponent } from '../events/events.component';
+import { BlogcarouselComponent } from '../blogcarousel/blogcarousel.component';
 
 @Component({
     selector: 'app-footer',
     templateUrl: './footer.component.html',
     styleUrls: ['./footer.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [RouterLink, EventsComponent]
+    imports: [RouterLink, EventsComponent, BlogcarouselComponent]
 })
 export class FooterComponent {
   private router = inject(Router);

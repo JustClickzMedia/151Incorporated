@@ -23,15 +23,15 @@ describe('NavbarComponent', () => {
 
   afterEach(() => http.verify());
 
-  it('menu order: HOME first, then the WordPress pages, UPDATE, then MEMBERSHIP last', async () => {
+  it('menu order: HOME first, then the WordPress pages, BLOG, UPDATE, then MEMBERSHIP last', async () => {
     http.expectOne(r => r.url.startsWith(environment.restUrl + 'pages?_embed'))
       .flush([{ id: 2, slug: 'membership', title: { rendered: 'Membership' } },
               { id: 3, slug: 'moto', title: { rendered: 'Moto' } }]);
     fixture.detectChanges();
     await fixture.whenStable();
     const items = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.navbar-nav.mr-auto > li > .nav-link'));
-    expect(items.map(a => a.textContent?.trim())).toEqual(['HOME', 'MOTO', 'UPDATE', 'MEMBERSHIP']);
-    expect(items.map(a => a.getAttribute('href'))).toEqual(['/', '/pg/moto', null, null]); // UPDATE and MEMBERSHIP are dropdown buttons
+    expect(items.map(a => a.textContent?.trim())).toEqual(['HOME', 'MOTO', 'BLOG', 'UPDATE', 'MEMBERSHIP']);
+    expect(items.map(a => a.getAttribute('href'))).toEqual(['/', '/pg/moto', '/blog', null, null]); // UPDATE and MEMBERSHIP are dropdown buttons
   });
 
   it('MEMBERSHIP opens a dropdown with the Membership page and Pay Dues; it closes on an outside click or Escape', async () => {
@@ -160,7 +160,7 @@ describe('NavbarComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     const items = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.navbar-nav.mr-auto > li > .nav-link'));
-    expect(items.map(a => a.textContent?.trim())).toEqual(['HOME', 'LEADERSHIP', 'UPDATE', 'MEMBERSHIP']);
+    expect(items.map(a => a.textContent?.trim())).toEqual(['HOME', 'LEADERSHIP', 'BLOG', 'UPDATE', 'MEMBERSHIP']);
     expect(items[1].getAttribute('href')).toBe('/pg/president');
   });
 
@@ -172,7 +172,7 @@ describe('NavbarComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     const items = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.navbar-nav.mr-auto > li > .nav-link'));
-    expect(items.map(a => a.textContent?.trim())).toEqual(['HOME', 'ABOUT', 'MOTO', 'UPDATE', 'MEMBERSHIP']);
+    expect(items.map(a => a.textContent?.trim())).toEqual(['HOME', 'ABOUT', 'MOTO', 'BLOG', 'UPDATE', 'MEMBERSHIP']);
     expect(items[1].getAttribute('href')).toBe('/pg/about-1-5-1');
   });
 
@@ -222,8 +222,8 @@ describe('NavbarComponent (GraphQL)', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     const items = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.navbar-nav.mr-auto > li > .nav-link'));
-    expect(items.map(a => a.textContent?.trim())).toEqual(['HOME', 'MOTO', 'UPDATE', 'MEMBERSHIP']);
-    expect(items.map(a => a.getAttribute('href'))).toEqual(['/', '/pg/moto', null, null]);
+    expect(items.map(a => a.textContent?.trim())).toEqual(['HOME', 'MOTO', 'BLOG', 'UPDATE', 'MEMBERSHIP']);
+    expect(items.map(a => a.getAttribute('href'))).toEqual(['/', '/pg/moto', '/blog', null, null]);
     http.verify();
   });
 });

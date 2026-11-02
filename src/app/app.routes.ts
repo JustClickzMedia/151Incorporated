@@ -8,6 +8,8 @@ import { SearchresultsComponent } from './Components/searchresults/searchresults
 import { legacyPageRedirectGuard } from './legacy-page-redirect.guard';
 import { EventdetailsComponent } from './Components/eventdetails/eventdetails.component';
 import { EventslistComponent } from './Components/eventslist/eventslist.component';
+import { BlogComponent } from './Components/blog/blog.component';
+import { BlogpostComponent } from './Components/blogpost/blogpost.component';
 
 export const routes: Routes = [
     {
@@ -29,6 +31,16 @@ export const routes: Routes = [
         path : 'pg/:id/:title',
         canActivate : [legacyPageRedirectGuard],
         children : []
+      },
+      {
+        // Blog: all posts, list or grid view (menu BLOG)
+        path : 'blog',
+        component : BlogComponent
+      },
+      {
+        // One blog post, e.g. /blog/a-new-chapter-in-our-digital-brotherhood-...
+        path : 'blog/:slug',
+        component : BlogpostComponent
       },
       {
         // All current events, list or grid view (menu UPDATE → Events)

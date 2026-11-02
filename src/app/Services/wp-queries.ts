@@ -45,3 +45,12 @@ export const EVENTS = `query Events { events(first: 50, where: { status: PUBLISH
 export const EVENTS_BASIC = `query Events { events(first: 50, where: { status: PUBLISH }) { nodes { ${EVENT_FIELDS_BASIC} } } }`;
 export const EVENT_BY_SLUG = `query EventBySlug($slug: ID!) { event(id: $slug, idType: SLUG) { ${EVENT_FIELDS} } }`;
 export const EVENT_BY_SLUG_BASIC = `query EventBySlug($slug: ID!) { event(id: $slug, idType: SLUG) { ${EVENT_FIELDS_BASIC} } }`;
+
+/** Blog posts (WordPress Posts), newest first. Author is not requested: user data is private to anonymous visitors. */
+const POST_FIELDS = `databaseId slug title date excerpt
+      featuredImage { node { sourceUrl altText mediaDetails { width height } } }
+      categories { nodes { name } }`;
+export const BLOG_POSTS = `query BlogPosts($first: Int!) {
+  posts(first: $first, where: { status: PUBLISH, orderby: { field: DATE, order: DESC } }) { nodes { ${POST_FIELDS} } }
+}`;
+export const BLOG_POST_BY_SLUG = `query BlogPost($slug: ID!) { post(id: $slug, idType: SLUG) { ${POST_FIELDS} content } }`;
