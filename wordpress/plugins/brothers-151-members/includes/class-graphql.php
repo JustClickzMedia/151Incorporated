@@ -353,14 +353,36 @@ final class Graphql {
 			array(
 				'inputFields'         => array(
 					'userId'         => array( 'type' => array( 'non_null' => 'Int' ) ),
-					'classification' => array( 'type' => 'PortalMemberClassificationEnum' ),
+					'classification'   => array( 'type' => 'PortalMemberClassificationEnum' ),
+					'membershipNumber' => array( 'type' => 'String', 'description' => 'Existing brothers: the number they already have. Empty = next number.' ),
 				),
 				'outputFields'        => array( 'member' => array( 'type' => 'PortalMember' ) ),
 				'mutateAndGetPayload' => static function ( array $input ) {
 					$actor  = self::require_admin( Roles::APPROVE_MEMBERS );
 					$target = self::require_target( (int) $input['userId'] );
 					self::guard_status_target( $target );
-					$result = Membership::approve( $target->ID, (string) ( $input['classification'] ?? 'member' ), $actor );
+					$result = Membership::approve( $target->ID, (string) ( $input['classification'] ?? 'member' ), $actor, (string) ( $input['membershipNumber'] ?? '' ) );
+					if ( is_wp_error( $result ) ) {
+						throw new UserError( $result->get_error_message() );
+					}
+					return array( 'member' => self::member_node( $target->ID ) );
+				},
+			)
+		);
+
+		register_graphql_mutation(
+			'setMembershipNumber',
+			array(
+				'description'         => 'Set or correct a membership number (membership admins). The old number is released.',
+				'inputFields'         => array(
+					'userId'           => array( 'type' => array( 'non_null' => 'Int' ) ),
+					'membershipNumber' => array( 'type' => array( 'non_null' => 'String' ) ),
+				),
+				'outputFields'        => array( 'member' => array( 'type' => 'PortalMember' ) ),
+				'mutateAndGetPayload' => static function ( array $input ) {
+					self::require_admin( Roles::MANAGE_MEMBERS );
+					$target = self::require_target( (int) $input['userId'] );
+					$result = Membership::set_number( $target->ID, (string) $input['membershipNumber'] );
 					if ( is_wp_error( $result ) ) {
 						throw new UserError( $result->get_error_message() );
 					}

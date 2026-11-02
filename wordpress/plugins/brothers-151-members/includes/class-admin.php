@@ -31,6 +31,7 @@ final class Admin {
 		add_action( 'edit_user_profile', array( self::class, 'profile_box' ), 5 );
 		add_action( 'edit_user_profile_update', array( self::class, 'save_profile_box' ) );
 		add_action( 'personal_options_update', array( self::class, 'save_profile_box' ) );
+		add_action( 'user_profile_update_errors', array( self::class, 'validate_profile_box' ), 10, 3 );
 		add_action( 'admin_menu', array( self::class, 'menu' ) );
 		add_action( 'add_meta_boxes', array( self::class, 'meta_boxes' ) );
 		add_action( 'save_post', array( self::class, 'save_post' ), 10, 2 );
@@ -70,7 +71,7 @@ final class Admin {
 				),
 			)
 		);
-		echo '<div class="wrap"><h1>Pending approvals</h1>';
+		echo '<div class="wrap"><h1>Pending approvals</h1><p>Existing brothers keep their membership number: type it in the <em>Member #</em> box before approving. Leave it blank to assign the next free number.</p>';
 		if ( isset( $_GET['b151_msg'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 			echo '<div class="notice notice-info"><p>' . esc_html( sanitize_text_field( wp_unslash( $_GET['b151_msg'] ) ) ) . '</p></div>'; // phpcs:ignore
 		}
@@ -89,7 +90,8 @@ final class Admin {
 			foreach ( Membership::CLASSIFICATIONS as $c ) {
 				echo '<option value="' . esc_attr( $c ) . '">' . esc_html( ucwords( str_replace( '_', ' ', $c ) ) ) . '</option>';
 			}
-			echo '</select></td><td><button class="button button-primary">Approve</button> <a class="button" href="' . esc_url( get_edit_user_link( (int) $id ) ) . '">Open</a></form></td></tr>';
+			echo '</select> <input type="text" name="membership_number" placeholder="Member # (blank = next)" size="18" title="Existing brothers: type the number they already have, e.g. 151-00042 or 42. Leave blank to assign the next number.">';
+			echo '</td><td><button class="button button-primary">Approve</button> <a class="button" href="' . esc_url( get_edit_user_link( (int) $id ) ) . '">Open</a></form></td></tr>';
 		}
 		echo '</tbody></table></div>';
 	}
@@ -104,7 +106,8 @@ final class Admin {
 		if ( ! $target || user_can( $target, Roles::BACKEND_ACCESS ) || get_current_user_id() === $uid ) {
 			$msg = 'That account cannot be approved here.';
 		} else {
-			$r = Membership::approve( $uid, $class );
+			$num = isset( $_POST['membership_number'] ) ? sanitize_text_field( wp_unslash( $_POST['membership_number'] ) ) : '';
+			$r   = Membership::approve( $uid, $class, null, $num );
 			if ( is_wp_error( $r ) ) {
 				$msg = $r->get_error_message();
 			} else {
@@ -275,7 +278,10 @@ final class Admin {
 		?>
 		<h2>Brothers of 1-5-1 membership</h2>
 		<table class="form-table" role="presentation">
-			<tr><th>Membership number</th><td><code><?php echo esc_html( Membership::get_number( $user->ID ) ?: '— (assigned on approval)' ); ?></code></td></tr>
+			<tr><th><label for="b151_number">Membership number</label></th><td>
+				<input type="text" name="b151_number" id="b151_number" class="regular-text" value="<?php echo esc_attr( Membership::get_number( $user->ID ) ); ?>" placeholder="e.g. 151-00042 or 42" />
+				<p class="description">Existing brothers keep the number they already have: type it here. Leave empty to have the next number assigned on approval. Changing a number frees the old one; every change is in the audit log.</p>
+			</td></tr>
 			<tr><th><label for="b151_status">Status</label></th><td>
 				<select name="b151_status" id="b151_status" <?php disabled( ! $can_status ); ?>>
 					<?php foreach ( Membership::STATUSES as $s ) : ?>
@@ -303,6 +309,30 @@ final class Admin {
 		<?php
 	}
 
+	/** Check a typed membership number before the profile is saved, so mistakes show as a normal error message. */
+	public static function validate_profile_box( \WP_Error $errors, $update, $user ): void {
+		if ( ! $update || empty( $user->ID ) || ! isset( $_POST['b151_member_box_nonce'], $_POST['b151_number'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			return;
+		}
+		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['b151_member_box_nonce'] ) ), 'b151_member_box' ) || ! Access::current_can( Roles::MANAGE_MEMBERS ) ) {
+			return;
+		}
+		$typed = trim( sanitize_text_field( wp_unslash( $_POST['b151_number'] ) ) );
+		if ( '' === $typed || Membership::normalize_number( $typed ) === Membership::get_number( (int) $user->ID ) ) {
+			return;
+		}
+		$number = Membership::normalize_number( $typed );
+		if ( null === $number ) {
+			$errors->add( 'b151_bad_number', 'Membership numbers look like 151-00042 (or just 42).' );
+			return;
+		}
+		$owner = Membership::find_by_number( $number );
+		if ( $owner && $owner !== (int) $user->ID ) {
+			$who = get_userdata( $owner );
+			$errors->add( 'b151_number_taken', sprintf( 'Membership number %s already belongs to %s.', $number, $who ? $who->display_name : 'another account' ) );
+		}
+	}
+
 	public static function save_profile_box( int $user_id ): void {
 		if ( ! isset( $_POST['b151_member_box_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['b151_member_box_nonce'] ) ), 'b151_member_box' ) ) {
 			return;
@@ -313,6 +343,10 @@ final class Admin {
 		$class = isset( $_POST['b151_classification'] ) ? sanitize_key( wp_unslash( $_POST['b151_classification'] ) ) : '';
 		if ( $class && $class !== Membership::get_classification( $user_id ) ) {
 			Membership::set_classification( $user_id, $class );
+		}
+		$typed = isset( $_POST['b151_number'] ) ? trim( sanitize_text_field( wp_unslash( $_POST['b151_number'] ) ) ) : '';
+		if ( '' !== $typed && Membership::normalize_number( $typed ) !== Membership::get_number( $user_id ) ) {
+			Membership::set_number( $user_id, $typed ); // validated above; a clash still fails safely
 		}
 		$chapter = isset( $_POST['b151_chapter'] ) ? (int) $_POST['b151_chapter'] : null;
 		if ( null !== $chapter && $chapter !== Membership::get_chapter_id( $user_id ) ) {

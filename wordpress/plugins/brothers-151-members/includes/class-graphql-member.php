@@ -98,7 +98,7 @@ final class Graphql_Member {
 			throw new UserError( 'Too many lookups. Please wait a minute and try again.' );
 		}
 		Rate_Limiter::hit( 'verify', (string) $actor, MINUTE_IN_SECONDS );
-		$number = strtoupper( trim( $number ) );
+		$number = Membership::normalize_number( $number ) ?? strtoupper( trim( $number ) );
 		$uid    = Membership::find_by_number( $number );
 		Audit_Log::record( 'member_verified', 'user', $uid, array( 'number' => $number, 'found' => (bool) $uid ) );
 		if ( ! $uid ) {
