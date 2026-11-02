@@ -26,7 +26,7 @@ final class Chapters {
 				'publicly_queryable'  => false,
 				'exclude_from_search' => true,
 				'show_ui'             => true,
-				'show_in_menu'        => 'users.php',
+				'show_in_menu'        => Admin::MENU_SLUG,
 				'show_in_rest'        => false,
 				'show_in_graphql'     => false,
 				'has_archive'         => false,

@@ -419,3 +419,15 @@ Required configuration changes (each needs approval): SMTP (FluentSMTP / WP Mail
 ---
 
 **Checkpoint 1 complete. Waiting for approval of §4 (authentication) and answers to §12 before writing any implementation code.**
+
+---
+
+## Progress
+
+| Checkpoint | Status |
+|---|---|
+| 1 — Design | Approved |
+| 2 — Core backend | Built and tested (PHPUnit). Staging smoke tests pending approval. |
+| 3 — Member features | Built and tested (PHPUnit): member events (meeting links members-only), announcements (pin/expiry), resources with private file storage outside the web root and a checked download endpoint (Range, audit), directory + profile (opt-in fields, rate limit), `verifyMember` for Zoom check-in, 1-5-1 Members admin menu (pending approvals, roster CSV export, audit log, settings), approval/paused/restored emails. Lists use `first`/`offset` paging. Profile photos deferred. Awaiting review. |
+| 4 — Deployment prep | Built: `scripts/package-plugin.sh` (upload zip), `scripts/portal-smoke-test.sh` (read-only HTTP checks, optional test-member sign-in), `DEPLOYMENT.md` (staging → production steps, config checklist, rollback), `ANGULAR-INTEGRATION.md`, and pre-launch hardening in the plugin (§13 risks: XML-RPC, JWT password endpoint, prospects/brothers REST, username enumeration, backend noindex, GraphQL depth/batching). Verified end to end over real HTTP on a local WordPress (31/31 checks). Awaiting review, then the staging install. |
+

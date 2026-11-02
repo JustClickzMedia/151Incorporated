@@ -289,6 +289,10 @@ final class Membership {
 				return new WP_Error( 'b151_invalid_name', 'Display name cannot be empty.' );
 			}
 			update_user_meta( $user_id, $meta_key, mb_substr( $value, 0, 'bio' === $field ? 2000 : 200 ) );
+			if ( 'display_name' === $field ) {
+				// Keep WordPress's own display name in step (the directory searches it; wp-admin shows it).
+				wp_update_user( array( 'ID' => $user_id, 'display_name' => mb_substr( $value, 0, 200 ) ) );
+			}
 		}
 		if ( array_key_exists( 'visibility', $values ) ) {
 			$result = self::set_visibility( $user_id, (array) $values['visibility'] );
