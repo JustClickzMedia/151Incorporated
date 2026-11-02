@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
-import { SeoService } from '../../Services/seo.service';
+import { SeoService, organizationLd, websiteLd } from '../../Services/seo.service';
+import { SITE } from '../../Services/seo.config';
 import { CarouselComponent } from '../../Components/carousel/carousel.component';
 import { PresidentsComponent } from '../../Components/presidents/presidents.component'
 import { HistoryComponent } from '../../Components/history/history.component';
@@ -16,8 +17,13 @@ export class HomeComponent implements OnInit {
 
 
   ngOnInit() {
-    this.seo.addMetaTags();
-    this.seo.setTitle('1-5-1 Incorporated');
+    this.seo.apply({
+      title: SITE.titleSuffix,
+      bareTitle: true,
+      description: SITE.description,
+      path: '/',
+      jsonLd: [organizationLd(), websiteLd()],
+    });
   }
 
 }

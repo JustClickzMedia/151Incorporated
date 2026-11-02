@@ -4,7 +4,8 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { WordpressService } from '../../Services/wordpress.service';
-import { SeoService } from '../../Services/seo.service';
+import { SeoService, breadcrumbLd } from '../../Services/seo.service';
+import { SITE, metaText, siteUrl } from '../../Services/seo.config';
 import { PagenotfoundComponent } from '../pagenotfound/pagenotfound.component';
 import { WpPost, formatPostDate } from '../../Model/wp-post';
 
@@ -45,11 +46,32 @@ export class BlogpostComponent {
 
   private applySeo(post: WpPost): void {
     try {
-      this.seo.removeMetaTags();
-      this.seo.addMetaTags();
-      // Titles can contain entities (&#8217;); the browser tab should show plain text.
-      this.seo.setTitle(post.title.replace(/&#8217;|&rsquo;/g, '’').replace(/&#8216;|&lsquo;/g, '‘').replace(/&amp;/g, '&'));
-      if (post.excerptText) { this.seo.updateDescMetaTags(post.excerptText); }
+      const path = '/blog/' + post.slug;
+      const title = metaText(post.title, 120);
+      const published = post.date ? post.date : undefined;
+      this.seo.apply({
+        title,
+        description: post.excerptText,
+        path,
+        type: 'article',
+        publishedTime: published,
+        image: post.image,
+        jsonLd: [
+          {
+            '@context': 'https://schema.org',
+            '@type': 'BlogPosting',
+            headline: title,
+            description: metaText(post.excerptText),
+            datePublished: published,
+            url: siteUrl(path),
+            mainEntityOfPage: siteUrl(path),
+            image: post.image ? [post.image.url] : undefined,
+            author: { '@type': 'Organization', name: SITE.name, url: SITE.url + '/' },
+            publisher: { '@id': SITE.url + '/#organization' },
+          },
+          breadcrumbLd([{ name: 'Home', path: '/' }, { name: 'Blog', path: '/blog' }, { name: title, path }]),
+        ],
+      });
     } catch (err) {
       console.error(err);
     }

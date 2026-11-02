@@ -48,7 +48,13 @@ describe('EventdetailsComponent (/event/:slug)', () => {
     expect(el().querySelector('.content')?.textContent).toContain('The cards are coming out.');
     expect(el().querySelector('a.back')?.getAttribute('href')).toBe('/');
     expect(el().querySelector('.past-note')).toBeNull();
-    expect(TestBed.inject(Title).getTitle()).toBe('GOT SKILLZ 6');
+    expect(TestBed.inject(Title).getTitle()).toBe('GOT SKILLZ 6 | 1-5-1 Incorporated');
+    // SEO: canonical address on the public site and schema.org Event data for Google's event results.
+    expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe('https://brothersof1-5-1.org/event/got-skillz');
+    const ld = JSON.parse(document.head.querySelector('script[type="application/ld+json"]')!.textContent!);
+    expect(ld[0]).toEqual(jasmine.objectContaining({ '@type': 'Event', name: 'GOT SKILLZ 6', startDate: '2026-11-21' }));
+    expect(ld[0].location.name).toBe('Hampton, VA');
+    expect(document.head.querySelector('meta[property="og:image"]')?.getAttribute('content')).toBe('https://img.test/flyer.jpg');
   });
 
   it('notes when the event has already taken place', async () => {
