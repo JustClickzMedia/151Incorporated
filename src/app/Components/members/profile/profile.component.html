@@ -53,7 +53,7 @@
   </form>
 
   @if (providers().length) {
-    <h2>Sign in with Google or Microsoft</h2>
+    <h2>One-click sign-in</h2>
     <p class="muted">Link an account so you can sign in with one click.</p>
     @for (p of providers(); track p.id) {
       <a class="btn btn-outline-151 me-2 mb-2" [href]="linkUrl(p.id)">Link {{ p.label }}</a>
