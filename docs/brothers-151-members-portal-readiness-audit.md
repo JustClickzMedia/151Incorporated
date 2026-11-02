@@ -7,6 +7,7 @@
 
 **Revision 2026-11-02 (owner decision):** Access model decided by the owner. **Members log in to the member-only area of the public site and have no access to the WordPress backend (`/wp-admin`).** Only a small number of designated people get "super access": the WordPress backend **and** the member-only area. See §0. The affected sections (§6, §10, §11, §12, §13, §15 and the handoff) were updated.
 **Revision 2026-11-02 (roadmap preview):** The owner described the planned member features (roster, founders' interviews, history archive, new-member education modules released by a Dean, multi-chapter use). They're captured in **§16** as a preview so the foundation is built to fit them. Two **proposed** roles were added to §0.1 (Dean of Membership, chapter administrator).
+**Revision 2026-11-02 (owner decisions 2):** Candidates come from the existing **New Prospects** records, and there must be a workflow that moves them into membership records when they become Brothers of 1-5-1 (**§16.8**). Every member gets a **membership number** that can be checked against the database, for example to validate attendance at Zoom meetings (**§16.9**).
 **Revision 2026-11-02 (follow-up checks):** Several open items were answered from the repository and live GraphQL; see §0.2.
 
 **Overall audit confidence:** 0.8. WordPress and WPGraphQL findings are high-confidence (0.9+). Hosting (cPanel) items are low-confidence because cPanel and the HostGator portal required a login, which was not attempted.
@@ -347,7 +348,8 @@ Every change below **needs owner approval**.
 9. **Angular:** move the three legacy REST paths (`pg/:id/:title`, `search/:term`, `pst/:id/:title`) to GraphQL, or remove them. Then add portal routes, guards, and an HTTP interceptor (`withCredentials`, nonce header).
 10. **Lock down anonymous REST** (approval): once the frontend uses no REST, restrict `/wp-json/wp/v2/*` for anonymous users, except anything WordPress core or plugins need.
 11. **Security review and soft launch** with portal administrators, then invite members.
-12. **Later phases (§16):** roster directory and admin roster screen (early, with step 4), founders' interviews and history archive (using the private-file endpoint), and **last** the new-member education module system (Dean, intake classes, modules, tests, progress).
+12. **Membership records (with step 4):** membership numbers, import of existing brothers with their numbers, and the prospect → candidate → member workflow (§16.8, §16.9). The host lookup page for Zoom validation comes with the member area.
+13. **Later phases (§16):** roster directory and admin roster screen (early, with step 4), founders' interviews and history archive (using the private-file endpoint), and **last** the new-member education module system (Dean, intake classes, modules, tests, progress).
 
 ## 16. Planned Member Features (Roadmap Preview, 2026-11-02)
 
@@ -415,7 +417,60 @@ So these features can be added later without redoing work, the first portal plug
 4. **Interviews:** audio only, or video too? How long are the recordings and how many? Are transcripts wanted?
 5. **History archive:** who adds items (admins only, or members can submit for approval)? Should some items be public on the main site?
 6. **Education:** who is the Dean of Membership (one person nationally, or one per chapter)? Release modules manually, on a schedule, or both? Do tests need a pass mark and limited attempts? Can a candidate redo a test?
-7. **Candidates:** do candidates come from the existing `new-prospects` records, or are they invited directly? (The `new-prospects` type should stay non-public either way.)
+7. ~~**Candidates:** do candidates come from the existing `new-prospects` records?~~ **Decided:** yes, candidates come from New Prospects records (§16.8). Still open: which of the 9 prospect fields carry over to the member record (the field list wasn't readable in the audit; see §14 item 7).
+8. **Membership numbers (§16.9):** what format (national sequence, or chapter code + year + sequence)? Do existing brothers already have numbers (for example on paper rosters) that must be kept? Who hosts Zoom meetings and needs to validate attendees?
+
+### 16.8 Prospect → Candidate → Member workflow (owner decision)
+
+Candidates come from the existing **New Prospects** records (`new-prospects` post type, ACF group "prospect-attribtues", 9 fields). When a candidate becomes a Brother of 1-5-1, their record moves into the membership records. One person's history stays connected from first contact to membership.
+
+| Stage | Record | Who moves it forward | What happens |
+|---|---|---|---|
+| **1. Prospect** | New Prospects entry (private post, not a login) | Created by an admin (or later a "request to join" form) | Contact details and interest are recorded. Status: `new → contacted → interviewing → accepted / declined`. No website account yet. |
+| **2. Candidate** | WordPress user with role `b151_candidate`, linked to the prospect record | Dean of Membership or a portal administrator clicks **"Accept as candidate"** | Creates the account from the prospect's details, assigns the **chapter** and **intake class**, sends an invitation email to set a password. Prospect status → `candidate`. The candidate sees only the education modules released to their class (§16.5). |
+| **3. Member (Brother)** | Same WordPress user, role changed to `b151_member` | Dean or portal administrator clicks **"Admit to membership"** after the candidate completes the program and is approved | Assigns the **membership number** (§16.9), records initiation/crossing date and line name/number, copies the agreed prospect fields into the member's roster profile, sets status `active`, sends a welcome email, refreshes the session so the member area opens. Prospect status → `admitted`. |
+| Withdrawn / not admitted | Candidate account deactivated | Dean or portal administrator | Role removed, sessions ended, prospect status → `withdrawn` (with reason). No membership number is assigned. |
+
+Rules:
+
+- **One person, one record chain.** The member's user record keeps a link to the prospect it came from (`b151_prospect_id`), and the prospect keeps a link to the user (`b151_user_id`). No data is retyped by hand.
+- **Each step is an explicit button with a confirmation**, available only to the Dean and portal administrators, and logged in the audit log (who, when, from which status).
+- **What happens to the prospect record after admission:** kept private and read-only as the member's intake history (recommended), or trimmed to a minimum after a set period. Owner to decide the retention rule.
+- **Field mapping:** a fixed mapping from prospect fields to member profile fields (name, email, phone, address, chapter, etc.). The 9 prospect fields must be listed first (§14 item 7); fields with no member equivalent stay only on the prospect record.
+- **Duplicates:** before creating an account, check for an existing user with the same email and warn instead of creating a second account.
+- **Privacy:** prospects and candidates are never public. The `new-prospects` type must be removed from public REST before any of this goes live (§8, §13 risk 5).
+- **Existing brothers** (already members before the portal) are imported directly as members with their numbers (§16.9), without a prospect record.
+
+### 16.9 Membership numbers and Zoom attendance validation (owner decision)
+
+Every member gets a **membership number** stored in the database, so that the organisation can check that someone (for example a Zoom meeting attendee) is a real, active Brother.
+
+**The number:**
+
+- Assigned automatically at the **"Admit to membership"** step (§16.8), or entered once when existing brothers are imported.
+- **Unique, permanent and never reused**, even if a member becomes inactive or passes away. It does not change when someone moves chapter.
+- Format to decide (§16.7 question 8). Suggested: `151-<year admitted>-<4-digit sequence>`, e.g. `151-2027-0042`. A chapter code can be added if chapters want it, but then it must not change when a member transfers.
+- Stored as user meta (`b151_membership_number`) with a database-level uniqueness check. Only the site administrator can edit it after assignment (logged).
+- Shown to the member on their profile page in the member area (a "membership card": name, number, chapter, status).
+- **It's an identifier, not a password.** Knowing a number never gives access to anything; the member still logs in normally.
+
+**Validating attendees for Zoom meetings.** Options, from simplest to most automatic:
+
+| Option | How it works | Pros | Cons / needs |
+|---|---|---|---|
+| **A. Host lookup page (recommended first)** | A page in the member area for meeting hosts (portal administrators, plus anyone given a `b151_verify_members` capability). The host types a membership number (or name) and sees **name, chapter, status (active/inactive)**, nothing else. | Simple, works with any Zoom plan, no Zoom integration. Hosts can check people in the waiting room. | Manual per attendee. Lookups must be limited and logged so the page can't be used to harvest the roster. |
+| **B. Member-only join link** | The Zoom link is published only inside the member area. Members log in to the portal to get it. | Only logged-in active members see the link. No extra cost. | A link can still be forwarded. Combine with the waiting room and option A. |
+| **C. Zoom registration with personal join links** | The portal registers each member with the Zoom meeting through the Zoom API, so every member gets their **own** join link. The registrant list (name, email, membership number) is compared with the database. | Strongest: each link is personal and traceable, and attendance reports map back to membership numbers. | Needs a paid Zoom account (Pro or higher) with registration, a Zoom Server-to-Server app, and API credentials stored on the server only. Build later. |
+| D. Zoom registration question | Zoom's registration form asks for the membership number; a host checks the list afterwards (or with option A). | No integration. | Manual, and typed numbers aren't checked automatically. |
+
+Recommended path: **A + B** when the member area launches; **C** later if meetings need automatic validation and attendance reports.
+
+**Safeguards:**
+
+- The lookup is **only for logged-in hosts**, never public, rate-limited, and every lookup is logged (who checked which number, when).
+- It returns **only** name, chapter and active/inactive. No address, phone or email.
+- A member who is inactive or suspended shows as **not active**, so hosts can refuse entry.
+- Membership numbers are not shown in the public site, the public directory, or any public API.
 
 ---
 
@@ -466,6 +521,10 @@ So these features can be added later without redoing work, the first portal plug
 ### Planned features this foundation must support (§16)
 
 Roster (name, address, email, phone, chapter; admin roster screen + opt-in member directory), founders' interviews (private audio/video streaming with Range support), history archive (private items with visibility levels), and **last** a new-member education system (modules → lessons → tests, released by a Dean of Membership to per-chapter intake classes, self-paced, with progress tracking). Multi-chapter from day one: every user belongs to a chapter, permissions have a national/chapter scope, and one visibility model plus one private-file endpoint serve every content type.
+
+**Prospect → Candidate → Member (§16.8):** candidates come from `new-prospects` records ("Accept as candidate" creates a `b151_candidate` user linked to the prospect); "Admit to membership" switches the same user to `b151_member`, assigns the membership number, copies mapped prospect fields, and logs everything. Withdrawn candidates are deactivated without a number.
+
+**Membership numbers (§16.9):** unique, permanent, never reused (`b151_membership_number`, e.g. `151-2027-0042`), assigned at admission or on import of existing brothers. Used to validate Zoom attendees: first a logged-in, rate-limited, logged host lookup (number → name, chapter, active status only) plus member-only join links; later, optionally, Zoom API registration with personal join links.
 
 ### Recommended authentication strategy
 
