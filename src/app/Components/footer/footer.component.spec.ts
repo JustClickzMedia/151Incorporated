@@ -94,4 +94,13 @@ describe('FooterComponent', () => {
     expect(getComputedStyle(root.querySelector('footer.footer')!).backgroundColor).toBe('rgb(103, 0, 1)');
     root.remove();
   });
+
+  it('Contact Us shows only info@brothersof1-5-1.org (no P.O. Box), and the email icon uses the same address', () => {
+    const contact = Array.from(el().querySelectorAll('.footer-columns .row > div')).find(c => c.querySelector('h5')?.textContent === 'Contact Us')!;
+    expect(contact.textContent).toContain('info@brothersof1-5-1.org');
+    expect(contact.textContent).not.toContain('P.O. Box');
+    expect(contact.textContent).not.toContain('Hampton, VA');
+    const mailtos = Array.from(el().querySelectorAll('a[href^="mailto:"]')).map(a => a.getAttribute('href'));
+    expect(mailtos).toEqual(['mailto:info@brothersof1-5-1.org', 'mailto:info@brothersof1-5-1.org']);
+  });
 });

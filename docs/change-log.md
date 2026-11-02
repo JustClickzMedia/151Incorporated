@@ -673,3 +673,9 @@
   - No current events → "There are no new events at this time." (toggle hidden). Loading and error messages included.
   - Files: `Components/eventslist/*`, `navbar.component.{ts,html,spec.ts}`, `Model/wp-event.ts` (`upcomingEvents`), `app.routes.ts`, `docs/events.md`.
 - **Testing:** 145/145 unit tests. Rendered with sample events at 1280px and 390px: list, grid, empty message; clicking a card opens `/event/<slug>`; UPDATE dropdown screenshot. Production build OK.
+
+## 2026-11-02 — Footer contact: new email, P.O. Box removed
+
+- **Branch:** `feature/events`
+- **What changed:** footer "Contact Us" now shows only `info@brothersof1-5-1.org` (was `info@1-5-1.org`); the placeholder P.O. Box 11111 / Hampton, VA 22222 address is removed. The email icon under "Follow Us" uses the new address too. The footer is on every page, so this applies site-wide.
+- **Testing:** 146/146 unit tests (new check: only the new address, no P.O. Box).
