@@ -1,6 +1,7 @@
 # Members-Only Portal — Architecture Design (Checkpoint 1)
 
 **Status:** design for approval. **No implementation code has been written.** Nothing has been changed in WordPress.
+**Decided 2026-11-02 (owner):** roles — all admin tiers built, one admin for now (the owner); more can be added later (§5, §12 Q2).
 **Approved 2026-11-02 (owner):** authentication = **WordPress cookie session**, signed in with **email + password** or **Sign in with Google / Microsoft** (server-side OAuth 2.0 Authorization Code + PKCE, OpenID Connect). All three end in the same WordPress session (§4, §4.4). Other §12 decisions are still open.
 **Date:** 2026-11-02 · **Branch:** `feature/members-portal`
 **Inputs read:** `docs/members-portal/WORDPRESS-AUDIT.md` (primary source; moved here from `docs/brothers-151-members-portal-readiness-audit.md`), `docs/security-architecture.md`, `docs/wordpress-operations.md`, `docs/graphql-contract.md`, `wordpress/mu-plugins/bo151-api-hardening.php`, the Angular source. There is **no `CLAUDE.md`** in the repository (noted; nothing to follow there).
@@ -245,6 +246,7 @@ Rules:
 - **Member-content checks = capability AND status `active`.** Backend roles (Membership/Content/Portal Admin, WP Administrator, Dean) are treated as active for viewing member content, but their own `b151_status` is still recorded.
 - Role names: `b151_member`, `b151_membership_admin`, `b151_content_admin`, `b151_portal_admin`, later `b151_candidate`, `b151_dean`, optional `b151_chapter_admin` (chapter-scoped variants of membership capabilities).
 - Only WP Administrators can assign any role with `b151_backend_access`; every grant/removal is audit-logged.
+- **Initial assignment (owner decision 2026-11-02):** one admin only, the owner's existing WP Administrator account. Membership Admin, Content Admin and Portal Admin roles are created by the plugin but left empty until the owner adds people.
 - Ordinary members never receive any core editing capability.
 
 ---
@@ -348,7 +350,7 @@ Required configuration changes (each needs approval): SMTP (FluentSMTP / WP Mail
 ## 12. Decisions needed before Checkpoint 2
 
 1. ~~**Approve the authentication design** (§4)~~ **Approved 2026-11-02:** WordPress cookie session with email + password, Sign in with Google and Sign in with Microsoft (§4.4). Simple-JWT-Login `/auth` turned off once this works (separate approval at deployment).
-2. **Roles** (§5): the four backend tiers (Membership Admin, Content Admin, Portal Admin, WP Administrator) — or merge Membership/Content Admin into Portal Admin only? And who are the first portal admins?
+2. ~~**Roles** (§5)~~ **Decided 2026-11-02:** build **all** tiers (Membership Admin, Content Admin, Portal Admin = both, WP Administrator) so more people can be added later without code changes. **For now there is one admin: the owner (Kenneth), using his existing WordPress Administrator account**, which receives every `b151_*` capability. Other roles stay unassigned until needed; adding someone later = WP Administrator assigns the role in wp-admin → Users (audit-logged; 2FA required for any backend-capable account).
 3. **Classifications**: list (e.g. member, life member, honorary)?
 4. **Membership number format**: `151-YYYY-NNNN`? Do existing brothers already have numbers to import?
 5. **Session length** for members (proposal 12 h) and whether "remember me" is allowed.
