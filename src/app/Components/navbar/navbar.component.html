@@ -54,6 +54,9 @@
             <li><a class="dropdown-item" (click)="closeNavbar()" routerLink="/membership">Membership Requirements</a></li>
             <!-- Opens the Square checkout in a pop-up frame (the href is only a fallback, e.g. middle-click) -->
             <li><a class="dropdown-item" [href]="payDuesUrl" (click)="openPayDues($event)">Pay Dues</a></li>
+            @if (membersEnabled) {
+              <li><a class="dropdown-item" (click)="closeNavbar()" routerLink="/members">Member Login</a></li>
+            }
           </ul>
         </li>
       </ul>

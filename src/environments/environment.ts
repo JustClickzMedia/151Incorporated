@@ -11,7 +11,12 @@ export const environment = {
   // (e.g. 'about-1-5-1'). Empty = don't request a page; the homepage shows only its static sections.
   homepageSlug: '',
   // Read pages through GraphQL (staging endpoint above). REST stays available as the fallback path.
-  useGraphql: true
+  useGraphql: true,
+  // Members area (docs/members-portal/ANGULAR-INTEGRATION.md). In development the portal is reached through the
+  // dev-server proxy (proxy.portal.json → staging), so its cookies are same-origin for http://localhost:4200.
+  portalApiUrl: '/staging/1848',
+  portalGraphqlUrl: '/staging/1848/graphql',
+  membersEnabled: true
 };
 
 /*

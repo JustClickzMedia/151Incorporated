@@ -1,0 +1,10 @@
+.m-page { padding: 3rem 0 4rem; }
+.shield { display: block; margin: 0 auto 1rem; height: auto; }
+h1 { text-align: center; }
+.muted { text-align: center; }
+.forgot { text-align: center; margin-top: 1rem; }
+.or { display: flex; align-items: center; gap: .75rem; margin: 1.5rem 0 1rem; color: #888; font-family: var(--font-sans); font-size: .85rem; }
+.or::before, .or::after { content: ''; flex: 1; border-top: 1px solid #ddd; }
+.provider { margin-bottom: .6rem; }
+.small { margin-top: 2rem; font-size: .9rem; }
+.small a { color: #670001; }

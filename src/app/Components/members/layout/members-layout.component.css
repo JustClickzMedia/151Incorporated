@@ -1,0 +1,19 @@
+.members { background: #fff; min-height: 60vh; }
+.member-bar { background: #670001; color: #fff; padding-top: 1rem; }
+.bar-inner { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.hello { font-size: 1.2rem; font-weight: 600; }
+.number { font-family: var(--font-sans); font-size: .9rem; opacity: .85; margin-left: .6rem; }
+.signout { background: transparent; color: #fff; border-color: #fff; }
+.signout:hover { background: rgba(255,255,255,.12); }
+
+.member-nav { display: flex; gap: .25rem; overflow-x: auto; margin-top: .75rem; }
+.member-nav a { color: #fff; opacity: .85; text-decoration: none; font-family: var(--font-sans); font-weight: 600; font-size: .9rem;
+  letter-spacing: .04em; text-transform: uppercase; padding: .6rem .8rem; border-bottom: 3px solid transparent; white-space: nowrap; }
+.member-nav a:hover { opacity: 1; }
+.member-nav a.active { opacity: 1; border-bottom-color: #fff; }
+
+.idle-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 2000; }
+.idle-dialog { position: fixed; z-index: 2001; top: 50%; left: 50%; transform: translate(-50%, -50%); width: min(92vw, 420px);
+  background: #fff; border-radius: 8px; padding: 1.5rem; box-shadow: 0 10px 40px rgba(0,0,0,.3); }
+.idle-dialog h2 { margin-top: 0; }
+.idle-actions { display: flex; gap: 1rem; align-items: center; margin-top: 1rem; }

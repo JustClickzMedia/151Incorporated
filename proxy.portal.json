@@ -1,0 +1,8 @@
+{
+  "/staging/1848": {
+    "target": "https://tzin.brothersof1-5-1.org",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "warn"
+  }
+}

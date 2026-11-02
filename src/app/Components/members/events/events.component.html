@@ -1,0 +1,25 @@
+<h1>Member events</h1>
+<div class="tabs" role="group" aria-label="Which events">
+  <button type="button" [class.on]="!past()" [attr.aria-pressed]="!past()" (click)="setPast(false)">Upcoming</button>
+  <button type="button" [class.on]="past()" [attr.aria-pressed]="past()" (click)="setPast(true)">All, including past</button>
+</div>
+
+@if (data(); as d) {
+  @for (e of d.nodes; track e.id) {
+    <a class="card-151 d-block" [routerLink]="['/members/events', e.id]">
+      <h3>{{ e.title }}@if (e.isVirtual) { <span class="badge-151">Online</span> }@if (e.chapter) { <span class="badge-151">{{ e.chapter.name }}</span> }</h3>
+      <div class="meta">{{ when(e.startsAt, e.endsAt) }}@if (e.location) { · {{ e.location }} }</div>
+    </a>
+  } @empty { <p class="muted">No member events {{ past() ? 'yet' : 'coming up' }}.</p> }
+  @if (d.total > pageSize) {
+    <div class="pager">
+      <button type="button" class="btn-outline-151" [disabled]="page() === 0" (click)="page.set(page() - 1)">&lsaquo; Previous</button>
+      <span>Page {{ page() + 1 }} of {{ pages(d.total) }}</span>
+      <button type="button" class="btn-outline-151" [disabled]="(page() + 1) * pageSize >= d.total" (click)="page.set(page() + 1)">Next &rsaquo;</button>
+    </div>
+  }
+} @else if (error(); as msg) {
+  <div class="alert-151 error" role="alert">{{ msg }}</div>
+} @else {
+  <p class="status" aria-live="polite">Loading…</p>
+}

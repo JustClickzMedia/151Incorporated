@@ -1,0 +1,22 @@
+<a class="back" routerLink="/members/events">&lsaquo; All member events</a>
+@if (event(); as e) {
+  <h1>{{ e.title }}</h1>
+  <p class="meta">{{ when(e.startsAt, e.endsAt) }}@if (e.location) { · {{ e.location }} }@if (e.chapter) { · {{ e.chapter.name }} chapter }</p>
+  @if (e.isVirtual) {
+    <div class="card-151 meeting">
+      <h3>Join online</h3>
+      @if (e.virtualUrl) { <a class="btn btn-primary-151" [href]="e.virtualUrl" target="_blank" rel="noopener noreferrer">Join the meeting</a> }
+      @if (e.meetingId) { <p class="meta mt-2">Meeting ID: <strong>{{ e.meetingId }}</strong></p> }
+      @if (e.passcode) { <p class="meta">Passcode: <strong>{{ e.passcode }}</strong></p> }
+      <p class="muted small-note">Please don't share this link outside the brotherhood.</p>
+    </div>
+  }
+  @if (e.imageUrl) { <img class="flyer" [src]="e.imageUrl" [alt]="e.title"> }
+  <div class="content" [innerHTML]="e.contentHtml"></div>
+} @else if (error(); as msg) {
+  <div class="alert-151 error" role="alert">{{ msg }}</div>
+} @else if (ready()) {
+  <div class="alert-151 info">This event isn't available. It may have been removed, or it's for another chapter.</div>
+} @else {
+  <p class="status" aria-live="polite">Loading…</p>
+}

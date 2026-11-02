@@ -1,0 +1,35 @@
+<div id="margintransition" class="members">
+  <div class="member-bar">
+    <div class="container m-wide bar-inner">
+      <div class="who">
+        <span class="hello">Welcome, Brother {{ name() }}</span>
+        @if (number()) { <span class="number">#{{ number() }}</span> }
+      </div>
+      <button type="button" class="btn-outline-151 signout" (click)="signOut()">Sign out</button>
+    </div>
+    <nav class="container m-wide member-nav" aria-label="Member area">
+      <a routerLink="/members" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
+      <a routerLink="/members/events" routerLinkActive="active">Events</a>
+      <a routerLink="/members/announcements" routerLinkActive="active">Announcements</a>
+      <a routerLink="/members/resources" routerLinkActive="active">Resources</a>
+      <a routerLink="/members/directory" routerLinkActive="active">Directory</a>
+      <a routerLink="/members/profile" routerLinkActive="active">My profile</a>
+    </nav>
+  </div>
+
+  <div class="container m-wide m-page">
+    <router-outlet></router-outlet>
+  </div>
+</div>
+
+@if (warningMinutes(); as minutes) {
+  <div class="idle-backdrop"></div>
+  <div class="idle-dialog" role="alertdialog" aria-modal="true" aria-labelledby="idle-title" aria-describedby="idle-text">
+    <h2 id="idle-title">Are you still there?</h2>
+    <p id="idle-text">For your security you'll be signed out in about {{ minutes }} minute{{ minutes === 1 ? '' : 's' }}.</p>
+    <div class="idle-actions">
+      <button type="button" class="btn-primary-151" (click)="idle.stayActive()">Stay signed in</button>
+      <button type="button" class="btn-link-151" (click)="signOut()">Sign out now</button>
+    </div>
+  </div>
+}

@@ -59,6 +59,9 @@ test('robots.txt allows crawling and points at the sitemap', () => {
   const r = robotsTxt();
   assert.match(r, /User-agent: \*/);
   assert.match(r, /Disallow: \/search\//);
+  assert.match(r, /^Disallow: \/members\/$/m);
+  assert.match(r, /^Disallow: \/members\$$/m);
+  assert.doesNotMatch(r, /^Disallow: \/members$/m, 'a bare /members prefix would also hide /membership');
   assert.doesNotMatch(r, /Disallow: \/\s*$/m);
   assert.match(r, /Sitemap: https:\/\/brothersof1-5-1\.org\/sitemap\.xml/);
 });

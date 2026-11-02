@@ -8,5 +8,10 @@ export const environment = {
   // (e.g. 'about-1-5-1'). Empty = don't request a page; the homepage shows only its static sections.
   homepageSlug: '',
   // Read pages, the menu and the homepage carousel through GraphQL, as on staging (REST stays as the fallback path).
-  useGraphql: true
+  useGraphql: true,
+  // Members area: the portal plugin on the production WordPress (cookie session; see ANGULAR-INTEGRATION.md).
+  portalApiUrl: 'https://tzin.brothersof1-5-1.org',
+  portalGraphqlUrl: 'https://tzin.brothersof1-5-1.org/graphql',
+  // Hidden from the menu until the portal plugin is installed on production (go-live step).
+  membersEnabled: false
 };
