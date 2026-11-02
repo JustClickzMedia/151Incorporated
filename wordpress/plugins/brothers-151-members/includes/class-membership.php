@@ -106,7 +106,7 @@ final class Membership {
 	 *
 	 * @return true|WP_Error
 	 */
-	public static function approve( int $user_id, string $classification = 'member', ?int $approver = null ) {
+	public static function approve( int $user_id, string $classification = 'member', ?int $approver = null, string $number = '' ) {
 		$user = get_userdata( $user_id );
 		if ( ! $user ) {
 			return new WP_Error( 'b151_unknown_user', 'Unknown user.' );
@@ -117,10 +117,16 @@ final class Membership {
 		if ( self::STATUS_PENDING !== self::get_status( $user_id ) ) {
 			return new WP_Error( 'b151_not_pending', 'Only pending members can be approved.' );
 		}
-		if ( ! self::get_number( $user_id ) ) {
-			$number = self::assign_next_number( $user_id );
-			if ( is_wp_error( $number ) ) {
-				return $number;
+		if ( '' !== trim( $number ) ) {
+			// Existing brother: keep the number he already has.
+			$set = self::set_number( $user_id, $number );
+			if ( is_wp_error( $set ) ) {
+				return $set;
+			}
+		} elseif ( ! self::get_number( $user_id ) ) {
+			$assigned = self::assign_next_number( $user_id );
+			if ( is_wp_error( $assigned ) ) {
+				return $assigned;
 			}
 		}
 		if ( ! array_intersect( (array) $user->roles, array_merge( array( Roles::ROLE_MEMBER ), Roles::backend_roles() ) ) ) {
@@ -185,25 +191,62 @@ final class Membership {
 	}
 
 	/**
-	 * Set a specific number once (importing existing brothers). Fails if the format is wrong, the number was ever
-	 * used, or the member already has one.
+	 * Turn what an admin types into a membership number: "42", "0042", "151-42", "151 00042" → "151-00042".
+	 * Returns null when it isn't a number in range.
+	 */
+	public static function normalize_number( string $input ): ?string {
+		$v = strtoupper( preg_replace( '/\s+/', '', $input ) );
+		if ( preg_match( '/^(?:151-?)?0*(\d{1,5})$/', $v, $m ) && (int) $m[1] > 0 ) {
+			return self::format_number( (int) $m[1] );
+		}
+		return null;
+	}
+
+	/**
+	 * Set or correct a member's number (existing brothers keep the numbers they already have).
+	 * The number must be free. If the member already had a different number, that one is released
+	 * (for example a number assigned automatically by mistake) and the change is audit-logged.
 	 *
 	 * @return true|WP_Error
 	 */
-	public static function import_number( int $user_id, string $number ) {
-		$seq = self::parse_number( $number );
-		if ( null === $seq || $seq < 1 ) {
-			return new WP_Error( 'b151_bad_number', 'Membership numbers look like 151-00001.' );
+	public static function set_number( int $user_id, string $input ) {
+		global $wpdb;
+		if ( ! get_userdata( $user_id ) ) {
+			return new WP_Error( 'b151_unknown_user', 'Unknown user.' );
 		}
+		$number = self::normalize_number( $input );
+		if ( null === $number ) {
+			return new WP_Error( 'b151_bad_number', 'Membership numbers look like 151-00042 (or just 42), from 1 to 99999.' );
+		}
+		$old = self::get_number( $user_id );
+		if ( $old === $number ) {
+			return true;
+		}
+		$owner = self::find_by_number( $number );
+		if ( $owner && $owner !== $user_id ) {
+			$who = get_userdata( $owner );
+			return new WP_Error( 'b151_number_taken', sprintf( '%s already belongs to %s.', $number, $who ? $who->display_name : 'another account' ) );
+		}
+		if ( true !== self::insert_number( $user_id, (int) self::parse_number( $number ), false ) ) {
+			return new WP_Error( 'b151_number_taken', $number . ' is already in use.' );
+		}
+		if ( $old ) {
+			$wpdb->delete( self::numbers_table(), array( 'membership_number' => $old, 'user_id' => $user_id ), array( '%s', '%d' ) );
+		}
+		update_user_meta( $user_id, self::META_NUMBER, $number );
+		Audit_Log::record( $old ? 'membership_number_changed' : 'membership_number_set', 'user', $user_id, array( 'from' => $old, 'to' => $number ) );
+		return true;
+	}
+
+	/** Set a number for a member who has none yet (kept for imports). */
+	public static function import_number( int $user_id, string $number ) {
 		if ( self::get_number( $user_id ) ) {
 			return new WP_Error( 'b151_has_number', 'This member already has a membership number.' );
 		}
-		return true === self::insert_number( $user_id, $seq )
-			? true
-			: new WP_Error( 'b151_number_taken', 'That membership number has already been used.' );
+		return self::set_number( $user_id, $number );
 	}
 
-	private static function insert_number( int $user_id, int $sequence ) {
+	private static function insert_number( int $user_id, int $sequence, bool $record = true ) {
 		global $wpdb;
 		$number = self::format_number( $sequence );
 		$prev   = $wpdb->suppress_errors( true );
@@ -221,18 +264,21 @@ final class Membership {
 		if ( ! $ok ) {
 			return false;
 		}
-		update_user_meta( $user_id, self::META_NUMBER, $number );
-		Audit_Log::record( 'membership_number_assigned', 'user', $user_id, array( 'number' => $number ) );
+		if ( $record ) {
+			update_user_meta( $user_id, self::META_NUMBER, $number );
+			Audit_Log::record( 'membership_number_assigned', 'user', $user_id, array( 'number' => $number ) );
+		}
 		return true;
 	}
 
 	/** Look a member up by number (for the Zoom host check). */
 	public static function find_by_number( string $number ): int {
 		global $wpdb;
-		if ( null === self::parse_number( $number ) ) {
+		$number = self::normalize_number( $number );
+		if ( null === $number ) {
 			return 0;
 		}
-		return (int) $wpdb->get_var( $wpdb->prepare( 'SELECT user_id FROM ' . self::numbers_table() . ' WHERE membership_number = %s', trim( $number ) ) ); // phpcs:ignore
+		return (int) $wpdb->get_var( $wpdb->prepare( 'SELECT user_id FROM ' . self::numbers_table() . ' WHERE membership_number = %s', $number ) ); // phpcs:ignore
 	}
 
 	/* ---------- Chapter ---------- */

@@ -7,7 +7,7 @@ Status: **Checkpoints 2â€“4 (core backend, member features, deployment prep)** â
 
 | Area | Summary |
 |---|---|
-| Membership | Status (`pending`/`active`/`inactive`/`suspended`) separate from roles; classification (member, life member, honorary); permanent numbers `151-NNNNN`, never reused; chapters (private type). |
+| Membership | Status (`pending`/`active`/`inactive`/`suspended`) separate from roles; classification (member, life member, honorary); numbers `151-NNNNN` (existing brothers keep theirs: set on approval or the profile screen; next free number otherwise); chapters (private type). |
 | Roles | Member, Membership Admin, Content Admin, Portal Admin; WordPress Administrator gets every plugin capability. Checks always use capabilities. |
 | Sign-in | WordPress cookie session (HttpOnly). Email + password via REST; Google / Microsoft via server-side OpenID Connect (code + PKCE). No tokens in JavaScript or localStorage; Angular only receives a WordPress nonce. |
 | Sessions | Idle sign-out 30 min (members) / 15 min (admin accounts); 12 h maximum; passive polling (`X-B151-Activity: passive`) never extends a session. |
