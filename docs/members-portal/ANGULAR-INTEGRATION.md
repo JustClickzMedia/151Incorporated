@@ -2,7 +2,7 @@
 
 > **Status (2026-11-02): built** on branch `feature/members-area` — `src/app/Services/portal/` (PortalApiService,
 > IdleService, guards, queries) and `src/app/Components/members/` (sign-in, reset password, dashboard, events,
-> announcements, resources, directory, brother profile, my profile). The "Member Login" menu item is controlled by
+> announcements, resources, directory, brother profile, my profile). The "Member Sign In" menu item (MEMBERSHIP menu) is controlled by
 > `environment.membersEnabled` (off in production until go-live). Dev: `ng serve` proxies `/staging/1848` to staging
 > (`proxy.portal.json`).
 

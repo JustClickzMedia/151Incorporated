@@ -48,8 +48,8 @@ describe('NavbarComponent', () => {
     expect(menu().classList).toContain('show');
     expect(toggle.getAttribute('aria-expanded')).toBe('true');
     const items = Array.from(menu().querySelectorAll('a')) as HTMLAnchorElement[];
-    expect(items.map(a => a.textContent?.trim())).toEqual(['Membership Requirements', 'Pay Dues', 'Member Login']);
-    expect(items[2].getAttribute('href')).toBe('/members');
+    expect(items.map(a => a.textContent?.trim())).toEqual(['Membership Requirements', 'Pay Dues', 'Member Sign In']);
+    expect(items[2].getAttribute('href')).toBe('/members/sign-in');
     expect(items[0].getAttribute('href')).toBe('/membership');
     expect(items[1].href).toContain('checkout.square.site');
 
