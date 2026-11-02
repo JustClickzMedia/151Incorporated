@@ -6,6 +6,7 @@
 **Revision 2026-11-02 (correction):** The first version of this report said the live Angular build loads content through REST. **That was wrong.** The browser had a stale cached bundle (`main-CRFT644Q.js`). A re-check with the cache bypassed shows the live build is `main-2LH7QNHO.js` with `useGraphql: true`. A page load of `/pg/president` requested only `https://tzin.brothersof1-5-1.org/graphql`, with no `/wp-json/` calls. REST remains only in three legacy paths (see §10). The affected sections have been corrected.
 
 **Revision 2026-11-02 (owner decision):** Access model decided by the owner. **Members log in to the member-only area of the public site and have no access to the WordPress backend (`/wp-admin`).** Only a small number of designated people get "super access": the WordPress backend **and** the member-only area. See §0. The affected sections (§6, §10, §11, §12, §13, §15 and the handoff) were updated.
+**Revision 2026-11-02 (roadmap preview):** The owner described the planned member features (roster, founders' interviews, history archive, new-member education modules released by a Dean, multi-chapter use). They're captured in **§16** as a preview so the foundation is built to fit them. Two **proposed** roles were added to §0.1 (Dean of Membership, chapter administrator).
 **Revision 2026-11-02 (follow-up checks):** Several open items were answered from the repository and live GraphQL; see §0.2.
 
 **Overall audit confidence:** 0.8. WordPress and WPGraphQL findings are high-confidence (0.9+). Hosting (cPanel) items are low-confidence because cPanel and the HostGator portal required a login, which was not attempted.
@@ -21,6 +22,9 @@
 | **Member** (role `b151_member`) | **Yes**, while their status is `active` | **No.** Any `/wp-admin` page redirects to the public site; no admin bar; no profile screen | Signs in on the public site only. Password set/reset happens through the portal's own pages (or core reset links that land back on the public site). |
 | **Portal administrator** (role `b151_portal_admin`, a few named people) | **Yes** (always treated as an active member) | **Yes**, limited to what the portal needs: approve/suspend members, edit member profiles, manage member-only events, announcements and documents, edit site content | "Super access". Must use two-step login (2FA). |
 | **Site administrator** (WordPress `administrator`, owner only) | **Yes** (always treated as an active member) | **Yes**, full (plugins, settings, users, roles) | Must use 2FA. Keep this to one or two accounts. |
+| *Proposed:* **Dean of Membership** (role `b151_dean`) | Yes | Limited: manage education modules, release them to intake classes, see candidates' progress and test results (§16.5) | For the education program, built late. Super-access rules (named people, 2FA) apply. |
+| *Proposed:* **Chapter administrator** (role `b151_chapter_admin`) | Yes | Limited to **their own chapter**: its roster entries and its intake classes' progress | Only if chapters should manage themselves (§16.7 question 1). |
+| *Proposed:* **Candidate / new member in education** (role `b151_candidate`) | **Only** the education area (modules released to their intake class) | No | Not a full member yet. Becomes `b151_member` when the Dean/admin completes their intake. |
 | Visitor (not logged in) | No | No | Public pages only. |
 
 Rules that follow from this:
@@ -342,7 +346,76 @@ Every change below **needs owner approval**.
 8. **Protected documents:** private storage plus streaming endpoint.
 9. **Angular:** move the three legacy REST paths (`pg/:id/:title`, `search/:term`, `pst/:id/:title`) to GraphQL, or remove them. Then add portal routes, guards, and an HTTP interceptor (`withCredentials`, nonce header).
 10. **Lock down anonymous REST** (approval): once the frontend uses no REST, restrict `/wp-json/wp/v2/*` for anonymous users, except anything WordPress core or plugins need.
-11. **Security review and soft launch** with officers, then invite members.
+11. **Security review and soft launch** with portal administrators, then invite members.
+12. **Later phases (§16):** roster directory and admin roster screen (early, with step 4), founders' interviews and history archive (using the private-file endpoint), and **last** the new-member education module system (Dean, intake classes, modules, tests, progress).
+
+## 16. Planned Member Features (Roadmap Preview, 2026-11-02)
+
+The owner described what the portal should eventually hold. **None of this is built yet.** The module system (§16.5) will be one of the last pieces. This section exists so that the foundation built first (roles, chapters, private files, visibility rules) already fits these features and nothing has to be redone later.
+
+### 16.1 Feature overview
+
+| Area | What it is | Who sees it | Built |
+|---|---|---|---|
+| **Roster** (§16.3) | Every brother: name, address, email, phone, chapter, status | Admin side (backend): portal administrators and the site administrator see everything. Member side: a directory showing only what each brother chooses to share (§16.7 question 2). | Early (it's the core of the portal) |
+| **Founders' interviews** (§16.4) | Recorded interviews with the founders that members can listen to (and possibly watch) | Members (active) and above | Middle |
+| **History archive** (§16.4) | Everything about 1-5-1 history: documents, photos, recordings, timeline (from March 6, 1982 onward) | Members; some items may be marked public | Middle, grows over time |
+| **New-member education** (§16.5) | Learning material, tests, organised into modules; a Dean/admin releases modules; self-paced per chapter | Candidates (their released modules only); Dean/admins (everything, plus progress) | **Last** |
+| **Chapters** (§16.2) | Each chapter uses the same site; roster, intake classes and progress are organised by chapter | Everyone sees their own chapter; admins see all | Foundation (built first) |
+
+### 16.2 Chapters (foundation, build first)
+
+- Each chapter is a record (`b151_chapter`: name, location, status). Stored as a private post type or taxonomy, not public in REST.
+- **Every user has exactly one chapter** (user meta `b151_chapter_id`), set when the member is invited or approved. Moving chapters is an admin action and is logged.
+- All member data and education progress are stored with the chapter, so later features can filter "my chapter" vs. "all chapters" without changing the data model.
+- Permission checks gain a **scope**: national (all chapters: site administrator, portal administrators, Dean) or chapter (chapter administrators, if used).
+
+### 16.3 Roster (admin side + member directory)
+
+- **Data:** WordPress users (one per brother) plus ACF user fields: first/last name, preferred name, mailing address (street, city, state, ZIP), phone, chapter, membership status, initiation/crossing year and line name (optional), and per-field sharing choices.
+- **Admin side (backend):** a Roster screen for portal administrators with search, filter by chapter/status, add/edit, invite, approve, suspend, and **export to CSV** (export is logged). Members never see this screen (§0.1).
+- **Member side:** a directory in the member-only area. Shows name, chapter and year by default; address, email and phone **only if that brother opts in** (recommended default: hidden). Served by an auth-checked GraphQL field, never by a public post type.
+- **Privacy:** addresses and phone numbers are personal data. Never cached (`no-store`), never in public REST/GraphQL, never in the Media Library, and not shown to candidates. Bulk export is admin-only.
+- The unused `brothers` post type should **not** be used for the roster (it's public in REST). Retire it, or keep it hidden.
+
+### 16.4 Founders' interviews and history archive
+
+- **Interviews:** audio (and possibly video) files stored **privately** (outside the web root, §8), streamed to logged-in members through the protected download endpoint, with HTTP **Range** support so the player can seek. Each interview has a title, the founder(s) featured, date recorded, description, optional transcript, and the media file.
+- **Hosting limits to plan for:** uploads are capped at 64 MB on this host. Long recordings may need compressing (e.g. AAC/MP3 at speech quality is about 30–60 MB per hour) or splitting into parts. Large video may not suit shared hosting. Alternatives to decide later: private video hosting that supports domain-restricted embedding (paid) versus "unlisted" links (not secure: anyone with the link can watch).
+- **History archive:** a private post type (`b151_history_item`) with type (document, photo, audio, video, article), date or era, people, chapter, tags, description and a private file. Each item has a visibility level: **public** (can appear on the public site), **members**, or **admins only**. Browsable by timeline and by tag; searchable.
+- The interviews can be one type of history item, so there's one archive with one set of rules.
+
+### 16.5 New-member education (module system, built last)
+
+- **Structure:** Program → **Modules** → Lessons (text, PDF, audio, video) → **Tests** (quizzes: multiple choice, true/false, short answer). Optional pass mark per test, and number of attempts allowed.
+- **Intake classes (cohorts):** candidates are grouped into an intake class per chapter (for example "Chapter X, Spring 2027"). Each class goes through the program **at its own pace**.
+- **Release by the Dean/admin:** the Dean of Membership (or a portal administrator) releases modules to an intake class, either manually or on a scheduled date. Candidates only see modules released to their class. Within released modules, candidates work self-paced.
+- **Progress and results:** per candidate: lessons viewed, test attempts, scores, completion dates. The Dean sees all classes; a chapter administrator (if used) sees only their chapter's classes. Candidates see only their own progress.
+- **Completion:** when a candidate finishes the program and is approved, the Dean/admin changes their role from `b151_candidate` to `b151_member` (logged; sessions refreshed).
+- **Materials stay private:** lessons, files and test answers are never public and never in the Media Library. Test answer keys are checked on the server; correct answers are never sent to the browser before submission.
+- **Build vs. buy (decide when this phase starts):** free LMS plugins exist (e.g. Tutor LMS, LifterLMS core) but are built around WordPress themes, while this site's front end is Angular. A custom module system on the same GraphQL foundation will probably fit better; compare when this phase begins.
+
+### 16.6 What the early phases must already provide
+
+So these features can be added later without redoing work, the first portal plugin (§11, §15 step 4) should already include:
+
+1. **Chapters** and a chapter on every user (§16.2).
+2. **Capability-based permissions with scope** (national vs. chapter), not hard-coded role names. New roles (Dean, chapter administrator, candidate) are then just new capability bundles.
+3. **One visibility model** used by every content type: public / members / candidates (released only) / admins, enforced in the GraphQL resolvers.
+4. **Private file storage and one protected streaming endpoint** (with Range support), used for documents, interview audio/video, archive files and lesson materials.
+5. **Audit log** that already records who did what (logins, status changes, exports, releases, role changes).
+6. **ACF user fields with per-field sharing choices** for the roster.
+7. Angular: a member-area layout, a route guard per capability, and a shared "private media player/downloader" component.
+
+### 16.7 Questions to answer before each phase
+
+1. **Chapters:** how many chapters, and should each chapter have its own administrator who manages its roster and intake classes, or is everything managed nationally?
+2. **Roster privacy:** which fields may other members see by default? Should brothers be able to hide their address/phone from other members (recommended), and can chapter administrators see addresses for their chapter?
+3. **Roster extras:** initiation/crossing year, line name/number, voice part or instrument, profession, birthday, emergency contact? (Each extra personal field adds privacy obligations.)
+4. **Interviews:** audio only, or video too? How long are the recordings and how many? Are transcripts wanted?
+5. **History archive:** who adds items (admins only, or members can submit for approval)? Should some items be public on the main site?
+6. **Education:** who is the Dean of Membership (one person nationally, or one per chapter)? Release modules manually, on a schedule, or both? Do tests need a pass mark and limited attempts? Can a candidate redo a test?
+7. **Candidates:** do candidates come from the existing `new-prospects` records, or are they invited directly? (The `new-prospects` type should stay non-public either way.)
 
 ---
 
@@ -389,6 +462,10 @@ Every change below **needs owner approval**.
 9. Hardening: disable XML-RPC, block `?author=`, block `readme.html`, set `new-prospects`/`brothers` to `show_in_rest=false`.
 10. Audit log and admin UI (status columns, filters, bulk actions).
 11. Frontend clean-up (Angular repo): migrate the three legacy REST routes to GraphQL or remove them. After that, anonymous `/wp-json/wp/v2/*` can be restricted on the WordPress side (approval).
+
+### Planned features this foundation must support (§16)
+
+Roster (name, address, email, phone, chapter; admin roster screen + opt-in member directory), founders' interviews (private audio/video streaming with Range support), history archive (private items with visibility levels), and **last** a new-member education system (modules → lessons → tests, released by a Dean of Membership to per-chapter intake classes, self-paced, with progress tracking). Multi-chapter from day one: every user belongs to a chapter, permissions have a national/chapter scope, and one visibility model plus one private-file endpoint serve every content type.
 
 ### Recommended authentication strategy
 
