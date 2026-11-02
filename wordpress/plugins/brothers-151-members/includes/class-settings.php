@@ -20,6 +20,10 @@ final class Settings {
 			'login_lock_minutes'          => 15,
 			'password_min_length'         => 12,
 			'require_two_factor_backend'  => true,
+			'notify_members'              => true,  // approval / suspension emails
+			'max_upload_mb'               => 64,    // resource files (host limit 64 MB)
+			'directory_per_minute'        => 60,    // directory/profile lookups per member per minute
+			'verify_per_minute'           => 30,    // verifyMember lookups per admin per minute
 			// Dues (ARCHITECTURE.md §3.6) — decisions deferred; 'nothing' keeps today's behaviour.
 			'dues_affect'                 => 'nothing', // nothing | indicator | indicator_and_access
 			'dues_exempt_classifications' => array(),

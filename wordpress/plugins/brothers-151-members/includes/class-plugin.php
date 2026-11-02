@@ -26,6 +26,12 @@ final class Plugin {
 		Session_Api::register();
 		Oauth::register();
 		Graphql::register();
+		// Checkpoint 3: member content, private files, directory, notifications.
+		Content_Types::register();
+		Private_Storage::register();
+		Downloads::register();
+		Graphql_Member::register();
+		Notifications::register();
 		Admin::register();
 	}
 }
