@@ -1,6 +1,7 @@
 # Members-Only Portal — Architecture Design (Checkpoint 1)
 
 **Status:** design for approval. **No implementation code has been written.** Nothing has been changed in WordPress.
+**Decided 2026-11-02 (owner):** classifications (Member, Life Member, Honorary), membership number format `151-NNNNN`, inactivity logout, 2FA for admins (§3.1, §4.3, §4.5, §12 Q3–Q6).
 **Decided 2026-11-02 (owner):** roles — all admin tiers built, one admin for now (the owner); more can be added later (§5, §12 Q2).
 **Approved 2026-11-02 (owner):** authentication = **WordPress cookie session**, signed in with **email + password** or **Sign in with Google / Microsoft** (server-side OAuth 2.0 Authorization Code + PKCE, OpenID Connect). All three end in the same WordPress session (§4, §4.4). Other §12 decisions are still open.
 **Date:** 2026-11-02 · **Branch:** `feature/members-portal`
@@ -50,7 +51,8 @@ wordpress/plugins/brothers-151-members/
     class-membership.php          status model, membership numbers, chapters, status transitions
     class-access.php              single place for "can this viewer see X" (capability + status + scope + visibility)
     class-backend-gate.php        blocks /wp-admin + admin bar for non-backend users; login/logout redirects
-    class-session-api.php         REST: login, logout, me, password reset/change (rate-limited)
+    class-session-api.php         REST: login, logout, me, password reset/change (rate-limited); inactivity timeout
+    class-two-factor-enforcement.php  requires 2FA (Two Factor plugin) for every backend-capable account
     class-oauth.php               Sign in with Google / Microsoft (Authorization Code + PKCE, OIDC ID-token validation, account linking)
     class-rate-limiter.php        per-IP and per-username counters (transients)
     class-cors.php                credentialed CORS for the exact frontend origins (coordinates with the MU-plugin)
@@ -86,8 +88,8 @@ All data lives in the existing WordPress database. **No second database.**
 |---|---|---|
 | WordPress user | `wp_users` | Identity, email, password hash, `display_name` |
 | `b151_status` | `pending` \| `active` \| `inactive` \| `suspended` | **Separate from role.** Default `pending`. Only `active` (or backend roles, see §5) passes member checks |
-| `b151_classification` | e.g. `member`, `life_member`, `honorary`, `candidate` | Owner to confirm the list (§12 Q3) |
-| `b151_membership_number` | string, unique, permanent | Format proposal `151-YYYY-NNNN`; assigned on admission; never reused; uniqueness enforced in code + a lookup index (see 3.4) |
+| `b151_classification` | `member` \| `life_member` \| `honorary` | **Decided:** all three. Classification is informational/administrative (shown in the roster; filterable); access is still decided by status + capabilities. Candidates use the separate `b151_candidate` role, not a classification |
+| `b151_membership_number` | string, unique, permanent | **Decided format: `151-NNNNN`** — a national sequence, zero-padded to 5 digits (`151-00001` … `151-99999`), enough for the current ~130 brothers with ample room; revisit only if the organisation approaches 100,000 members. Assigned on admission (next free number) or set once on import for existing brothers; never reused; uniqueness enforced in code + table (3.4) |
 | `b151_chapter_id` | int (post ID of `b151_chapter`) | Every user has one chapter |
 | `b151_approved_at`, `b151_approved_by` | datetime, user ID | Set on approval |
 | `b151_status_changed_at`, `b151_status_reason` | datetime, text | Last change; full history in the audit log |
@@ -162,7 +164,7 @@ Why session endpoints are REST rather than GraphQL mutations: precise control of
 
 | Requirement | Design |
 |---|---|
-| Session expiry | `auth_cookie_expiration` filter: 12 hours (proposal; "remember me" off for members by default) |
+| Session expiry | **Decided: inactivity logout.** Each session token stores `b151_last_activity`; every authenticated request checks it. If idle longer than the limit, the session is destroyed and the request is treated as logged out. Activity updates are written at most once every 5 minutes. Defaults (configurable in Members → Settings): **30 minutes idle** for members, **15 minutes idle** for backend-capable accounts, plus an absolute maximum of **12 hours** per session (`auth_cookie_expiration`). No "remember me". Angular shows a "You'll be signed out in 2 minutes — Stay signed in" prompt; only real user activity (clicks, typing, navigation) keeps the session alive, not background polling |
 | Revocation after suspension | Status change → `destroy_all()`; every resolver re-checks status, so access ends on the next request even if a cookie survives |
 | Rate limiting | Per IP and per username: e.g. 5 failures / 15 min → 15-min lock; exponential back-off; also applied to reset requests. Counters store hashes, not raw IPs |
 | Account enumeration | Same message and timing for unknown user, wrong password, pending, suspended; reset always "If an account exists…" |
@@ -170,7 +172,7 @@ Why session endpoints are REST rather than GraphQL mutations: precise control of
 | CORS | Exact origins only, `Access-Control-Allow-Credentials: true` only for those, `Allow-Headers` incl. `X-WP-Nonce`, `Vary: Origin`; never `*` |
 | Cookies | WordPress sets `Secure` + `HttpOnly`; SameSite default (Lax) is correct for same-site use. `COOKIE_DOMAIN` stays unset (cookies only for `tzin…`) |
 | Other login paths | Disable `xmlrpc.php`; turn off Simple-JWT-Login `/auth` (or remove the plugin) once cookie login works — **approval needed** |
-| 2FA | Required for backend-capable accounts (free 2FA plugin or TOTP in the plugin — decision §12 Q6) |
+| 2FA | **Decided: required for every backend-capable account** (§4.5) |
 | Backend gate | Users without `b151_backend_access` are redirected from `/wp-admin` (except `admin-ajax.php`/`admin-post.php`), admin bar hidden, `login_redirect`/`logout_redirect` → public site |
 
 ### 4.4 Sign in with Google / Microsoft (approved)
@@ -213,6 +215,20 @@ Client IDs and secrets go in `wp-config.php` constants (`B151_GOOGLE_CLIENT_ID`,
 **Additional tests** (added to §10): invalid/missing `state`; replayed `code`; wrong `aud`/`iss`; expired token; unverified email; unknown account (no account created); pending/suspended member refused; first-login linking by verified email; subject-based login after an email change; `return` parameter can't redirect off-site; backend-capable account still can't open `/wp-admin` without password + 2FA.
 
 **Later (optional, same design):** Facebook, Apple ($99/year), passkeys.
+
+**Tests added for these decisions:** idle session expires after the limit (member 30 min, backend 15 min) and is destroyed server-side; activity within the limit keeps it alive; absolute 12 h maximum; backend-capable account without 2FA can't reach any `/wp-admin` page except 2FA enrolment; backend login requires the second step; member (no backend access) never prompted for 2FA; membership numbers are `151-NNNNN`, sequential, unique, never reused; classification values limited to member / life_member / honorary.
+
+### 4.5 Two-step login (2FA) for admins (decided)
+
+- **Who:** every account with `b151_backend_access` (WP Administrator, Portal/Membership/Content Admins, later Dean). Members: not required (can be offered later).
+- **How:** the free, well-maintained **Two Factor** plugin (wordpress.org/plugins/two-factor, maintained by WordPress core contributors) provides the second step on `wp-login.php`: **authenticator app codes (TOTP)** as the main method, **backup codes** for recovery, and email codes as a fallback. Using an established component avoids writing custom authentication/crypto code.
+- **Enforcement (in this plugin, `class-two-factor-enforcement.php`):** the Two Factor plugin makes 2FA optional; the portal plugin makes it **mandatory** for backend-capable accounts:
+  - A backend-capable user without 2FA set up can only reach their own profile screen to enrol; every other `/wp-admin` page redirects there with a notice.
+  - Granting a backend role to someone puts them in this "enrol first" state.
+  - Social sign-in (Google/Microsoft) never opens `/wp-admin`; backend access always goes through password + 2FA.
+  - Disabling 2FA on a backend account is blocked (only a WP Administrator can reset another user's 2FA, audit-logged).
+- **Recovery:** each admin stores their backup codes safely. If the only administrator loses their device and codes, recovery is via cPanel/database (documented in DEPLOYMENT.md) — so the owner should keep backup codes offline.
+- **Fallback if the plugin is unsuitable** (found during staging): TOTP built into the portal plugin using a maintained RFC 6238 library (e.g. `spomky-labs/otphp`), same enforcement rules.
 
 ---
 
@@ -351,10 +367,10 @@ Required configuration changes (each needs approval): SMTP (FluentSMTP / WP Mail
 
 1. ~~**Approve the authentication design** (§4)~~ **Approved 2026-11-02:** WordPress cookie session with email + password, Sign in with Google and Sign in with Microsoft (§4.4). Simple-JWT-Login `/auth` turned off once this works (separate approval at deployment).
 2. ~~**Roles** (§5)~~ **Decided 2026-11-02:** build **all** tiers (Membership Admin, Content Admin, Portal Admin = both, WP Administrator) so more people can be added later without code changes. **For now there is one admin: the owner (Kenneth), using his existing WordPress Administrator account**, which receives every `b151_*` capability. Other roles stay unassigned until needed; adding someone later = WP Administrator assigns the role in wp-admin → Users (audit-logged; 2FA required for any backend-capable account).
-3. **Classifications**: list (e.g. member, life member, honorary)?
-4. **Membership number format**: `151-YYYY-NNNN`? Do existing brothers already have numbers to import?
-5. **Session length** for members (proposal 12 h) and whether "remember me" is allowed.
-6. **2FA**: free plugin (e.g. "Two Factor") vs. TOTP built into this plugin.
+3. ~~**Classifications**~~ **Decided:** Member, Life Member, Honorary (all three).
+4. ~~**Membership number format**~~ **Decided:** `151-NNNNN` (5-digit national sequence; ~130 members today; revisit near 100,000). **Still open:** do existing brothers already have numbers to keep, or should the import assign `151-00001`… in roster order?
+5. ~~**Session length**~~ **Decided:** log out after inactivity — 30 min members, 15 min backend accounts, 12 h absolute maximum, no "remember me" (all configurable).
+6. ~~**2FA**~~ **Decided:** required for every backend-capable account, using the free Two Factor plugin with enforcement in the portal plugin (§4.5).
 7. **Email sender** (e.g. `portal@brothersof1-5-1.org`) and SMTP choice (free options in audit §9).
 8. **Member events**: separate private type (recommended) vs. a visibility flag on the existing public `events` type.
 9. **Directory defaults**: confirm that only display name, chapter and year are visible to other members unless a brother opts in.
