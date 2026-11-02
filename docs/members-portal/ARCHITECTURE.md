@@ -132,6 +132,21 @@ Rate-limit counters use transients (no table).
 
 The existing `new-prospects` records stay the intake record. The workflow (Checkpoint 3 or later) links prospect ↔ user both ways and changes the **same** WordPress user from candidate to member on admission; membership number assigned then. Prerequisite: list the 9 prospect fields (audit §14 item 7) and remove `new-prospects` from public REST (§11).
 
+### 3.6 Dues-ready design (decisions deferred, no recoding later)
+
+The owner will decide the dues rules later (§12 Q10). To avoid recoding, Checkpoint 2 builds the **extension points only** — no dues screens, no payment processing:
+
+1. **One eligibility function.** Every "is this brother active / may he see member content?" check goes through a single policy in `class-access.php` (`b151_member_standing( $user_id )` → `{ is_active, has_member_access, reasons[] }`). The directory's Active indicator, resolvers and the login gate all call it. Changing the dues rules later changes this one policy (driven by settings), not dozens of checks.
+2. **Settings with safe defaults** (Members → Settings, off until decided):
+   - *Dues affect:* `nothing` (default, today's behaviour) · `active indicator only` (option a: keeps access, shows not active) · `indicator and member content` (option b: loses member content until paid; profile, password, logout and "pay dues" stay available).
+   - *Exempt classifications:* checkboxes for Life Member and Honorary (default unchecked until decided).
+   - *Grace period* after the paid-through date (default 0 days).
+3. **Data fields reserved now:** `b151_dues_status` (`current` / `lapsed` / `exempt`), `b151_dues_paid_through` (date) and a `dues_payments` record shape (amount, date, period, **source** `manual` | `square`, reference, recorded_by). Stored but unused until the dues phase.
+4. **Payment source is a field**, so manual recording (admin form) and automatic recording (Square webhook later, matched by email/membership number) use the same records; adding Square later is new input code, not a data change.
+5. **Audit log** already records status changes, so dues-driven changes will be logged the same way.
+
+Deciding later then means: choose the settings, and build the payment-recording screen (manual) and/or the Square connection — without changing the access checks, directory, resolvers or data model.
+
 ---
 
 ## 4. Authentication and session design
@@ -376,7 +391,7 @@ Required configuration changes (each needs approval): SMTP (FluentSMTP / WP Mail
 7. **Email sender** (e.g. `portal@brothersof1-5-1.org`) and SMTP choice (free options in audit §9).
 8. ~~**Member events**~~ **Decided:** separate private type `b151_member_event` (recommended option).
 9. ~~**Directory defaults**~~ **Decided:** name, chapter, year and an **Active** indicator shown by default; everything else only if the brother opts in.
-10. **Later (dues):** "active" will also depend on dues. To decide when dues are built: does a lapsed-dues brother (a) keep portal access but show as not active, or (b) lose access to member content until dues are paid? Who records payments (manually, or from the Pay Dues/Square checkout)? Are Life Members and Honorary exempt?
+10. **Deferred by the owner (2026-11-02): dues rules.** Decided later: (a) does a lapsed-dues brother keep portal access but show as not active, or lose member content until he pays; (b) who records payments (admin by hand, or automatically from the Pay Dues Square checkout); (c) are Life Members and Honorary exempt. **The design keeps all three as settings, not code (§3.6), so deciding later doesn't require recoding.**
 
 ## 13. Security risks (to resolve in the phases shown)
 
