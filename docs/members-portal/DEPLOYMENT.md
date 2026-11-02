@@ -80,6 +80,14 @@ that member content and downloads are closed to guests, that public content stil
 
 Tested end to end on a local WordPress over real HTTP on 2026-11-02: all 31 checks passed.
 
+**After cloning production to staging:** FluentSMTP shows *"Authentication unique keys and salts are changed"*
+(staging has its own WordPress keys). Re-enter the mailbox password in Settings → FluentSMTP on staging, then send an
+Email Test; until then staging emails are not sent (`member_notified … "sent":false` in the audit log).
+
+**Existing brothers' numbers:** type the number they already have in the *Member #* box on Pending approvals, or in
+*Membership number* on their profile. Blank = next free number (after the highest in use). Changing a number frees
+the old one; changes are audit-logged.
+
 ## 4. What the protections change
 
 All are on by default and can be switched off one by one in 1-5-1 Members → Settings.
