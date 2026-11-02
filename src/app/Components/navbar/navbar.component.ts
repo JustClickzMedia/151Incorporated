@@ -1,3 +1,4 @@
+import { environment } from '../../../environments/environment';
 import { Component, HostListener, OnInit, DOCUMENT, ChangeDetectionStrategy, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
@@ -44,7 +45,7 @@ export class NavbarComponent implements OnInit {
   readonly membershipOpen = signal(false);
   private readonly currentUrl = signal(this.router.url);
   /** Highlight MEMBERSHIP while the Membership page is open. */
-  readonly membershipActive = computed(() => this.currentUrl().startsWith('/membership'));
+  readonly membershipActive = computed(() => this.currentUrl().startsWith('/membership') || this.currentUrl().startsWith('/members'));
   /** The Update dropdown (Events, Blog). */
   readonly updateOpen = signal(false);
   /** Highlight UPDATE on the events and blog pages (lists and single event/post pages). */
@@ -100,6 +101,8 @@ export class NavbarComponent implements OnInit {
 
   /** Pay Dues pop-up: the Square checkout in a frame over the page, so the visitor never leaves the site. */
   readonly payDuesUrl = PAY_DUES_URL;
+  /** "Member Login" in the MEMBERSHIP menu (off on production until the portal goes live). */
+  readonly membersEnabled = environment.membersEnabled;
   readonly payDuesFrameUrl = this.sanitizer.bypassSecurityTrustResourceUrl(PAY_DUES_URL);
   readonly payDuesOpen = signal(false);
 

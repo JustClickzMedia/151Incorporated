@@ -27,7 +27,7 @@ export const STATIC_ROUTES = [
 ];
 
 /** Page slugs that can't be reached at /<slug> because a fixed route of the app uses that address. */
-export const RESERVED = new Set(['blog', 'events', 'event', 'search', '404', 'pg', 'pst']);
+export const RESERVED = new Set(['blog', 'events', 'event', 'search', '404', 'pg', 'pst', 'members']);
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -122,6 +122,9 @@ export function robotsTxt() {
     'Allow: /',
     '# Search results pages are for visitors, not search engines.',
     'Disallow: /search/',
+    '# The member area is private (sign-in required). Not a plain "/members" prefix: that would also block /membership.',
+    'Disallow: /members$',
+    'Disallow: /members/',
     '',
     `Sitemap: ${SITE_URL}/sitemap.xml`,
     '',

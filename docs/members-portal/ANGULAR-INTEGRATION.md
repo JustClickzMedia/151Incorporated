@@ -1,5 +1,11 @@
 # Members Portal — Angular Integration Guide
 
+> **Status (2026-11-02): built** on branch `feature/members-area` — `src/app/Services/portal/` (PortalApiService,
+> IdleService, guards, queries) and `src/app/Components/members/` (sign-in, reset password, dashboard, events,
+> announcements, resources, directory, brother profile, my profile). The "Member Login" menu item is controlled by
+> `environment.membersEnabled` (off in production until go-live). Dev: `ng serve` proxies `/staging/1848` to staging
+> (`proxy.portal.json`).
+
 How the Angular site (brothersof1-5-1.org) talks to the members-portal plugin on WordPress (tzin). The plugin enforces
 every rule; Angular only decides what to show. Server contract: `wordpress/plugins/brothers-151-members/`.
 
@@ -136,7 +142,7 @@ export class PortalApi {
 | `/members/announcements` | list |
 | `/members/resources` | list by category, download links |
 
-Add `/members` to `robots.txt` `Disallow` and keep it out of the sitemap; the pages are `noindex` (`SeoService.apply({ noindex: true })`).
+`robots.txt` has `Disallow: /members$` and `Disallow: /members/` (not a bare `/members` prefix, which would also hide `/membership`), the sitemap skips it, and the pages are `noindex` (`SeoService.apply({ noindex: true })`).
 
 ## 7. Testing locally
 

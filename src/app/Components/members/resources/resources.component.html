@@ -1,0 +1,28 @@
+<h1>Resources</h1>
+<p class="muted">Documents, recordings and files for members. Downloads work while you're signed in.</p>
+@if (categories().length > 1) {
+  <label for="category">Category</label>
+  <select id="category" class="cat" [value]="category()" (change)="category.set($any($event.target).value)">
+    <option value="">All categories</option>
+    @for (c of categories(); track c) { <option [value]="c">{{ c }}</option> }
+  </select>
+}
+
+@if (data(); as d) {
+  @for (r of d.nodes; track r.id) {
+    <div class="card-151 resource">
+      <div class="info">
+        <h3>{{ r.title }}@if (r.category) { <span class="badge-151">{{ r.category }}</span> }</h3>
+        @if (r.descriptionHtml) { <div class="content" [innerHTML]="r.descriptionHtml"></div> }
+        @if (r.fileName) { <div class="meta">{{ kind(r.mimeType) }} · {{ size(r.fileSize) }} · {{ r.fileName }}</div> }
+      </div>
+      @if (r.downloadUrl) {
+        <a class="btn btn-primary-151" [href]="r.downloadUrl" target="_blank" rel="noopener">{{ kind(r.mimeType) === 'Audio' || kind(r.mimeType) === 'Video' ? 'Play' : 'Open' }}</a>
+      }
+    </div>
+  } @empty { <p class="muted">No resources yet.</p> }
+} @else if (error(); as msg) {
+  <div class="alert-151 error" role="alert">{{ msg }}</div>
+} @else {
+  <p class="status" aria-live="polite">Loading…</p>
+}

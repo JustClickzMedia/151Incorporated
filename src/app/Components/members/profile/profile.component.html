@@ -1,0 +1,62 @@
+<h1>My profile</h1>
+@if (loading()) {
+  <p class="status" aria-live="polite">Loading…</p>
+} @else if (loadError(); as msg) {
+  <div class="alert-151 error" role="alert">{{ msg }}</div>
+} @else {
+  @if (me(); as m) {
+    <dl class="details card-151">
+      <dt>Membership number</dt><dd>{{ m.membershipNumber || 'Not assigned yet' }}</dd>
+      <dt>Chapter</dt><dd>{{ m.chapter?.name || '—' }}</dd>
+      <dt>Email</dt><dd>{{ m.email }}</dd>
+    </dl>
+    <p class="muted">To change your membership number, chapter or email address, contact <a href="mailto:info@brothersof1-5-1.org">info&#64;brothersof1-5-1.org</a>.</p>
+  }
+
+  <form (ngSubmit)="save()" novalidate>
+    <h2>Your details</h2>
+    <div class="row g-3">
+      <div class="col-md-6"><label for="p-name">Name shown to brothers</label><input id="p-name" name="displayName" type="text" [(ngModel)]="form.displayName" required autocomplete="name"></div>
+      <div class="col-md-3"><label for="p-year">Year</label><input id="p-year" name="joinedYear" type="text" inputmode="numeric" placeholder="1982" [(ngModel)]="form.joinedYear"></div>
+      <div class="col-md-3"><label for="p-line">Line</label><input id="p-line" name="line" type="text" [(ngModel)]="form.line"></div>
+      <div class="col-md-6"><label for="p-phone">Phone</label><input id="p-phone" name="phone" type="tel" [(ngModel)]="form.phone" autocomplete="tel"></div>
+      <div class="col-12"><label for="p-a1">Address</label><input id="p-a1" name="address1" type="text" [(ngModel)]="form.address1" autocomplete="address-line1"></div>
+      <div class="col-12"><label for="p-a2" class="visually-hidden">Address line 2</label><input id="p-a2" name="address2" type="text" placeholder="Apartment, suite (optional)" [(ngModel)]="form.address2" autocomplete="address-line2"></div>
+      <div class="col-md-6"><label for="p-city">City</label><input id="p-city" name="city" type="text" [(ngModel)]="form.city" autocomplete="address-level2"></div>
+      <div class="col-md-3"><label for="p-state">State</label><input id="p-state" name="state" type="text" [(ngModel)]="form.state" autocomplete="address-level1"></div>
+      <div class="col-md-3"><label for="p-zip">ZIP</label><input id="p-zip" name="postalCode" type="text" [(ngModel)]="form.postalCode" autocomplete="postal-code"></div>
+      <div class="col-12"><label for="p-bio">About me</label><textarea id="p-bio" name="bio" [(ngModel)]="form.bio" maxlength="2000"></textarea></div>
+    </div>
+
+    <h2>Sharing</h2>
+    <p class="muted">Other brothers always see your name, chapter, year and whether you're active. Choose what else they can see. Admins can always see your details.</p>
+    @for (s of shareable; track s.field) {
+      <label class="check"><input type="checkbox" [name]="'share-' + s.field" [(ngModel)]="sharing[s.field]"> Let brothers see my {{ s.label }}</label>
+    }
+
+    @if (saveError()) { <div class="alert-151 error" role="alert">{{ saveError() }}</div> }
+    @if (saved()) { <div class="alert-151 ok" role="status">{{ saved() }}</div> }
+    <button type="submit" class="btn btn-primary-151 mt-3" [disabled]="saving()">{{ saving() ? 'Saving…' : 'Save profile' }}</button>
+  </form>
+
+  <h2>Change password</h2>
+  <form (ngSubmit)="changePassword()" novalidate class="m-narrow pw">
+    <label for="pw-current">Current password</label>
+    <input id="pw-current" name="current" type="password" autocomplete="current-password" [(ngModel)]="current">
+    <label for="pw-new">New password (at least 12 characters)</label>
+    <input id="pw-new" name="next" type="password" autocomplete="new-password" [(ngModel)]="next">
+    <label for="pw-confirm">Type the new password again</label>
+    <input id="pw-confirm" name="confirm" type="password" autocomplete="new-password" [(ngModel)]="confirm">
+    @if (pwError()) { <div class="alert-151 error" role="alert">{{ pwError() }}</div> }
+    @if (pwDone()) { <div class="alert-151 ok" role="status">Password changed. You've been signed out on your other devices.</div> }
+    <button type="submit" class="btn btn-outline-151 mt-3" [disabled]="pwBusy()">{{ pwBusy() ? 'Saving…' : 'Change password' }}</button>
+  </form>
+
+  @if (providers().length) {
+    <h2>Sign in with Google or Microsoft</h2>
+    <p class="muted">Link an account so you can sign in with one click.</p>
+    @for (p of providers(); track p.id) {
+      <a class="btn btn-outline-151 me-2 mb-2" [href]="linkUrl(p.id)">Link {{ p.label }}</a>
+    }
+  }
+}

@@ -1,0 +1,30 @@
+<h1>Brother directory</h1>
+<p class="muted">Active brothers. Contact details appear only when a brother chooses to share them (My profile → Sharing).</p>
+<label for="dir-search">Search by name</label>
+<input id="dir-search" type="search" placeholder="Type at least 2 letters" [value]="search()" (input)="onSearch($any($event.target).value)" autocomplete="off">
+
+@if (data(); as d) {
+  <p class="meta mt-3">{{ d.total }} brother{{ d.total === 1 ? '' : 's' }}</p>
+  <div class="grid">
+    @for (b of d.nodes; track b.id) {
+      <a class="card-151 brother" [routerLink]="['/members/directory', b.id]">
+        <h3>{{ b.displayName }}</h3>
+        <div class="meta">{{ b.chapter?.name || 'Chapter not set' }}@if (b.joinedYear) { · {{ b.joinedYear }} }@if (b.isActive) { <span class="badge-151">Active</span> }</div>
+        @if (b.city || b.state) { <div class="meta">{{ b.city }}{{ b.city && b.state ? ', ' : '' }}{{ b.state }}</div> }
+        @if (b.phone) { <div class="meta">{{ b.phone }}</div> }
+        @if (b.email) { <div class="meta">{{ b.email }}</div> }
+      </a>
+    } @empty { <p class="muted">No brothers match that search.</p> }
+  </div>
+  @if (d.total > pageSize) {
+    <div class="pager">
+      <button type="button" class="btn-outline-151" [disabled]="page() === 0" (click)="page.set(page() - 1)">&lsaquo; Previous</button>
+      <span>Page {{ page() + 1 }} of {{ pages(d.total) }}</span>
+      <button type="button" class="btn-outline-151" [disabled]="(page() + 1) * pageSize >= d.total" (click)="page.set(page() + 1)">Next &rsaquo;</button>
+    </div>
+  }
+} @else if (error(); as msg) {
+  <div class="alert-151 error" role="alert">{{ msg }}</div>
+} @else {
+  <p class="status" aria-live="polite">Loading…</p>
+}

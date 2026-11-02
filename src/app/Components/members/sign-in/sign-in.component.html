@@ -1,0 +1,47 @@
+<div id="margintransition" class="m-page">
+  <div class="container m-narrow">
+    <img class="shield" src="assets/images/shield-history.png" alt="" width="96" height="101">
+    @if (mode() === 'sign-in') {
+      <h1>Member sign-in</h1>
+      <p class="muted">For Brothers of 1-5-1. Need an account? Contact <a href="mailto:info@brothersof1-5-1.org">info&#64;brothersof1-5-1.org</a>.</p>
+    } @else {
+      <h1>Reset your password</h1>
+      <p class="muted">Enter the email address on your member account and we'll send you a link to choose a new password.</p>
+    }
+
+    @if (notice()) { <div class="alert-151 ok" role="status">{{ notice() }}</div> }
+    @if (error()) {
+      <div class="alert-151 error" role="alert">
+        {{ error() }}
+        @if (adminSignInUrl(); as url) { <br><a [href]="url">Go to the admin sign-in page</a> }
+      </div>
+    }
+
+    @if (mode() === 'sign-in') {
+      <form (ngSubmit)="submit()" novalidate>
+        <label for="email">Email address</label>
+        <input id="email" name="email" type="email" autocomplete="username" [ngModel]="email()" (ngModelChange)="email.set($event)" required>
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" [ngModel]="password()" (ngModelChange)="password.set($event)" required>
+        <button type="submit" class="btn btn-primary-151 full mt-4" [disabled]="busy()">{{ busy() ? 'Signing in…' : 'Sign in' }}</button>
+      </form>
+      <p class="forgot"><button type="button" class="btn-link-151" (click)="showForgot()">Forgot your password?</button></p>
+
+      @if (providers().length) {
+        <div class="or"><span>or</span></div>
+        @for (p of providers(); track p.id) {
+          <button type="button" class="btn btn-outline-151 full provider" (click)="startProvider(p.id)">Sign in with {{ p.label }}</button>
+        }
+      }
+    } @else {
+      <form (ngSubmit)="sendReset()" novalidate>
+        <label for="reset-email">Email address</label>
+        <input id="reset-email" name="email" type="email" autocomplete="email" [ngModel]="email()" (ngModelChange)="email.set($event)" required>
+        <button type="submit" class="btn btn-primary-151 full mt-4" [disabled]="busy()">{{ busy() ? 'Sending…' : 'Send reset link' }}</button>
+      </form>
+      <p class="forgot"><button type="button" class="btn-link-151" (click)="showSignIn()">Back to sign-in</button></p>
+    }
+
+    <p class="muted small"><a routerLink="/">&lsaquo; Back to the website</a></p>
+  </div>
+</div>

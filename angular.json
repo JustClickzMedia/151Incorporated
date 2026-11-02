@@ -79,7 +79,8 @@
               "buildTarget": "brotherof151:build:production"
             },
             "development": {
-              "buildTarget": "brotherof151:build:development"
+              "buildTarget": "brotherof151:build:development",
+              "proxyConfig": "proxy.portal.json"
             }
           },
           "defaultConfiguration": "development"

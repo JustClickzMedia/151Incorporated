@@ -1,0 +1,21 @@
+<h1>Announcements</h1>
+@if (data(); as d) {
+  @for (a of d.nodes; track a.id) {
+    <article class="card-151">
+      <h3>{{ a.title }}@if (a.pinned) { <span class="badge-151">Pinned</span> }@if (a.chapter) { <span class="badge-151">{{ a.chapter.name }}</span> }</h3>
+      <div class="meta">{{ a.date | date: 'longDate' }}</div>
+      <div class="content" [innerHTML]="a.contentHtml"></div>
+    </article>
+  } @empty { <p class="muted">No announcements right now.</p> }
+  @if (d.total > pageSize) {
+    <div class="pager">
+      <button type="button" class="btn-outline-151" [disabled]="page() === 0" (click)="page.set(page() - 1)">&lsaquo; Newer</button>
+      <span>Page {{ page() + 1 }} of {{ pages(d.total) }}</span>
+      <button type="button" class="btn-outline-151" [disabled]="(page() + 1) * pageSize >= d.total" (click)="page.set(page() + 1)">Older &rsaquo;</button>
+    </div>
+  }
+} @else if (error(); as msg) {
+  <div class="alert-151 error" role="alert">{{ msg }}</div>
+} @else {
+  <p class="status" aria-live="polite">Loading…</p>
+}

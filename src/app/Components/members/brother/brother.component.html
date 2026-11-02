@@ -1,0 +1,19 @@
+<a class="back" routerLink="/members/directory">&lsaquo; Brother directory</a>
+@if (brother(); as b) {
+  <h1>{{ b.displayName }}</h1>
+  <p class="meta">{{ b.chapter?.name || 'Chapter not set' }}@if (b.joinedYear) { · {{ b.joinedYear }} }@if (b.isActive) { <span class="badge-151">Active</span> }</p>
+  <dl class="details">
+    @if (b.line) { <dt>Line</dt><dd>{{ b.line }}</dd> }
+    @if (b.classification) { <dt>Classification</dt><dd>{{ b.classification === 'LIFE_MEMBER' ? 'Life Member' : b.classification === 'HONORARY' ? 'Honorary' : 'Member' }}</dd> }
+    @if (b.email) { <dt>Email</dt><dd><a [href]="'mailto:' + b.email">{{ b.email }}</a></dd> }
+    @if (b.phone) { <dt>Phone</dt><dd><a [href]="'tel:' + b.phone">{{ b.phone }}</a></dd> }
+    @if (address()) { <dt>Address</dt><dd class="pre">{{ address() }}</dd> }
+  </dl>
+  @if (b.bio) { <h2>About</h2><p class="pre">{{ b.bio }}</p> }
+} @else if (error(); as msg) {
+  <div class="alert-151 error" role="alert">{{ msg }}</div>
+} @else if (ready()) {
+  <div class="alert-151 info">This brother isn't listed in the directory.</div>
+} @else {
+  <p class="status" aria-live="polite">Loading…</p>
+}
