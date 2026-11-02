@@ -233,7 +233,8 @@ The HostGator portal and cPanel need a login. **No credentials were entered**, s
 
 | Finding | Evidence | Risk | Recommendation | Status |
 |---|---|---|---|---|
-| No SMTP or transactional-email plugin. WordPress falls back to PHP `mail()` through the host. | Plugin list | **High** (resets and approvals may land in spam or fail) | Install a free SMTP plugin (FluentSMTP is free, or WP Mail SMTP Lite) with authenticated sending | Verified |
+| ~~No SMTP or transactional-email plugin.~~ **Fixed 2026-11-02:** FluentSMTP (free) sends through the HostGator mailbox `noreply@brothersof1-5-1.org` (SMTP SSL 465, email logging on). | Owner report; installed via the browser extension | Resolved | Keep the mailbox password only in FluentSMTP (or `wp-config.php`); review the email log after the first real notifications | Owner-reported |
+| SPF / DKIM / DMARC | SPF `v=spf1 ip4:50.6.160.128 a mx include:websitewelcome.com ~all`; DKIM `default._domainkey` present; **DMARC added 2026-11-02** `v=DMARC1; p=none; rua=mailto:noreply@brothersof1-5-1.org`. MX → `mail.brothersof1-5-1.org` (HostGator) | Public DNS (dns.google) | Low | Move DMARC to `p=quarantine` after a few weeks of clean reports | Verified |
 | SPF/DKIM/DMARC for `brothersof1-5-1.org` | Not inspected | — | Verify DNS before going live | Unverified |
 | Deliverability | No test email sent (needs approval) | — | Send one test after SMTP is set up | Unverified |
 

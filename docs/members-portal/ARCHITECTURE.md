@@ -1,6 +1,10 @@
 # Members-Only Portal — Architecture Design (Checkpoint 1)
 
 **Status:** design for approval. **No implementation code has been written.** Nothing has been changed in WordPress.
+**Decided 2026-11-02 (owner):** member events are a separate private type; directory shows name, chapter, year and an **Active** indicator by default, everything else opt-in; "active" will later also depend on dues (§3.1, §3.3, §6, §12 Q8–Q9).
+**Decided 2026-11-02 (owner):** classifications (Member, Life Member, Honorary), membership number format `151-NNNNN`, inactivity logout, 2FA for admins (§3.1, §4.3, §4.5, §12 Q3–Q6).
+**Decided 2026-11-02 (owner):** roles — all admin tiers built, one admin for now (the owner); more can be added later (§5, §12 Q2).
+**Approved 2026-11-02 (owner):** authentication = **WordPress cookie session**, signed in with **email + password** or **Sign in with Google / Microsoft** (server-side OAuth 2.0 Authorization Code + PKCE, OpenID Connect). All three end in the same WordPress session (§4, §4.4). Other §12 decisions are still open.
 **Date:** 2026-11-02 · **Branch:** `feature/members-portal`
 **Inputs read:** `docs/members-portal/WORDPRESS-AUDIT.md` (primary source; moved here from `docs/brothers-151-members-portal-readiness-audit.md`), `docs/security-architecture.md`, `docs/wordpress-operations.md`, `docs/graphql-contract.md`, `wordpress/mu-plugins/bo151-api-hardening.php`, the Angular source. There is **no `CLAUDE.md`** in the repository (noted; nothing to follow there).
 
@@ -48,7 +52,9 @@ wordpress/plugins/brothers-151-members/
     class-membership.php          status model, membership numbers, chapters, status transitions
     class-access.php              single place for "can this viewer see X" (capability + status + scope + visibility)
     class-backend-gate.php        blocks /wp-admin + admin bar for non-backend users; login/logout redirects
-    class-session-api.php         REST: login, logout, me, password reset/change (rate-limited)
+    class-session-api.php         REST: login, logout, me, password reset/change (rate-limited); inactivity timeout
+    class-two-factor-enforcement.php  requires 2FA (Two Factor plugin) for every backend-capable account
+    class-oauth.php               Sign in with Google / Microsoft (Authorization Code + PKCE, OIDC ID-token validation, account linking)
     class-rate-limiter.php        per-IP and per-username counters (transients)
     class-cors.php                credentialed CORS for the exact frontend origins (coordinates with the MU-plugin)
     class-cache-headers.php       private/no-store for authenticated requests and all member endpoints
@@ -83,8 +89,8 @@ All data lives in the existing WordPress database. **No second database.**
 |---|---|---|
 | WordPress user | `wp_users` | Identity, email, password hash, `display_name` |
 | `b151_status` | `pending` \| `active` \| `inactive` \| `suspended` | **Separate from role.** Default `pending`. Only `active` (or backend roles, see §5) passes member checks |
-| `b151_classification` | e.g. `member`, `life_member`, `honorary`, `candidate` | Owner to confirm the list (§12 Q3) |
-| `b151_membership_number` | string, unique, permanent | Format proposal `151-YYYY-NNNN`; assigned on admission; never reused; uniqueness enforced in code + a lookup index (see 3.4) |
+| `b151_classification` | `member` \| `life_member` \| `honorary` | **Decided:** all three. Classification is informational/administrative (shown in the roster; filterable); access is still decided by status + capabilities. Candidates use the separate `b151_candidate` role, not a classification |
+| `b151_membership_number` | string, unique, permanent | **Decided format: `151-NNNNN`** — a national sequence, zero-padded to 5 digits (`151-00001` … `151-99999`), enough for the current ~130 brothers with ample room; revisit only if the organisation approaches 100,000 members. Assigned on admission (next free number) or set once on import for existing brothers; never reused; uniqueness enforced in code + table (3.4) |
 | `b151_chapter_id` | int (post ID of `b151_chapter`) | Every user has one chapter |
 | `b151_approved_at`, `b151_approved_by` | datetime, user ID | Set on approval |
 | `b151_status_changed_at`, `b151_status_reason` | datetime, text | Last change; full history in the audit log |
@@ -94,7 +100,8 @@ All data lives in the existing WordPress database. **No second database.**
 | `b151_photo_id` | int (private resource) | Profile photo, stored privately (§3.3) — **not** the public Media Library |
 | `b151_bio` | text (optional) | |
 | Contact fields | `b151_phone`, `b151_address_*` | Personal data; never public |
-| `b151_visibility` | JSON map field → `members` \| `admins` | Directory sharing choices. **Default: everything except display name, chapter and year is `admins`** |
+| `b151_visibility` | JSON map field → `members` \| `admins` | Directory sharing choices. **Decided default:** display name, chapter, year (join/initiation year) and the **Active** indicator are visible to members; everything else (email, phone, address, bio, photo, line, classification) is `admins` until the brother opts in |
+| `b151_dues_status` *(later)* | `current` \| `lapsed` \| `exempt` + `b151_dues_paid_through` (date) | **Planned (owner, 2026-11-02): "active" will also depend on dues.** Not built now. When added, the directory's Active indicator = membership status `active` **and** dues `current`/`exempt` (Life Members and Honorary can be `exempt`). Whether lapsed dues also removes portal access is an open question (§12 Q10) |
 | `b151_profile_updated_at` | datetime | |
 | `b151_prospect_id` | int | Link to the New Prospects record it came from (§3.5) |
 
@@ -108,7 +115,7 @@ ACF PRO can render these fields in wp-admin (user-location field group), but **A
 
 | Type | Fields | Notes |
 |---|---|---|
-| `b151_member_event` | title, description, start, end, location, virtual meeting info (link/ID/passcode), visibility (`members` / `chapter` / `admins`), chapter (optional), status | **Separate from the public `events` type**, so private details can never leak through existing public queries, REST, feeds or sitemaps |
+| `b151_member_event` | title, description, start, end, location, virtual meeting info (link/ID/passcode), visibility (`members` / `chapter` / `admins`), chapter (optional), status | **Decided: separate private type**, apart from the public `events` type, so private details can never leak through existing public queries, REST, feeds or sitemaps. The public Events section and pages are unchanged |
 | `b151_announcement` | title, content, published, author, visibility, chapter (optional), expires_at | Separate from the public blog |
 | `b151_resource` | title, description, category, visibility, chapter (optional), private file reference (path, MIME, size, checksum, original name) | Files stored privately (§7) |
 
@@ -124,6 +131,21 @@ Rate-limit counters use transients (no table).
 ### 3.5 Prospects → candidates → members (audit §16.8)
 
 The existing `new-prospects` records stay the intake record. The workflow (Checkpoint 3 or later) links prospect ↔ user both ways and changes the **same** WordPress user from candidate to member on admission; membership number assigned then. Prerequisite: list the 9 prospect fields (audit §14 item 7) and remove `new-prospects` from public REST (§11).
+
+### 3.6 Dues-ready design (decisions deferred, no recoding later)
+
+The owner will decide the dues rules later (§12 Q10). To avoid recoding, Checkpoint 2 builds the **extension points only** — no dues screens, no payment processing:
+
+1. **One eligibility function.** Every "is this brother active / may he see member content?" check goes through a single policy in `class-access.php` (`b151_member_standing( $user_id )` → `{ is_active, has_member_access, reasons[] }`). The directory's Active indicator, resolvers and the login gate all call it. Changing the dues rules later changes this one policy (driven by settings), not dozens of checks.
+2. **Settings with safe defaults** (Members → Settings, off until decided):
+   - *Dues affect:* `nothing` (default, today's behaviour) · `active indicator only` (option a: keeps access, shows not active) · `indicator and member content` (option b: loses member content until paid; profile, password, logout and "pay dues" stay available).
+   - *Exempt classifications:* checkboxes for Life Member and Honorary (default unchecked until decided).
+   - *Grace period* after the paid-through date (default 0 days).
+3. **Data fields reserved now:** `b151_dues_status` (`current` / `lapsed` / `exempt`), `b151_dues_paid_through` (date) and a `dues_payments` record shape (amount, date, period, **source** `manual` | `square`, reference, recorded_by). Stored but unused until the dues phase.
+4. **Payment source is a field**, so manual recording (admin form) and automatic recording (Square webhook later, matched by email/membership number) use the same records; adding Square later is new input code, not a data change.
+5. **Audit log** already records status changes, so dues-driven changes will be logged the same way.
+
+Deciding later then means: choose the settings, and build the payment-recording screen (manual) and/or the Square connection — without changing the access checks, directory, resolvers or data model.
 
 ---
 
@@ -155,11 +177,11 @@ No custom cryptography: login uses `wp_signon()`; sessions use WordPress auth co
 
 Why session endpoints are REST rather than GraphQL mutations: precise control of cookies, status codes, rate limiting and `no-store` headers, and the login call can't carry a nonce yet. All **member data** operations are GraphQL (§6). `currentMember` and `sessionStatus` are also offered in GraphQL for convenience.
 
-### 4.3 Protections
+### 4.3 Protections (apply to every sign-in method)
 
 | Requirement | Design |
 |---|---|
-| Session expiry | `auth_cookie_expiration` filter: 12 hours (proposal; "remember me" off for members by default) |
+| Session expiry | **Decided: inactivity logout.** Each session token stores `b151_last_activity`; every authenticated request checks it. If idle longer than the limit, the session is destroyed and the request is treated as logged out. Activity updates are written at most once every 5 minutes. Defaults (configurable in Members → Settings): **30 minutes idle** for members, **15 minutes idle** for backend-capable accounts, plus an absolute maximum of **12 hours** per session (`auth_cookie_expiration`). No "remember me". Angular shows a "You'll be signed out in 2 minutes — Stay signed in" prompt; only real user activity (clicks, typing, navigation) keeps the session alive, not background polling |
 | Revocation after suspension | Status change → `destroy_all()`; every resolver re-checks status, so access ends on the next request even if a cookie survives |
 | Rate limiting | Per IP and per username: e.g. 5 failures / 15 min → 15-min lock; exponential back-off; also applied to reset requests. Counters store hashes, not raw IPs |
 | Account enumeration | Same message and timing for unknown user, wrong password, pending, suspended; reset always "If an account exists…" |
@@ -167,8 +189,63 @@ Why session endpoints are REST rather than GraphQL mutations: precise control of
 | CORS | Exact origins only, `Access-Control-Allow-Credentials: true` only for those, `Allow-Headers` incl. `X-WP-Nonce`, `Vary: Origin`; never `*` |
 | Cookies | WordPress sets `Secure` + `HttpOnly`; SameSite default (Lax) is correct for same-site use. `COOKIE_DOMAIN` stays unset (cookies only for `tzin…`) |
 | Other login paths | Disable `xmlrpc.php`; turn off Simple-JWT-Login `/auth` (or remove the plugin) once cookie login works — **approval needed** |
-| 2FA | Required for backend-capable accounts (free 2FA plugin or TOTP in the plugin — decision §12 Q6) |
+| 2FA | **Decided: required for every backend-capable account** (§4.5) |
 | Backend gate | Users without `b151_backend_access` are redirected from `/wp-admin` (except `admin-ajax.php`/`admin-post.php`), admin bar hidden, `login_redirect`/`logout_redirect` → public site |
+
+### 4.4 Sign in with Google / Microsoft (approved)
+
+Social sign-in only proves **who** someone is. Whether he gets in is still decided by WordPress: linked member, status `active`, capabilities. It never creates accounts.
+
+**Standard used:** OAuth 2.0 **Authorization Code flow with PKCE** + **OpenID Connect**, handled entirely by WordPress (server side). Client secrets never reach the browser. No custom cryptography: the ID token is validated with a maintained library (e.g. `firebase/php-jwt` against the provider's published keys, or the provider's official PHP client), bundled in the plugin's `vendor/` (HostGator has no Composer).
+
+**Flow:**
+
+1. Angular login page → button **Sign in with Google** / **Sign in with Microsoft** → `GET https://tzin.brothersof1-5-1.org/wp-json/b151/v1/oauth/{provider}/start?return=/members`.
+2. WordPress creates `state`, `nonce` and a PKCE `code_verifier` (stored server-side in a short-lived transient keyed by a random, HttpOnly, Secure, SameSite=Lax cookie), validates `return` against an allow-list of member-area paths, and redirects to the provider's authorization page with `scope=openid email profile`.
+3. The provider redirects back to `…/wp-json/b151/v1/oauth/{provider}/callback?code=…&state=…`.
+4. WordPress checks `state`, exchanges `code` + `code_verifier` (+ client secret) **server-to-server**, validates the ID token: signature (provider keys), `iss`, `aud` = our client ID, `exp`/`iat`, `nonce`, and `email_verified` (Google; for Microsoft use the verified-email claim rules for personal vs. work accounts).
+5. **Find the member:**
+   - Already linked → user with meta `b151_oauth_google_sub` / `b151_oauth_microsoft_oid` (+ `tid`) equal to the token's subject.
+   - Not linked yet → a user whose WordPress email **exactly matches** the provider's **verified** email → link it (store the subject) and audit-log "linked Google/Microsoft".
+   - No match → generic "This account isn't registered with 1-5-1" page; **no account created**.
+6. Apply the same gate as password login (status `active`, rate limits), then `wp_set_auth_cookie()` → redirect to `https://brothersof1-5-1.org/<return>`. Angular then calls `GET /session` to get the nonce, exactly as after a password login.
+
+**Rules:**
+
+- **Member area only.** Accounts with `b151_backend_access` (portal/membership/content admins, WP administrators) may use social sign-in for the member area, but `/wp-admin` still requires WordPress password + 2FA (`wp-login.php`). The provider's own 2FA can't be verified.
+- **Linking/unlinking** from the member's profile (`myMemberProfile` shows linked providers; `unlinkSignInProvider(provider)` mutation, requires a recent password or social re-authentication). Admins can unlink in wp-admin.
+- **Email changes:** after linking, the provider subject is used, so a changed email doesn't break sign-in and can't be used to take over another account.
+- **Password stays available** for every member; social sign-in is optional.
+- Suspension destroys sessions as usual; a suspended member's Google/Microsoft sign-in is refused at step 6.
+
+**Provider setup (free; owner action, with guidance):**
+
+| Provider | Where | Settings |
+|---|---|---|
+| Google | Google Cloud Console → APIs & Services → OAuth consent screen + Credentials → OAuth client ID (Web) | Consent screen: External, app name "Brothers of 1-5-1", scopes `openid email profile` only (no Google verification review needed). Authorized redirect URIs: `https://tzin.brothersof1-5-1.org/wp-json/b151/v1/oauth/google/callback` and the staging equivalent |
+| Microsoft | Microsoft Entra admin center → App registrations → New registration | Supported account types: **personal Microsoft accounts and any organization** (`common`). Redirect URI (Web) as above with `/microsoft/callback`. Client secret with a calendar reminder before it expires |
+
+Client IDs and secrets go in `wp-config.php` constants (`B151_GOOGLE_CLIENT_ID`, `B151_GOOGLE_CLIENT_SECRET`, `B151_MICROSOFT_CLIENT_ID`, `B151_MICROSOFT_CLIENT_SECRET`), **never** in the repo, the database options UI or Angular.
+
+**Hosting check (staging):** WordPress must be able to make outbound HTTPS requests to `oauth2.googleapis.com`, `www.googleapis.com` and `login.microsoftonline.com`. Usually allowed on HostGator; verified on staging before relying on it.
+
+**Additional tests** (added to §10): invalid/missing `state`; replayed `code`; wrong `aud`/`iss`; expired token; unverified email; unknown account (no account created); pending/suspended member refused; first-login linking by verified email; subject-based login after an email change; `return` parameter can't redirect off-site; backend-capable account still can't open `/wp-admin` without password + 2FA.
+
+**Later (optional, same design):** Facebook, Apple ($99/year), passkeys.
+
+**Tests added for these decisions:** idle session expires after the limit (member 30 min, backend 15 min) and is destroyed server-side; activity within the limit keeps it alive; absolute 12 h maximum; backend-capable account without 2FA can't reach any `/wp-admin` page except 2FA enrolment; backend login requires the second step; member (no backend access) never prompted for 2FA; membership numbers are `151-NNNNN`, sequential, unique, never reused; classification values limited to member / life_member / honorary.
+
+### 4.5 Two-step login (2FA) for admins (decided)
+
+- **Who:** every account with `b151_backend_access` (WP Administrator, Portal/Membership/Content Admins, later Dean). Members: not required (can be offered later).
+- **How:** the free, well-maintained **Two Factor** plugin (wordpress.org/plugins/two-factor, maintained by WordPress core contributors) provides the second step on `wp-login.php`: **authenticator app codes (TOTP)** as the main method, **backup codes** for recovery, and email codes as a fallback. Using an established component avoids writing custom authentication/crypto code.
+- **Enforcement (in this plugin, `class-two-factor-enforcement.php`):** the Two Factor plugin makes 2FA optional; the portal plugin makes it **mandatory** for backend-capable accounts:
+  - A backend-capable user without 2FA set up can only reach their own profile screen to enrol; every other `/wp-admin` page redirects there with a notice.
+  - Granting a backend role to someone puts them in this "enrol first" state.
+  - Social sign-in (Google/Microsoft) never opens `/wp-admin`; backend access always goes through password + 2FA.
+  - Disabling 2FA on a backend account is blocked (only a WP Administrator can reset another user's 2FA, audit-logged).
+- **Recovery:** each admin stores their backup codes safely. If the only administrator loses their device and codes, recovery is via cPanel/database (documented in DEPLOYMENT.md) — so the owner should keep backup codes offline.
+- **Fallback if the plugin is unsuitable** (found during staging): TOTP built into the portal plugin using a maintained RFC 6238 library (e.g. `spomky-labs/otphp`), same enforcement rules.
 
 ---
 
@@ -202,6 +279,7 @@ Rules:
 - **Member-content checks = capability AND status `active`.** Backend roles (Membership/Content/Portal Admin, WP Administrator, Dean) are treated as active for viewing member content, but their own `b151_status` is still recorded.
 - Role names: `b151_member`, `b151_membership_admin`, `b151_content_admin`, `b151_portal_admin`, later `b151_candidate`, `b151_dean`, optional `b151_chapter_admin` (chapter-scoped variants of membership capabilities).
 - Only WP Administrators can assign any role with `b151_backend_access`; every grant/removal is audit-logged.
+- **Initial assignment (owner decision 2026-11-02):** one admin only, the owner's existing WP Administrator account. Membership Admin, Content Admin and Portal Admin roles are created by the plugin but left empty until the owner adds people.
 - Ordinary members never receive any core editing capability.
 
 ---
@@ -218,7 +296,7 @@ All new fields are registered with `register_graphql_object_type`, `register_gra
 | `sessionStatus` | query | anyone | `{ authenticated, expiresAt }`; no personal data |
 | `myMemberProfile` | query | `b151_edit_own_profile` | Full own profile incl. own contact data and visibility settings |
 | `updateMyMemberProfile` | mutation | `b151_edit_own_profile` | **Allow-list** of editable fields (display name, bio, phone, address, visibility, photo); status, number, chapter, role are never editable here |
-| `memberDirectory(first, after, search, chapterId)` | connection | `b151_view_directory` + active | Active members only; max 25 per page; search ≥ 2 chars; fields filtered by each member's visibility; per-user rate limit |
+| `memberDirectory(first, after, search, chapterId)` | connection | `b151_view_directory` + active | Lists brothers with portal accounts (not pending/suspended); each entry shows display name, chapter, year and **`isActive`** (today: membership status `active`; later: also dues current, §3.1), plus any fields the brother opted in to; max 25 per page; search ≥ 2 chars; per-user rate limit |
 | `memberProfile(id)` | query | `b151_view_directory` + active | Same visibility rules as the directory; no email unless shared |
 | `pendingMembers(first, after)` | connection | `b151_approve_members` | |
 | `approveMember(userId, classification?)` | mutation | `b151_approve_members` | pending → active; assigns membership number if missing; email; audit |
@@ -304,15 +382,16 @@ Required configuration changes (each needs approval): SMTP (FluentSMTP / WP Mail
 
 ## 12. Decisions needed before Checkpoint 2
 
-1. **Approve the authentication design** (§4): WordPress cookie sessions via `b151/v1/session` REST + nonce; Simple-JWT-Login `/auth` turned off afterwards.
-2. **Roles** (§5): the four backend tiers (Membership Admin, Content Admin, Portal Admin, WP Administrator) — or merge Membership/Content Admin into Portal Admin only? And who are the first portal admins?
-3. **Classifications**: list (e.g. member, life member, honorary)?
-4. **Membership number format**: `151-YYYY-NNNN`? Do existing brothers already have numbers to import?
-5. **Session length** for members (proposal 12 h) and whether "remember me" is allowed.
-6. **2FA**: free plugin (e.g. "Two Factor") vs. TOTP built into this plugin.
-7. **Email sender** (e.g. `portal@brothersof1-5-1.org`) and SMTP choice (free options in audit §9).
-8. **Member events**: separate private type (recommended) vs. a visibility flag on the existing public `events` type.
-9. **Directory defaults**: confirm that only display name, chapter and year are visible to other members unless a brother opts in.
+1. ~~**Approve the authentication design** (§4)~~ **Approved 2026-11-02:** WordPress cookie session with email + password, Sign in with Google and Sign in with Microsoft (§4.4). Simple-JWT-Login `/auth` turned off once this works (separate approval at deployment).
+2. ~~**Roles** (§5)~~ **Decided 2026-11-02:** build **all** tiers (Membership Admin, Content Admin, Portal Admin = both, WP Administrator) so more people can be added later without code changes. **For now there is one admin: the owner (Kenneth), using his existing WordPress Administrator account**, which receives every `b151_*` capability. Other roles stay unassigned until needed; adding someone later = WP Administrator assigns the role in wp-admin → Users (audit-logged; 2FA required for any backend-capable account).
+3. ~~**Classifications**~~ **Decided:** Member, Life Member, Honorary (all three).
+4. ~~**Membership number format**~~ **Decided:** `151-NNNNN` (5-digit national sequence; ~130 members today; revisit near 100,000). **Still open:** do existing brothers already have numbers to keep, or should the import assign `151-00001`… in roster order?
+5. ~~**Session length**~~ **Decided:** log out after inactivity — 30 min members, 15 min backend accounts, 12 h absolute maximum, no "remember me" (all configurable).
+6. ~~**2FA**~~ **Decided:** required for every backend-capable account, using the free Two Factor plugin with enforcement in the portal plugin (§4.5).
+7. ~~**Email sender**~~ **Done 2026-11-02:** WordPress now sends through the HostGator mailbox `noreply@brothersof1-5-1.org` with the free **FluentSMTP** plugin (SMTP over SSL, port 465, From forced to `noreply@brothersof1-5-1.org` / "Brothers of 1-5-1", email logging on). DNS: SPF and DKIM already existed; **DMARC added** (`v=DMARC1; p=none; rua=mailto:noreply@brothersof1-5-1.org`, verified in public DNS). The portal's notification module uses `wp_mail()`, so it goes through this automatically. Watch: HostGator's hourly sending limit (fine for transactional mail, not for bulk mailings).
+8. ~~**Member events**~~ **Decided:** separate private type `b151_member_event` (recommended option).
+9. ~~**Directory defaults**~~ **Decided:** name, chapter, year and an **Active** indicator shown by default; everything else only if the brother opts in.
+10. **Deferred by the owner (2026-11-02): dues rules.** Decided later: (a) does a lapsed-dues brother keep portal access but show as not active, or lose member content until he pays; (b) who records payments (admin by hand, or automatically from the Pay Dues Square checkout); (c) are Life Members and Honorary exempt. **The design keeps all three as settings, not code (§3.6), so deciding later doesn't require recoding.**
 
 ## 13. Security risks (to resolve in the phases shown)
 
@@ -332,7 +411,7 @@ Required configuration changes (each needs approval): SMTP (FluentSMTP / WP Mail
 
 | Checkpoint | Scope | Rough size |
 |---|---|---|
-| 2 — Core backend | Plugin skeleton, roles/caps, status model, chapters, membership numbers, backend gate, session REST API (login/logout/me/reset/change), rate limiter, CORS/no-store headers, approval/suspend mutations, `currentMember`/`sessionStatus`/`myMemberProfile`/`updateMyMemberProfile`/`pendingMembers`, audit log, PHPUnit suite + staging smoke tests | Largest phase |
+| 2 — Core backend | Plugin skeleton, roles/caps, status model, chapters, membership numbers, backend gate, session REST API (login/logout/me/reset/change), Sign in with Google/Microsoft (§4.4), rate limiter, CORS/no-store headers, approval/suspend mutations, `currentMember`/`sessionStatus`/`myMemberProfile`/`updateMyMemberProfile`/`pendingMembers`, audit log, PHPUnit suite + staging smoke tests | Largest phase |
 | 3 — Member features | Directory + `verifyMember`, private member events, announcements, protected resources (if private storage verified), wp-admin screens, email notifications, roster export | Medium–large |
 | 4 — Deployment prep | Plugin zip, HostGator steps, config checklist, backup/rollback, Angular integration guide (`ANGULAR-INTEGRATION.md`) | Small |
 | Later (audit §16) | Prospect → candidate → member workflow, history archive + founders' interviews, education modules (Dean, intake classes, tests) | Separate approvals |
