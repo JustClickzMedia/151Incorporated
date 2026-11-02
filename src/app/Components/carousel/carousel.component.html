@@ -19,7 +19,7 @@
           <div class="carousel-caption d-md-block">
             <h1>{{ slide.title }}</h1>
             @if (linkFor(slide); as link) {
-              <a class="nav-item btn btn-outline-light btn-lg mt-3 mb-3" [title]="slide.title" [routerLink]="['/pg', link.slug]">{{ link.label }}</a>
+              <a class="nav-item btn btn-outline-light btn-lg mt-3 mb-3" [title]="slide.title" [routerLink]="['/', link.slug]">{{ link.label }}</a>
             }
           </div>
         </div>
@@ -37,21 +37,21 @@
         <img src="https://tzin.brothersof1-5-1.org/wp-content/uploads/2024/04/bismarck1296x624.png" alt="The Brothers of 1-5-1 at the Bismarck Hotel"/>
         <div class="carousel-caption d-md-block">
           <h1>THE BROTHERS OF 1-5-1</h1>
-          <a title="Brotherhood History" routerLink="/pg/about-1-5-1" class="nav-item btn btn-outline-light btn-lg mt-3 mb-3">Learn About 1-5-1</a>
+          <a title="Brotherhood History" routerLink="/about-1-5-1" class="nav-item btn btn-outline-light btn-lg mt-3 mb-3">Learn About 1-5-1</a>
         </div>
       </div>
       <div class="carousel-item">
         <img src="../../assets/images/32Years1296.png" alt="Scholarship" loading="lazy"/>
         <div class="carousel-caption d-md-block">
           <h1>The Michael J. Bryant Memorial Scholarship</h1>
-          <a title="Scholarship" routerLink="/pg/scholarship" class="nav-item btn btn-outline-light btn-lg mt-3 mb-3">Learn About Our Scholarship</a>
+          <a title="Scholarship" routerLink="/scholarship" class="nav-item btn btn-outline-light btn-lg mt-3 mb-3">Learn About Our Scholarship</a>
         </div>
       </div>
       <div class="carousel-item">
         <img src="../../assets/images/brotherhood1296.png" alt="Membership" loading="lazy"/>
         <div class="carousel-caption d-md-block">
           <h1>MEMBERSHIP REQUIREMENTS</h1>
-          <a title="Membership" routerLink="/pg/membership" class="nav-item btn btn-outline-light btn-lg mt-3 mb-3">Learn About Membership</a>
+          <a title="Membership" routerLink="/membership" class="nav-item btn btn-outline-light btn-lg mt-3 mb-3">Learn About Membership</a>
         </div>
       </div>
     </div>

@@ -44,7 +44,11 @@ export class NavbarComponent implements OnInit {
   readonly membershipOpen = signal(false);
   private readonly currentUrl = signal(this.router.url);
   /** Highlight MEMBERSHIP while the Membership page is open. */
-  readonly membershipActive = computed(() => this.currentUrl().startsWith('/pg/membership'));
+  readonly membershipActive = computed(() => this.currentUrl().startsWith('/membership'));
+  /** The Update dropdown (Events, Blog). */
+  readonly updateOpen = signal(false);
+  /** Highlight UPDATE on the events and blog pages (lists and single event/post pages). */
+  readonly updateActive = computed(() => /^\/(events?|blog)(\/|$|\?)/.test(this.currentUrl()));
   /** WordPress pages for the menu, without Membership (it is the dropdown at the end). */
   readonly pageMenu = computed(() => this.NavMenu().filter(p => p.slug !== MEMBERSHIP_SLUG));
 
@@ -69,19 +73,28 @@ export class NavbarComponent implements OnInit {
 
   toggleMembership(event: Event) {
     event.stopPropagation();
+    this.updateOpen.set(false);
     this.membershipOpen.update(open => !open);
   }
 
-  /** Close the Membership dropdown when clicking anywhere else, or pressing Escape. */
+  toggleUpdate(event: Event) {
+    event.stopPropagation();
+    this.membershipOpen.set(false);
+    this.updateOpen.update(open => !open);
+  }
+
+  /** Close the dropdowns when clicking anywhere else, or pressing Escape. */
   @HostListener('document:click')
   closeMembership() {
     this.membershipOpen.set(false);
+    this.updateOpen.set(false);
   }
 
   /** Escape closes the dropdown and the Pay Dues pop-up. */
   @HostListener('document:keydown.escape')
   onEscape() {
     this.membershipOpen.set(false);
+    this.updateOpen.set(false);
     this.closePayDues();
   }
 
@@ -108,6 +121,7 @@ export class NavbarComponent implements OnInit {
   closeNavbar() {
     this.navbarOpen.set(false);
     this.membershipOpen.set(false);
+    this.updateOpen.set(false);
   }
 
   @HostListener('document:scroll')

@@ -1,7 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
+import { Component } from '@angular/core';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { FooterComponent } from './footer.component';
+
+@Component({ template: '' }) class Blank {}
 
 describe('FooterComponent', () => {
   let fixture: ComponentFixture<FooterComponent>;
@@ -10,10 +15,26 @@ describe('FooterComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [FooterComponent],
-      providers: [provideRouter([])],
+      providers: [provideRouter([{ path: '', component: Blank }, { path: ':slug', component: Blank }]), provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
     fixture = TestBed.createComponent(FooterComponent);
     fixture.detectChanges();
+  });
+
+  it('shows Upcoming Events right under the motto band, then the blog carousel, on the homepage only', async () => {
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/');
+    fixture.detectChanges();
+    const events = el().querySelector('app-events');
+    expect(events).not.toBeNull();
+    expect(events!.previousElementSibling?.classList).toContain('motto');
+    expect(events!.nextElementSibling?.tagName.toLowerCase()).toBe('app-blog-carousel');
+    expect(events!.nextElementSibling!.nextElementSibling?.classList).toContain('footer-columns');
+
+    await router.navigateByUrl('/membership');
+    fixture.detectChanges();
+    expect(el().querySelector('app-events')).toBeNull();
+    expect(el().querySelector('app-blog-carousel')).toBeNull();
   });
 
   it('keeps the motto band', () => {
@@ -30,7 +51,7 @@ describe('FooterComponent', () => {
 
   it('quick links go to the slug pages', () => {
     const hrefs = Array.from(el().querySelectorAll('.quick-links a')).map(a => a.getAttribute('href'));
-    expect(hrefs).toEqual(['/', '/pg/about-1-5-1', '/pg/membership', '/pg/scholarship', '/pg/foundation', '/pg/president']);
+    expect(hrefs).toEqual(['/', '/about-1-5-1', '/membership', '/scholarship', '/foundation', '/president']);
   });
 
   it('social links are real links that open safely in a new tab', () => {
@@ -74,5 +95,14 @@ describe('FooterComponent', () => {
     expect(getComputedStyle(root.querySelector('h5')!).fontFamily).toContain('Work Sans');
     expect(getComputedStyle(root.querySelector('footer.footer')!).backgroundColor).toBe('rgb(103, 0, 1)');
     root.remove();
+  });
+
+  it('Contact Us shows only info@brothersof1-5-1.org (no P.O. Box), and the email icon uses the same address', () => {
+    const contact = Array.from(el().querySelectorAll('.footer-columns .row > div')).find(c => c.querySelector('h5')?.textContent === 'Contact Us')!;
+    expect(contact.textContent).toContain('info@brothersof1-5-1.org');
+    expect(contact.textContent).not.toContain('P.O. Box');
+    expect(contact.textContent).not.toContain('Hampton, VA');
+    const mailtos = Array.from(el().querySelectorAll('a[href^="mailto:"]')).map(a => a.getAttribute('href'));
+    expect(mailtos).toEqual(['mailto:info@brothersof1-5-1.org', 'mailto:info@brothersof1-5-1.org']);
   });
 });

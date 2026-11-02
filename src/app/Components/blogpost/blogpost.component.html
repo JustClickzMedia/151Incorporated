@@ -1,0 +1,23 @@
+<div id="margintransition" class="post-page">
+  @if (post(); as p) {
+    <article class="container">
+      <a class="back" routerLink="/blog">&lsaquo; Back to Blog</a>
+      <h1 [innerHTML]="p.title"></h1>
+      <p class="meta">{{ dateLabel() }}@if (p.categories.length) { · {{ p.categories.join(', ') }} }</p>
+      @if (p.image; as img) {
+        <img class="feature" [src]="img.url" [alt]="img.alt" [attr.width]="img.width ?? null" [attr.height]="img.height ?? null"/>
+      }
+      <div class="content" [innerHTML]="p.contentHtml"></div>
+      <a class="back bottom" routerLink="/blog">&lsaquo; All Blog Posts</a>
+    </article>
+  } @else if (notFound()) {
+    <app-pagenotfound></app-pagenotfound>
+  } @else if (failed()) {
+    <div class="container status">
+      <p>Sorry, this post couldn't be loaded right now. Please try again in a moment.</p>
+      <a class="back" routerLink="/blog">&lsaquo; Back to Blog</a>
+    </div>
+  } @else if (loading()) {
+    <div class="container status" aria-live="polite"><p>Loading post…</p></div>
+  }
+</div>

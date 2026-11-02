@@ -1,0 +1,43 @@
+<!-- Hidden entirely when there are no blog posts -->
+@if (posts().length) {
+  <section class="blog" aria-labelledby="blog-title">
+    <div class="container">
+      <div class="blog-head">
+        <h2 id="blog-title">From the Blog</h2>
+        <a class="all-link" routerLink="/blog">View All Posts &rsaquo;</a>
+      </div>
+
+      <div class="carousel-wrap">
+        @if (canPrev() || canNext()) {
+          <button type="button" class="arrow prev" aria-label="Previous posts" [disabled]="!canPrev()" (click)="scroll(-1)">
+            <i class="bi bi-chevron-left" aria-hidden="true"></i>
+          </button>
+        }
+        <ul class="track" #track (scroll)="updateArrows()" (window:resize)="updateArrows()">
+          @for (post of posts(); track post.id) {
+            <li class="slide">
+              <a class="tile" [routerLink]="['/blog', post.slug]">
+                @if (post.image; as img) {
+                  <img class="tile-img" [src]="img.url" [alt]="img.alt" loading="lazy"/>
+                } @else {
+                  <span class="tile-img tile-placeholder" aria-hidden="true"><i class="bi bi-journal-text"></i></span>
+                }
+                <span class="tile-body">
+                  <span class="date">{{ dateLabel(post) }}</span>
+                  <span class="title" [innerHTML]="post.title"></span>
+                  <span class="excerpt" [innerHTML]="post.excerptHtml"></span>
+                  <span class="more">Read More &rsaquo;</span>
+                </span>
+              </a>
+            </li>
+          }
+        </ul>
+        @if (canPrev() || canNext()) {
+          <button type="button" class="arrow next" aria-label="More posts" [disabled]="!canNext()" (click)="scroll(1)">
+            <i class="bi bi-chevron-right" aria-hidden="true"></i>
+          </button>
+        }
+      </div>
+    </div>
+  </section>
+}

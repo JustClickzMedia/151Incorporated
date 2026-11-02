@@ -1,0 +1,73 @@
+<div id="margintransition" class="events-page">
+  <div class="container">
+    <div class="page-head">
+      <h1>Events</h1>
+      @if (events().length) {
+        <div class="btn-group view-toggle" role="group" aria-label="Show events as">
+          <button type="button" class="btn" [class.active]="view() === 'list'" [attr.aria-pressed]="view() === 'list'"
+                  (click)="setView('list')"><i class="bi bi-list-ul" aria-hidden="true"></i> List</button>
+          <button type="button" class="btn" [class.active]="view() === 'grid'" [attr.aria-pressed]="view() === 'grid'"
+                  (click)="setView('grid')"><i class="bi bi-grid-3x3-gap" aria-hidden="true"></i> Grid</button>
+        </div>
+      }
+    </div>
+
+    @if (loading()) {
+      <p class="status" aria-live="polite">Loading events…</p>
+    } @else if (failed()) {
+      <p class="status">Sorry, events couldn't be loaded right now. Please try again in a moment.</p>
+    } @else if (empty()) {
+      <div class="no-events">
+        <i class="bi bi-calendar-x" aria-hidden="true"></i>
+        <h2>There are no new events at this time.</h2>
+        <p>Please check back soon for upcoming 1-5-1 events.</p>
+      </div>
+    } @else if (view() === 'list') {
+      <!-- List view: one row per event; the whole row opens the event -->
+      <ul class="event-rows">
+        @for (ev of events(); track ev.id) {
+          <li>
+            <a class="event-row" [routerLink]="['/event', ev.slug]">
+              @if (ev.image; as img) {
+                <img class="row-img" [src]="img.url" [alt]="img.alt" loading="lazy"/>
+              } @else if (badge(ev); as b) {
+                <span class="row-img row-badge" aria-hidden="true"><span class="m">{{ b.month }}</span><span class="d">{{ b.day }}</span></span>
+              } @else {
+                <span class="row-img row-badge" aria-hidden="true"><i class="bi bi-calendar-event"></i></span>
+              }
+              <span class="row-text">
+                <span class="title">{{ ev.title }}</span>
+                @if (dateLabel(ev) || ev.location) {
+                  <span class="meta">{{ dateLabel(ev) }}@if (ev.time) { · {{ ev.time }} }@if (dateLabel(ev) && ev.location) { · }{{ ev.location }}</span>
+                }
+                <span class="summary">{{ ev.summary }}</span>
+                <span class="more">Event Details &rsaquo;</span>
+              </span>
+            </a>
+          </li>
+        }
+      </ul>
+    } @else {
+      <!-- Grid view: cards; the whole card opens the event -->
+      <div class="row g-4 event-grid">
+        @for (ev of events(); track ev.id) {
+          <div class="col-12 col-md-6 col-lg-4">
+            <a class="event-card" [routerLink]="['/event', ev.slug]">
+              @if (ev.image; as img) {
+                <img class="card-img" [src]="img.url" [alt]="img.alt" loading="lazy"/>
+              } @else {
+                <span class="card-img card-placeholder" aria-hidden="true"><i class="bi bi-calendar-event"></i></span>
+              }
+              <span class="card-text">
+                @if (dateLabel(ev); as when) { <span class="meta">{{ when }}</span> }
+                <span class="title">{{ ev.title }}</span>
+                @if (ev.location) { <span class="meta">{{ ev.location }}</span> }
+                <span class="more">Event Details &rsaquo;</span>
+              </span>
+            </a>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

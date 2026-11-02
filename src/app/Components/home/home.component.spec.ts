@@ -27,7 +27,7 @@ describe('HomeComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('shows the carousel, then Our History, then the God Before All section', () => {
+  it('shows the carousel, then Our History, then the God Before All section (Upcoming Events is in the footer, under the motto)', () => {
     const order = Array.from((fixture.nativeElement as HTMLElement).children).map(c => c.tagName.toLowerCase());
     expect(order).toEqual(['app-carousel', 'app-history', 'app-presidents']);
   });

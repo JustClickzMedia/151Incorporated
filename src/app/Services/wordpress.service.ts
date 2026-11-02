@@ -1,10 +1,13 @@
-import { Injectable, InjectionToken, inject } from '@angular/core';
+import { Injectable, InjectionToken, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformServer } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { map, shareReplay } from 'rxjs/operators';
+import { Observable, of, throwError } from 'rxjs';
+import { catchError, map, shareReplay } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { GraphqlService } from './graphql.service';
-import { HOMEPAGE_CAROUSELS, PAGE_BY_SLUG, PAGES } from './wp-queries';
+import { GraphqlError, GraphqlService } from './graphql.service';
+import { BLOG_POSTS, BLOG_POST_BY_SLUG, EVENTS, EVENTS_BASIC, EVENT_BY_SLUG, EVENT_BY_SLUG_BASIC, HOMEPAGE_CAROUSELS, PAGE_BY_SLUG, PAGES } from './wp-queries';
+import { GqlEvent, WpEvent, eventFromGraphql } from '../Model/wp-event';
+import { GqlPost, WpPost, postFromGraphql } from '../Model/wp-post';
 import { GqlPage, WpPage, WpPageLink, pageFromGraphql, pageFromRest } from '../Model/wp-page';
 import { CarouselSlide, GqlHomepageCarousel, slideFromGraphql } from '../Model/carousel-slide';
 
@@ -24,6 +27,7 @@ export class WordpressService {
   private http = inject(HttpClient);
   private gql = inject(GraphqlService);
   private useGraphql = inject(USE_GRAPHQL);
+  private isServer = isPlatformServer(inject(PLATFORM_ID));
 
 
   // REST base comes from environment.ts / environment.prod.ts (kept until GraphQL replacements are verified)
@@ -83,7 +87,7 @@ export class WordpressService {
 
   /**
    * Slug of the page with this WordPress ID (REST: pages/<id>?_fields=slug). Used only to redirect
-   * old /pg/<id>/<title> links. Errors (e.g. 404 rest_post_invalid_id for page 13) are passed on.
+   * old /pg/<id>/<title> links (redirected to /<slug>). Errors (e.g. 404 rest_post_invalid_id for page 13) are passed on.
    */
   getPageSlugById(id: number): Observable<string | undefined> {
     return this.http.get<{ slug?: string }>(this.baseUrl + 'pages/' + id, { params: { _fields: 'slug' } })
@@ -111,6 +115,64 @@ export class WordpressService {
         shareReplay({ bufferSize: 1, refCount: false })
       );
     return this.carousel$;
+  }
+
+  /**
+   * Published events (newest first from WordPress; the homepage decides which are current).
+   * Never fetched while prerendering: the homepage is prerendered at build time, and events must reflect
+   * WordPress (and today's date) when the visitor opens the page, not when the site was built.
+   * Emits [] when GraphQL is off. Retries without the optional ACF eventDetails group if it doesn't exist yet.
+   */
+  getEvents(): Observable<WpEvent[]> {
+    if (!this.useGraphql || this.isServer) {
+      return of([]);
+    }
+    type Res = { events: { nodes: GqlEvent[] } | null };
+    return this.withBasicFallback(
+      this.gql.query<Res>(EVENTS),
+      () => this.gql.query<Res>(EVENTS_BASIC)
+    ).pipe(map(d => (d.events?.nodes ?? []).map(eventFromGraphql)));
+  }
+
+  /** One event by its WordPress slug; undefined when there is none. */
+  getEventBySlug(slug: string): Observable<WpEvent | undefined> {
+    if (!this.useGraphql) {
+      return of(undefined);
+    }
+    type Res = { event: GqlEvent | null };
+    return this.withBasicFallback(
+      this.gql.query<Res>(EVENT_BY_SLUG, { slug }),
+      () => this.gql.query<Res>(EVENT_BY_SLUG_BASIC, { slug })
+    ).pipe(map(d => d.event ? eventFromGraphql(d.event) : undefined));
+  }
+
+  /**
+   * The newest published blog posts (WordPress Posts). Like events, never fetched while prerendering, so new
+   * posts show on the homepage without rebuilding the site. Emits [] when GraphQL is off.
+   */
+  getBlogPosts(first = 12): Observable<WpPost[]> {
+    if (!this.useGraphql || this.isServer) {
+      return of([]);
+    }
+    return this.gql.query<{ posts: { nodes: GqlPost[] } | null }>(BLOG_POSTS, { first })
+      .pipe(map(d => (d.posts?.nodes ?? []).map(postFromGraphql)));
+  }
+
+  /** One blog post with its full content, by slug; undefined when there is none. */
+  getBlogPost(slug: string): Observable<WpPost | undefined> {
+    if (!this.useGraphql) {
+      return of(undefined);
+    }
+    return this.gql.query<{ post: GqlPost | null }>(BLOG_POST_BY_SLUG, { slug })
+      .pipe(map(d => d.post ? postFromGraphql(d.post) : undefined));
+  }
+
+  /** Run `full`; if WordPress has no eventDetails ACF group yet, run `basic` instead. Other errors pass through. */
+  private withBasicFallback<T>(full: Observable<T>, basic: () => Observable<T>): Observable<T> {
+    return full.pipe(catchError(err =>
+      err instanceof GraphqlError && err.errors.some(e => e.message.includes('"eventDetails"'))
+        ? basic()
+        : throwError(() => err)));
   }
 
   getSearch(searchVal:string): Observable<any[]> {

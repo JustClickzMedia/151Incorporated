@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { PLATFORM_ID } from '@angular/core';
 import { provideHttpClient, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
@@ -175,5 +176,19 @@ describe('WordpressService (GraphQL)', () => {
   it('getPageSlugById() still uses REST (old-link redirects)', () => {
     service.getPageSlugById(19).subscribe();
     httpMock.expectOne(r => r.url === environment.restUrl + 'pages/19').flush({ slug: 'about-1-5-1' });
+  });
+});
+
+describe('WordpressService.getEvents() while prerendering', () => {
+  it('makes no request on the server, so events are never frozen into the prerendered homepage', () => {
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting(),
+                  { provide: USE_GRAPHQL, useValue: true }, { provide: PLATFORM_ID, useValue: 'server' }],
+    });
+    const http = TestBed.inject(HttpTestingController);
+    let result: unknown;
+    TestBed.inject(WordpressService).getEvents().subscribe(r => result = r);
+    expect(result).toEqual([]);
+    http.verify();
   });
 });

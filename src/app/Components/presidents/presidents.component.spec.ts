@@ -49,7 +49,7 @@ describe('PresidentsComponent', () => {
     const text = await render();
     expect(text).toContain('Excerpt text');
     expect(text).toContain('Continue Read More');
-    expect((fixture.nativeElement as HTMLElement).innerHTML).toContain('href="/pg/about-1-5-1"');
+    expect((fixture.nativeElement as HTMLElement).innerHTML).toContain('href="/about-1-5-1"');
   });
 
   it('GraphQL: builds the excerpt from the page content and links to the slug', async () => {
@@ -59,7 +59,7 @@ describe('PresidentsComponent', () => {
     noPostsRequest();
     const text = await render();
     expect(text).toContain('Founded in 1982.');
-    expect((fixture.nativeElement as HTMLElement).innerHTML).toContain('href="/pg/about-1-5-1"');
+    expect((fixture.nativeElement as HTMLElement).innerHTML).toContain('href="/about-1-5-1"');
   });
 
   it('GraphQL: page null = only the static sections', async () => {

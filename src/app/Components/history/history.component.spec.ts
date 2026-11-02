@@ -31,7 +31,7 @@ describe('HistoryComponent', () => {
   });
 
   it('links to the full history page', () => {
-    expect(el().querySelector('a.history-link')?.getAttribute('href')).toBe('/pg/about-1-5-1');
+    expect(el().querySelector('a.history-link')?.getAttribute('href')).toBe('/about-1-5-1');
   });
 
   it('puts the shield beside the text from 768px (col-md-4 / col-md-8) and stacks on phones', () => {

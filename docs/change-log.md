@@ -646,3 +646,60 @@
 - **What changed:** `environment.prod.ts` → `useGraphql: true` (was `false`), and the outdated "don't call production GraphQL" comment was updated. Without this, the production homepage would show only the 3 built-in carousel slides instead of the WordPress carousel.
 - **Testing:** 122/122 unit tests; production build OK and points at `https://tzin.brothersof1-5-1.org/graphql`.
 - **Still open (backend):** `/wp-json/wp/v2/users` returns 200 on production, so the API hardening plugin step of the promotion checklist (`wordpress-operations.md`) is not done yet. It doesn't block the frontend.
+
+## 2026-11-01 — Homepage Upcoming Events + event pages
+
+- **Branch:** `feature/events`
+- **What changed:**
+  - New homepage section **Upcoming Events** (last section on the homepage, above the footer), from the WordPress Events post type:
+    - no current events (none, or all expired) → section hidden;
+    - one → two columns: picture + title, date/time/location, short description, "Event Details" button;
+    - several → the newest event's picture as the advertisement (title/date under it) + a list of the other current events, soonest first, with date badges.
+  - New event page `/event/:slug`: full uncropped flyer, date, time, location, description, "Back to Home"; past events say so; unknown slug → 404 view; load failure → friendly message.
+  - Events are never fetched while prerendering, so they're always live (not frozen into the build).
+  - Optional ACF group `eventDetails` (`eventDate`, `eventEndDate`, `startTime`, `location`) is used when it exists; until then the site retries without it and events don't expire. Setup steps: `docs/events.md`.
+  - Files: `Model/wp-event.ts`, `Model/now.ts`, `Components/events/*`, `Components/eventdetails/*`, `Services/wordpress.service.ts` (`getEvents`, `getEventBySlug`), `Services/wp-queries.ts`, `app.routes.ts`, `home.component.*`.
+- **Testing:** 139/139 unit tests (date parsing, expiry, featured/list selection, hidden/one/many layouts, links, ACF fallback, no request during prerender, event page states). Rendered with mocked WordPress data at 1280px and 390px: one event, four events, none (hidden); clicking "Event Details" opens `/event/event-170`.
+- **To do in WordPress:** create the Event Details ACF group (docs/events.md) so events get dates and expire automatically.
+- **Follow-up (same day):** moved Upcoming Events to the **last** homepage section (after "God Before All" / Strategic Objectives, above the footer). 139/139 tests.
+- **Follow-up 2 (same day):** moved Upcoming Events into the footer, directly **under the "Perseverance Even In The Face Of Darkness" motto band** and above the footer columns, on the homepage only (`FooterComponent.isHome`). The section keeps its white background and dark text inside the burgundy footer. 140/140 tests (new: shown under the motto on `/`, not on other pages).
+
+## 2026-11-01 — UPDATE menu with an Events page (list/grid)
+
+- **Branch:** `feature/events`
+- **What changed:**
+  - New menu dropdown **UPDATE** (between the WordPress pages and MEMBERSHIP) with **Events**; same look and behaviour as MEMBERSHIP (one dropdown open at a time, closes on outside click/Escape, highlighted on `/events` and `/event/...`).
+  - New page `/events`: every current event, soonest first, with a **List / Grid** toggle (choice remembered in the browser). Each row/card is one link to its event page.
+  - No current events → "There are no new events at this time." (toggle hidden). Loading and error messages included.
+  - Files: `Components/eventslist/*`, `navbar.component.{ts,html,spec.ts}`, `Model/wp-event.ts` (`upcomingEvents`), `app.routes.ts`, `docs/events.md`.
+- **Testing:** 145/145 unit tests. Rendered with sample events at 1280px and 390px: list, grid, empty message; clicking a card opens `/event/<slug>`; UPDATE dropdown screenshot. Production build OK.
+
+## 2026-11-02 — Footer contact: new email, P.O. Box removed
+
+- **Branch:** `feature/events`
+- **What changed:** footer "Contact Us" now shows only `info@brothersof1-5-1.org` (was `info@1-5-1.org`); the placeholder P.O. Box 11111 / Hampton, VA 22222 address is removed. The email icon under "Follow Us" uses the new address too. The footer is on every page, so this applies site-wide.
+- **Testing:** 146/146 unit tests (new check: only the new address, no P.O. Box).
+
+## 2026-11-02 — Blog: homepage carousel, BLOG menu, list/grid page, post pages
+
+- **Branch:** `feature/events`
+- **What changed:**
+  - Homepage **From the Blog** (homepage only, under Upcoming Events in the footer area): carousel of the 12 newest WordPress posts as tiles (featured image, date, title, excerpt, Read More); four visible at a time on desktop (two on tablets, one on phones), arrows + swipe; "View All Posts" → `/blog`; hidden when there are no posts.
+  - Menu **UPDATE → Blog** → `/blog`: all posts, newest first, **List / Grid** toggle (remembered), each row/card links to the post; "There are no blog posts yet." when empty.
+  - Post page `/blog/:slug`: title, date, categories, whole featured image, full content, back links; 404 for unknown slugs; friendly error message.
+  - Posts are never fetched while prerendering (always live). Author isn't requested (user data is private).
+  - Files: `Model/wp-post.ts`, `Components/blogcarousel/*`, `Components/blog/*`, `Components/blogpost/*`, `Services/wordpress.service.ts` (`getBlogPosts`, `getBlogPost`), `Services/wp-queries.ts`, `app.routes.ts`, `navbar.component.html`, `footer.component.{ts,html}`, `docs/blog.md`.
+- **Checked against production:** the posts query returns the published post "A New Chapter in Our Digital Brotherhood…" (ID 175, category "blog", 819×1024 image).
+- **Testing:** 158/158 unit tests. Rendered with sample posts at 1280px and 390px (carousel incl. arrow paging, list, grid, post page; menu fits on one row at 1000px). Production build OK.
+- **Follow-up (same day):** BLOG moved from a top-level menu item into the **UPDATE** dropdown (Events, Blog). UPDATE is highlighted on `/events`, `/event/...`, `/blog` and `/blog/...`. 158/158 tests.
+
+## 2026-11-02 — Page URLs without /pg; shield favicon
+
+- **Branch:** `feature/events`
+- **URLs:** WordPress pages are now at the top level: `/about-1-5-1`, `/membership`, `/president`, `/scholarship`, `/foundation`, `/moto` (was `/pg/<slug>`).
+  - Old `/pg/<slug>` links redirect to `/<slug>`; the oldest `/pg/<id>/<title>` links still look the ID up and redirect to `/<slug>`.
+  - The `:slug` route is the last route before `**`, so fixed pages (`/blog`, `/events`, `/404`, …) always win. A WordPress page whose slug is `blog`, `events`, `event`, `search`, `404`, `pst` or `pg` would be hidden — avoid those slugs.
+  - All internal links updated (menu, MEMBERSHIP dropdown, footer quick links, carousel buttons, Our History link, "Continue Read More" pipe); MEMBERSHIP highlights on `/membership`.
+- **Prerendering:** limited to `/` and `/404` (`prerender-routes.txt`, `discoverRoutes: false`). Since the Blog and Events pages were added the builder had started prerendering `/blog` and `/events` with empty lists, which would flash "no posts/events" and mismatch hydration.
+- **Favicon:** the 1-5-1 shield (`src/favicon.ico` 16–64 px, `assets/icons/favicon-32.png`, `icon-192.png`, `apple-touch-icon.png`), generated from `assets/images/shield-history.png`; replaces the old WordPress favicon link.
+- **Testing:** 163/163 unit tests (new: route tests for `/membership`, `/pg/...` redirect, fixed pages winning, deep 404; favicon files served). Production build OK: prerendered `/` and `/404`, links in `index.html` are `/about-1-5-1`, `/membership`, … and the favicon files are in the output.

@@ -30,3 +30,27 @@ export const HOMEPAGE_CAROUSELS = `query HomepageCarousels {
     }
   }
 }`;
+
+/**
+ * Events (custom post type). EVENT_FIELDS asks for the optional ACF group `eventDetails`; while that group
+ * doesn't exist in WordPress the query fails with 'Cannot query field "eventDetails"', and the service retries
+ * with EVENT_FIELDS_BASIC (no dates/location). See docs/events.md.
+ */
+const EVENT_FIELDS_BASIC = `databaseId slug title date content
+      featuredImage { node { sourceUrl altText mediaDetails { width height } } }`;
+const EVENT_FIELDS = EVENT_FIELDS_BASIC + `
+      eventDetails { eventDate eventEndDate startTime location }`;
+
+export const EVENTS = `query Events { events(first: 50, where: { status: PUBLISH }) { nodes { ${EVENT_FIELDS} } } }`;
+export const EVENTS_BASIC = `query Events { events(first: 50, where: { status: PUBLISH }) { nodes { ${EVENT_FIELDS_BASIC} } } }`;
+export const EVENT_BY_SLUG = `query EventBySlug($slug: ID!) { event(id: $slug, idType: SLUG) { ${EVENT_FIELDS} } }`;
+export const EVENT_BY_SLUG_BASIC = `query EventBySlug($slug: ID!) { event(id: $slug, idType: SLUG) { ${EVENT_FIELDS_BASIC} } }`;
+
+/** Blog posts (WordPress Posts), newest first. Author is not requested: user data is private to anonymous visitors. */
+const POST_FIELDS = `databaseId slug title date excerpt
+      featuredImage { node { sourceUrl altText mediaDetails { width height } } }
+      categories { nodes { name } }`;
+export const BLOG_POSTS = `query BlogPosts($first: Int!) {
+  posts(first: $first, where: { status: PUBLISH, orderby: { field: DATE, order: DESC } }) { nodes { ${POST_FIELDS} } }
+}`;
+export const BLOG_POST_BY_SLUG = `query BlogPost($slug: ID!) { post(id: $slug, idType: SLUG) { ${POST_FIELDS} content } }`;

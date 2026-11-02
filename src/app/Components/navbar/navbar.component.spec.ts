@@ -23,15 +23,15 @@ describe('NavbarComponent', () => {
 
   afterEach(() => http.verify());
 
-  it('menu order: HOME first, then the WordPress pages, then MEMBERSHIP last', async () => {
+  it('menu order: HOME first, then the WordPress pages, UPDATE, then MEMBERSHIP last', async () => {
     http.expectOne(r => r.url.startsWith(environment.restUrl + 'pages?_embed'))
       .flush([{ id: 2, slug: 'membership', title: { rendered: 'Membership' } },
               { id: 3, slug: 'moto', title: { rendered: 'Moto' } }]);
     fixture.detectChanges();
     await fixture.whenStable();
     const items = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.navbar-nav.mr-auto > li > .nav-link'));
-    expect(items.map(a => a.textContent?.trim())).toEqual(['HOME', 'MOTO', 'MEMBERSHIP']);
-    expect(items.map(a => a.getAttribute('href'))).toEqual(['/', '/pg/moto', null]); // MEMBERSHIP is the dropdown button
+    expect(items.map(a => a.textContent?.trim())).toEqual(['HOME', 'MOTO', 'UPDATE', 'MEMBERSHIP']);
+    expect(items.map(a => a.getAttribute('href'))).toEqual(['/', '/moto', null, null]); // UPDATE and MEMBERSHIP are dropdown buttons
   });
 
   it('MEMBERSHIP opens a dropdown with the Membership page and Pay Dues; it closes on an outside click or Escape', async () => {
@@ -49,7 +49,7 @@ describe('NavbarComponent', () => {
     expect(toggle.getAttribute('aria-expanded')).toBe('true');
     const items = Array.from(menu().querySelectorAll('a')) as HTMLAnchorElement[];
     expect(items.map(a => a.textContent?.trim())).toEqual(['Membership Requirements', 'Pay Dues']);
-    expect(items[0].getAttribute('href')).toBe('/pg/membership');
+    expect(items[0].getAttribute('href')).toBe('/membership');
     expect(items[1].href).toContain('checkout.square.site');
 
     document.body.click();
@@ -127,14 +127,41 @@ describe('NavbarComponent', () => {
     expect(el.querySelector('.paydues-modal')).toBeNull();   // Escape closes it too
   });
 
+  it('UPDATE opens a dropdown with Events (/events) and Blog (/blog); only one dropdown is open at a time', async () => {
+    http.expectOne(r => r.url.startsWith(environment.restUrl + 'pages?_embed')).flush([]);
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    const update = el.querySelector('#update-toggle') as HTMLButtonElement;
+    const membership = el.querySelector('#membership-toggle') as HTMLButtonElement;
+    expect(update.textContent?.trim()).toBe('UPDATE');
+    update.click();
+    fixture.detectChanges();
+    const items = Array.from(el.querySelectorAll('#update-menu a'));
+    expect(items.map(a => a.textContent?.trim())).toEqual(['Events', 'Blog']);
+    expect(items.map(a => a.getAttribute('href'))).toEqual(['/events', '/blog']);
+    expect(el.querySelector('#update-menu')!.classList).toContain('show');
+    expect(update.getAttribute('aria-expanded')).toBe('true');
+
+    membership.click();
+    fixture.detectChanges();
+    expect(el.querySelector('#update-menu')!.classList).not.toContain('show');
+    expect(el.querySelector('#membership-menu')!.classList).toContain('show');
+
+    update.click();
+    fixture.detectChanges();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    fixture.detectChanges();
+    expect(el.querySelector('#update-menu')!.classList).not.toContain('show');
+  });
+
   it('labels the president page "LEADERSHIP"', async () => {
     http.expectOne(r => r.url.startsWith(environment.restUrl + 'pages?_embed'))
       .flush([{ id: 13, slug: 'president', title: { rendered: "President's Message" } }]);
     fixture.detectChanges();
     await fixture.whenStable();
     const items = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.navbar-nav.mr-auto > li > .nav-link'));
-    expect(items.map(a => a.textContent?.trim())).toEqual(['HOME', 'LEADERSHIP', 'MEMBERSHIP']);
-    expect(items[1].getAttribute('href')).toBe('/pg/president');
+    expect(items.map(a => a.textContent?.trim())).toEqual(['HOME', 'LEADERSHIP', 'UPDATE', 'MEMBERSHIP']);
+    expect(items[1].getAttribute('href')).toBe('/president');
   });
 
   it('labels the about-1-5-1 page "ABOUT" (other pages keep their slug)', async () => {
@@ -145,8 +172,8 @@ describe('NavbarComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     const items = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.navbar-nav.mr-auto > li > .nav-link'));
-    expect(items.map(a => a.textContent?.trim())).toEqual(['HOME', 'ABOUT', 'MOTO', 'MEMBERSHIP']);
-    expect(items[1].getAttribute('href')).toBe('/pg/about-1-5-1');
+    expect(items.map(a => a.textContent?.trim())).toEqual(['HOME', 'ABOUT', 'MOTO', 'UPDATE', 'MEMBERSHIP']);
+    expect(items[1].getAttribute('href')).toBe('/about-1-5-1');
   });
 
   it('is a regular horizontal menu on desktop (navbar-expand-lg: hamburger only below 992px)', () => {
@@ -195,8 +222,8 @@ describe('NavbarComponent (GraphQL)', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     const items = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.navbar-nav.mr-auto > li > .nav-link'));
-    expect(items.map(a => a.textContent?.trim())).toEqual(['HOME', 'MOTO', 'MEMBERSHIP']);
-    expect(items.map(a => a.getAttribute('href'))).toEqual(['/', '/pg/moto', null]);
+    expect(items.map(a => a.textContent?.trim())).toEqual(['HOME', 'MOTO', 'UPDATE', 'MEMBERSHIP']);
+    expect(items.map(a => a.getAttribute('href'))).toEqual(['/', '/moto', null, null]);
     http.verify();
   });
 });

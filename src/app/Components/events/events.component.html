@@ -1,0 +1,67 @@
+<!-- Hidden entirely when there are no current events -->
+@if (featured(); as ad) {
+  <section class="events" aria-labelledby="events-title">
+    <div class="container">
+      <h2 id="events-title" class="events-title">Upcoming Events</h2>
+
+      <div class="row g-4 g-lg-5 align-items-start">
+        <!-- Column 1: the newest event's picture, as the advertisement -->
+        <div class="col-12 col-lg-7">
+          <a class="featured" [routerLink]="['/event', ad.slug]" [attr.aria-label]="'Event details: ' + ad.title">
+            @if (ad.image; as img) {
+              <img class="featured-img" [src]="img.url" [alt]="img.alt"
+                   [attr.width]="img.width ?? null" [attr.height]="img.height ?? null"/>
+            } @else {
+              <span class="featured-placeholder">{{ ad.title }}</span>
+            }
+          </a>
+          @if (others().length) {
+            <div class="featured-caption">
+              <h3><a [routerLink]="['/event', ad.slug]">{{ ad.title }}</a></h3>
+              @if (dateLabel(ad); as when) { <p class="meta">{{ when }}@if (ad.time) { · {{ ad.time }} }@if (ad.location) { · {{ ad.location }} }</p> }
+            </div>
+          }
+        </div>
+
+        <!-- Column 2: the other upcoming events, or (only one event) its description -->
+        <div class="col-12 col-lg-5">
+          @if (others().length) {
+            <h3 class="list-title">More Upcoming Events</h3>
+            <ul class="event-list">
+              @for (ev of others(); track ev.id) {
+                <li>
+                  <a class="event-item" [routerLink]="['/event', ev.slug]">
+                    @if (badge(ev); as b) {
+                      <span class="badge-date" aria-hidden="true"><span class="m">{{ b.month }}</span><span class="d">{{ b.day }}</span></span>
+                    } @else {
+                      <span class="badge-date badge-nodate" aria-hidden="true"><i class="bi bi-calendar-event"></i></span>
+                    }
+                    <span class="item-text">
+                      <span class="item-title">{{ ev.title }}</span>
+                      @if (dateLabel(ev) || ev.location) {
+                        <span class="meta">{{ dateLabel(ev) }}@if (dateLabel(ev) && ev.location) { · }{{ ev.location }}</span>
+                      }
+                    </span>
+                    <span class="chevron" aria-hidden="true">&rsaquo;</span>
+                  </a>
+                </li>
+              }
+            </ul>
+          } @else {
+            <div class="description">
+              <h3>{{ ad.title }}</h3>
+              @if (dateLabel(ad); as when) {
+                <p class="meta"><i class="bi bi-calendar-event" aria-hidden="true"></i> {{ when }}@if (ad.time) { · {{ ad.time }} }</p>
+              }
+              @if (ad.location) {
+                <p class="meta"><i class="bi bi-geo-alt" aria-hidden="true"></i> {{ ad.location }}</p>
+              }
+              <p class="summary">{{ ad.summary }}</p>
+              <a class="details-link" [routerLink]="['/event', ad.slug]">Event Details &rsaquo;</a>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+}
