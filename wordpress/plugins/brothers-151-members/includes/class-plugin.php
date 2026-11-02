@@ -15,6 +15,7 @@ final class Plugin {
 		self::$booted = true;
 
 		Installer::maybe_upgrade();
+		Hardening::register();
 
 		Chapters::register();
 		Membership::register();

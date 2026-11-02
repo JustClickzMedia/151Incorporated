@@ -10,6 +10,15 @@ final class Admin {
 
 	public const MENU_SLUG = 'b151-members';
 
+	public const HARDENING = array(
+		'harden_xmlrpc'        => 'Turn off XML-RPC',
+		'harden_jwt_login'     => 'Turn off the Simple-JWT-Login password → token endpoint',
+		'harden_private_types' => 'Keep New Prospects and Brothers out of the public API',
+		'harden_enumeration'   => 'Hide usernames (author scans, users sitemap)',
+		'harden_noindex'       => 'Keep this WordPress backend out of search engines',
+		'harden_graphql'       => 'GraphQL depth limit 10, no batched queries',
+	);
+
 	public static function register(): void {
 		add_action( 'admin_post_b151_export_roster', array( self::class, 'export_roster' ) );
 		add_action( 'admin_post_b151_approve', array( self::class, 'handle_approve' ) );
@@ -344,6 +353,9 @@ final class Admin {
 			}
 			$values['require_two_factor_backend'] = ! empty( $_POST['require_two_factor_backend'] );
 			$values['notify_members']             = ! empty( $_POST['notify_members'] );
+			foreach ( array_keys( self::HARDENING ) as $k ) {
+				$values[ $k ] = ! empty( $_POST[ $k ] );
+			}
 			Settings::update( $values );
 			Audit_Log::record( 'settings_updated', 'settings', 0, array( 'keys' => array_keys( $values ) ) );
 			echo '<div class="notice notice-success"><p>Saved.</p></div>';
@@ -360,6 +372,11 @@ final class Admin {
 			<?php endforeach; ?>
 			<tr><th>Two-step sign-in</th><td><label><input type="checkbox" name="require_two_factor_backend" value="1" <?php checked( $s['require_two_factor_backend'] ); ?> /> Required for every admin account</label></td></tr>
 			<tr><th>Member emails</th><td><label><input type="checkbox" name="notify_members" value="1" <?php checked( $s['notify_members'] ); ?> /> Email members when they are approved, paused or restored</label></td></tr>
+			<tr><th>Protections</th><td>
+				<?php foreach ( self::HARDENING as $k => $label ) : ?>
+					<label style="display:block"><input type="checkbox" name="<?php echo esc_attr( $k ); ?>" value="1" <?php checked( ! empty( $s[ $k ] ) ); ?> /> <?php echo esc_html( $label ); ?></label>
+				<?php endforeach; ?>
+				<p class="description">Leave all on unless one breaks something you rely on.</p></td></tr>
 			<tr><th>Private file folder</th><td><?php echo is_wp_error( $storage ) ? '<span style="color:#b32d2e">' . esc_html( $storage->get_error_message() ) . '</span>' : '<code>' . esc_html( $storage ) . '</code> ✓'; ?></td></tr>
 		</table>
 		<?php submit_button(); ?>

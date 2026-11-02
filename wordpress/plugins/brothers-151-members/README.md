@@ -1,7 +1,7 @@
 # Brothers of 1-5-1 Members Portal (WordPress plugin)
 
 Backend for the members-only area. Design and decisions: `docs/members-portal/ARCHITECTURE.md`.
-Status: **Checkpoints 2–3 (core backend + member features)** — not yet installed on staging or production.
+Status: **Checkpoints 2–4 (core backend, member features, deployment prep)** — not yet installed on staging or production. Install steps: `docs/members-portal/DEPLOYMENT.md`. Angular: `docs/members-portal/ANGULAR-INTEGRATION.md`.
 
 ## What it does
 
@@ -20,6 +20,7 @@ Status: **Checkpoints 2–3 (core backend + member features)** — not yet insta
 | Zoom check-in | `verifyMember(membershipNumber)`: name, chapter, active — admin session, rate-limited, logged. |
 | Admin | "1-5-1 Members" menu: pending approvals, events, announcements, resources, chapters, roster CSV export (formula-safe, logged), audit log, settings. |
 | Emails | Approval (with membership number), paused, restored — on/off in settings. |
+| Hardening | XML-RPC off, Simple-JWT-Login password endpoint off, New Prospects/Brothers out of the public API, usernames hidden, backend `noindex` + no core sitemap, GraphQL depth ≤ 10 and no batching — each switchable in settings. |
 
 ## Requirements
 
@@ -36,6 +37,10 @@ define( 'B151_PRIVATE_DIR', '/home1/<cpanel-user>/b151-private' ); // outside pu
 ```
 
 Providers without both constants are simply not offered. Other settings: **1-5-1 Members → Settings** in wp-admin.
+
+## Packaging and checks
+
+`bash scripts/package-plugin.sh` builds the upload zip; `bash scripts/portal-smoke-test.sh <wordpress url> [--member]` runs the read-only HTTP checks.
 
 ## Tests
 

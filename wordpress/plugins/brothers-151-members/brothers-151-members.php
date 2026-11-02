@@ -2,21 +2,21 @@
 /**
  * Plugin Name:       Brothers of 1-5-1 Members Portal
  * Description:       Members-only backend for The Brothers of 1-5-1, Incorporated: membership status and numbers, roles, secure sign-in (password, Google, Microsoft) for the member area, approvals and audit log, exposed through WPGraphQL.
- * Version:           0.3.0
+ * Version:           0.4.0
  * Requires at least: 6.6
  * Requires PHP:      8.1
  * Author:            The Brothers of 1-5-1, Incorporated
  * Text Domain:       b151
  * License:           GPL-2.0-or-later
  *
- * Design: docs/members-portal/ARCHITECTURE.md. Checkpoints 2–3 (core backend, member features).
+ * Design: docs/members-portal/ARCHITECTURE.md. Checkpoints 2–4 (core backend, member features, deployment hardening).
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'B151_MEMBERS_VERSION', '0.3.0' );
+define( 'B151_MEMBERS_VERSION', '0.4.0' );
 define( 'B151_MEMBERS_FILE', __FILE__ );
 define( 'B151_MEMBERS_DIR', __DIR__ );
 
