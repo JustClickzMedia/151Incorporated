@@ -12,7 +12,7 @@ import { environment } from '../environments/environment';
 @Component({ template: 'PAGE' }) class PageStub {}
 @Component({ template: 'NOT FOUND' }) class NotFoundStub {}
 
-describe('legacyPageRedirectGuard (/pg/:id/:title -> /pg/:slug)', () => {
+describe('legacyPageRedirectGuard (/pg/:id/:title -> /:slug)', () => {
   let harness: RouterTestingHarness;
   let http: HttpTestingController;
 
@@ -21,9 +21,9 @@ describe('legacyPageRedirectGuard (/pg/:id/:title -> /pg/:slug)', () => {
       providers: [
         provideHttpClient(), provideHttpClientTesting(),
         provideRouter([
-          { path: 'pg/:slug', component: PageStub },
           { path: 'pg/:id/:title', canActivate: [legacyPageRedirectGuard], children: [] },
           { path: '404', component: NotFoundStub },
+          { path: ':slug', component: PageStub },   // as in app.routes.ts: fixed routes first
         ]),
       ],
     });
@@ -45,7 +45,7 @@ describe('legacyPageRedirectGuard (/pg/:id/:title -> /pg/:slug)', () => {
     const nav = navigate('/pg/19/1-5-1 History');
     (await slugRequest(19)).flush({ slug: 'about-1-5-1' });
     await nav;
-    expect(TestBed.inject(Router).url).toBe('/pg/about-1-5-1');
+    expect(TestBed.inject(Router).url).toBe('/about-1-5-1');
     expect(harness.routeNativeElement?.textContent).toContain('PAGE');
   });
 

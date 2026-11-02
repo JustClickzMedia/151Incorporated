@@ -87,7 +87,7 @@ export class WordpressService {
 
   /**
    * Slug of the page with this WordPress ID (REST: pages/<id>?_fields=slug). Used only to redirect
-   * old /pg/<id>/<title> links. Errors (e.g. 404 rest_post_invalid_id for page 13) are passed on.
+   * old /pg/<id>/<title> links (redirected to /<slug>). Errors (e.g. 404 rest_post_invalid_id for page 13) are passed on.
    */
   getPageSlugById(id: number): Observable<string | undefined> {
     return this.http.get<{ slug?: string }>(this.baseUrl + 'pages/' + id, { params: { _fields: 'slug' } })

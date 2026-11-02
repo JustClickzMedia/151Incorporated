@@ -692,3 +692,14 @@
 - **Checked against production:** the posts query returns the published post "A New Chapter in Our Digital Brotherhood…" (ID 175, category "blog", 819×1024 image).
 - **Testing:** 158/158 unit tests. Rendered with sample posts at 1280px and 390px (carousel incl. arrow paging, list, grid, post page; menu fits on one row at 1000px). Production build OK.
 - **Follow-up (same day):** BLOG moved from a top-level menu item into the **UPDATE** dropdown (Events, Blog). UPDATE is highlighted on `/events`, `/event/...`, `/blog` and `/blog/...`. 158/158 tests.
+
+## 2026-11-02 — Page URLs without /pg; shield favicon
+
+- **Branch:** `feature/events`
+- **URLs:** WordPress pages are now at the top level: `/about-1-5-1`, `/membership`, `/president`, `/scholarship`, `/foundation`, `/moto` (was `/pg/<slug>`).
+  - Old `/pg/<slug>` links redirect to `/<slug>`; the oldest `/pg/<id>/<title>` links still look the ID up and redirect to `/<slug>`.
+  - The `:slug` route is the last route before `**`, so fixed pages (`/blog`, `/events`, `/404`, …) always win. A WordPress page whose slug is `blog`, `events`, `event`, `search`, `404`, `pst` or `pg` would be hidden — avoid those slugs.
+  - All internal links updated (menu, MEMBERSHIP dropdown, footer quick links, carousel buttons, Our History link, "Continue Read More" pipe); MEMBERSHIP highlights on `/membership`.
+- **Prerendering:** limited to `/` and `/404` (`prerender-routes.txt`, `discoverRoutes: false`). Since the Blog and Events pages were added the builder had started prerendering `/blog` and `/events` with empty lists, which would flash "no posts/events" and mismatch hydration.
+- **Favicon:** the 1-5-1 shield (`src/favicon.ico` 16–64 px, `assets/icons/favicon-32.png`, `icon-192.png`, `apple-touch-icon.png`), generated from `assets/images/shield-history.png`; replaces the old WordPress favicon link.
+- **Testing:** 163/163 unit tests (new: route tests for `/membership`, `/pg/...` redirect, fixed pages winning, deep 404; favicon files served). Production build OK: prerendered `/` and `/404`, links in `index.html` are `/about-1-5-1`, `/membership`, … and the favicon files are in the output.

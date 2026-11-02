@@ -22,18 +22,18 @@ export const routes: Routes = [
           
       },
       {
-        // WordPress pages are addressed by slug, e.g. /pg/about-1-5-1
+        // Old page links /pg/<slug> (before 2026-11-02): send them to /<slug>, so bookmarks and search results keep working
         path : 'pg/:slug',
-        component : DetailsComponent
+        redirectTo : '/:slug'
       },
       {
-        // Old links (/pg/19/1-5-1 History): look the ID up and redirect to /pg/<slug>, or show the 404 view
+        // Oldest links (/pg/19/1-5-1 History): look the ID up and redirect to /<slug>, or show the 404 view
         path : 'pg/:id/:title',
         canActivate : [legacyPageRedirectGuard],
         children : []
       },
       {
-        // Blog: all posts, list or grid view (menu BLOG)
+        // Blog: all posts, list or grid view (menu UPDATE → Blog)
         path : 'blog',
         component : BlogComponent
       },
@@ -59,6 +59,12 @@ export const routes: Routes = [
       {
         path : 'pst/:id/:title',
         component : PostdetailsComponent
+      },
+      {
+        // WordPress pages by slug at the top level, e.g. /about-1-5-1, /membership. Must stay after every
+        // fixed route above (blog, events, 404, ...): a WordPress page with one of those slugs would be hidden.
+        path : ':slug',
+        component : DetailsComponent
       },
       {
         path : '**',

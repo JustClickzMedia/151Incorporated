@@ -27,6 +27,6 @@ describe('HomebuttonsectionComponent', () => {
 
   it('links the buttons to page slugs (no page IDs)', () => {
     const hrefs = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('a')).map(a => a.getAttribute('href'));
-    expect(hrefs).toEqual(['/pg/membership', '/pg/president', '/pg/scholarship']);
+    expect(hrefs).toEqual(['/membership', '/president', '/scholarship']);
   });
 });

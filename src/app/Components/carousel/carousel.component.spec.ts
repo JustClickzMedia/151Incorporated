@@ -108,7 +108,7 @@ describe('CarouselComponent', () => {
       expect(captions.map(c => c.querySelector('h1')?.textContent?.trim())).toEqual(
         ['THE BROTHERS OF 1-5-1', 'The Michael J. Bryant Memorial Scholarship', 'MEMBERSHIP REQUIREMENTS']);
       expect(captions.map(c => c.querySelector('a')?.getAttribute('href'))).toEqual(
-        ['/pg/about-1-5-1', '/pg/scholarship', '/pg/membership']);
+        ['/about-1-5-1', '/scholarship', '/membership']);
     });
   });
 
@@ -153,7 +153,7 @@ describe('CarouselComponent', () => {
       expect(captions.map(c => c.querySelector('a')?.textContent?.trim() ?? null)).toEqual(
         ['Learn About 1-5-1', 'Learn About Our Scholarship', 'Learn About Membership', null]);
       expect(captions.slice(0, 3).map(c => c.querySelector('a')?.getAttribute('href'))).toEqual(
-        ['/pg/about-1-5-1', '/pg/scholarship', '/pg/membership']);
+        ['/about-1-5-1', '/scholarship', '/membership']);
     });
 
     it('lazy-loads slides after the first', async () => {

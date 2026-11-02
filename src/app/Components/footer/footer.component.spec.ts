@@ -15,7 +15,7 @@ describe('FooterComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [FooterComponent],
-      providers: [provideRouter([{ path: '', component: Blank }, { path: 'pg/:slug', component: Blank }]), provideHttpClient(), provideHttpClientTesting()],
+      providers: [provideRouter([{ path: '', component: Blank }, { path: ':slug', component: Blank }]), provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
     fixture = TestBed.createComponent(FooterComponent);
     fixture.detectChanges();
@@ -31,7 +31,7 @@ describe('FooterComponent', () => {
     expect(events!.nextElementSibling?.tagName.toLowerCase()).toBe('app-blog-carousel');
     expect(events!.nextElementSibling!.nextElementSibling?.classList).toContain('footer-columns');
 
-    await router.navigateByUrl('/pg/membership');
+    await router.navigateByUrl('/membership');
     fixture.detectChanges();
     expect(el().querySelector('app-events')).toBeNull();
     expect(el().querySelector('app-blog-carousel')).toBeNull();
@@ -51,7 +51,7 @@ describe('FooterComponent', () => {
 
   it('quick links go to the slug pages', () => {
     const hrefs = Array.from(el().querySelectorAll('.quick-links a')).map(a => a.getAttribute('href'));
-    expect(hrefs).toEqual(['/', '/pg/about-1-5-1', '/pg/membership', '/pg/scholarship', '/pg/foundation', '/pg/president']);
+    expect(hrefs).toEqual(['/', '/about-1-5-1', '/membership', '/scholarship', '/foundation', '/president']);
   });
 
   it('social links are real links that open safely in a new tab', () => {

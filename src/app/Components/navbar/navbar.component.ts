@@ -44,7 +44,7 @@ export class NavbarComponent implements OnInit {
   readonly membershipOpen = signal(false);
   private readonly currentUrl = signal(this.router.url);
   /** Highlight MEMBERSHIP while the Membership page is open. */
-  readonly membershipActive = computed(() => this.currentUrl().startsWith('/pg/membership'));
+  readonly membershipActive = computed(() => this.currentUrl().startsWith('/membership'));
   /** The Update dropdown (Events, Blog). */
   readonly updateOpen = signal(false);
   /** Highlight UPDATE on the events and blog pages (lists and single event/post pages). */
