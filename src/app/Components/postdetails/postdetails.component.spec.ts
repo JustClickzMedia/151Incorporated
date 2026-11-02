@@ -46,7 +46,7 @@ describe('PostdetailsComponent', () => {
     await fixture.whenStable();
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('Five');
     expect((fixture.nativeElement as HTMLElement).textContent).not.toMatch(/January|2026/); // no created date
-    expect(TestBed.inject(Title).getTitle()).toBe('Five');
+    expect(TestBed.inject(Title).getTitle()).toBe('Five | 1-5-1 Incorporated');
   });
 
   it('re-fetches when the route id changes', async () => {

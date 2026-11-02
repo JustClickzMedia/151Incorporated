@@ -32,6 +32,10 @@ ls "$OUT"/main-*.js >/dev/null 2>&1 || fail "main-*.js is missing from the build
 grep -q 'useGraphql:' "$OUT"/main-*.js || fail "Could not find the GraphQL setting in main-*.js."
 echo "OK: $(ls "$OUT" | tr '\n' ' ')"
 
+step "Writing sitemap.xml and robots.txt from the live WordPress content"
+node scripts/generate-seo-files.mjs --out "$OUT" || fail "Could not build the sitemap (is WordPress reachable?)."
+[ -s "$OUT/sitemap.xml" ] && [ -s "$OUT/robots.txt" ] || fail "sitemap.xml or robots.txt is missing."
+
 step "Preparing files with web permissions"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT

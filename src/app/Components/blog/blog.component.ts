@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { WordpressService } from '../../Services/wordpress.service';
-import { SeoService } from '../../Services/seo.service';
+import { SeoService, breadcrumbLd } from '../../Services/seo.service';
 import { WpPost, formatPostDate } from '../../Model/wp-post';
 
 export type BlogView = 'list' | 'grid';
@@ -47,9 +47,12 @@ export class BlogComponent {
 
   constructor() {
     const seo = inject(SeoService);
-    seo.removeMetaTags();
-    seo.addMetaTags();
-    seo.setTitle('Blog | 1-5-1 Incorporated');
+    seo.apply({
+      title: 'Blog',
+      description: 'News, stories and updates from The Brothers of 1-5-1, Incorporated.',
+      path: '/blog',
+      jsonLd: breadcrumbLd([{ name: 'Home', path: '/' }, { name: 'Blog', path: '/blog' }]),
+    });
   }
 
   setView(view: BlogView) {
