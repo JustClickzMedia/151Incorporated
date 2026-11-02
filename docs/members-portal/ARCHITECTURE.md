@@ -1,6 +1,7 @@
 # Members-Only Portal — Architecture Design (Checkpoint 1)
 
 **Status:** design for approval. **No implementation code has been written.** Nothing has been changed in WordPress.
+**Approved 2026-11-02 (owner):** authentication = **WordPress cookie session**, signed in with **email + password** or **Sign in with Google / Microsoft** (server-side OAuth 2.0 Authorization Code + PKCE, OpenID Connect). All three end in the same WordPress session (§4, §4.4). Other §12 decisions are still open.
 **Date:** 2026-11-02 · **Branch:** `feature/members-portal`
 **Inputs read:** `docs/members-portal/WORDPRESS-AUDIT.md` (primary source; moved here from `docs/brothers-151-members-portal-readiness-audit.md`), `docs/security-architecture.md`, `docs/wordpress-operations.md`, `docs/graphql-contract.md`, `wordpress/mu-plugins/bo151-api-hardening.php`, the Angular source. There is **no `CLAUDE.md`** in the repository (noted; nothing to follow there).
 
@@ -49,6 +50,7 @@ wordpress/plugins/brothers-151-members/
     class-access.php              single place for "can this viewer see X" (capability + status + scope + visibility)
     class-backend-gate.php        blocks /wp-admin + admin bar for non-backend users; login/logout redirects
     class-session-api.php         REST: login, logout, me, password reset/change (rate-limited)
+    class-oauth.php               Sign in with Google / Microsoft (Authorization Code + PKCE, OIDC ID-token validation, account linking)
     class-rate-limiter.php        per-IP and per-username counters (transients)
     class-cors.php                credentialed CORS for the exact frontend origins (coordinates with the MU-plugin)
     class-cache-headers.php       private/no-store for authenticated requests and all member endpoints
@@ -155,7 +157,7 @@ No custom cryptography: login uses `wp_signon()`; sessions use WordPress auth co
 
 Why session endpoints are REST rather than GraphQL mutations: precise control of cookies, status codes, rate limiting and `no-store` headers, and the login call can't carry a nonce yet. All **member data** operations are GraphQL (§6). `currentMember` and `sessionStatus` are also offered in GraphQL for convenience.
 
-### 4.3 Protections
+### 4.3 Protections (apply to every sign-in method)
 
 | Requirement | Design |
 |---|---|
@@ -169,6 +171,47 @@ Why session endpoints are REST rather than GraphQL mutations: precise control of
 | Other login paths | Disable `xmlrpc.php`; turn off Simple-JWT-Login `/auth` (or remove the plugin) once cookie login works — **approval needed** |
 | 2FA | Required for backend-capable accounts (free 2FA plugin or TOTP in the plugin — decision §12 Q6) |
 | Backend gate | Users without `b151_backend_access` are redirected from `/wp-admin` (except `admin-ajax.php`/`admin-post.php`), admin bar hidden, `login_redirect`/`logout_redirect` → public site |
+
+### 4.4 Sign in with Google / Microsoft (approved)
+
+Social sign-in only proves **who** someone is. Whether he gets in is still decided by WordPress: linked member, status `active`, capabilities. It never creates accounts.
+
+**Standard used:** OAuth 2.0 **Authorization Code flow with PKCE** + **OpenID Connect**, handled entirely by WordPress (server side). Client secrets never reach the browser. No custom cryptography: the ID token is validated with a maintained library (e.g. `firebase/php-jwt` against the provider's published keys, or the provider's official PHP client), bundled in the plugin's `vendor/` (HostGator has no Composer).
+
+**Flow:**
+
+1. Angular login page → button **Sign in with Google** / **Sign in with Microsoft** → `GET https://tzin.brothersof1-5-1.org/wp-json/b151/v1/oauth/{provider}/start?return=/members`.
+2. WordPress creates `state`, `nonce` and a PKCE `code_verifier` (stored server-side in a short-lived transient keyed by a random, HttpOnly, Secure, SameSite=Lax cookie), validates `return` against an allow-list of member-area paths, and redirects to the provider's authorization page with `scope=openid email profile`.
+3. The provider redirects back to `…/wp-json/b151/v1/oauth/{provider}/callback?code=…&state=…`.
+4. WordPress checks `state`, exchanges `code` + `code_verifier` (+ client secret) **server-to-server**, validates the ID token: signature (provider keys), `iss`, `aud` = our client ID, `exp`/`iat`, `nonce`, and `email_verified` (Google; for Microsoft use the verified-email claim rules for personal vs. work accounts).
+5. **Find the member:**
+   - Already linked → user with meta `b151_oauth_google_sub` / `b151_oauth_microsoft_oid` (+ `tid`) equal to the token's subject.
+   - Not linked yet → a user whose WordPress email **exactly matches** the provider's **verified** email → link it (store the subject) and audit-log "linked Google/Microsoft".
+   - No match → generic "This account isn't registered with 1-5-1" page; **no account created**.
+6. Apply the same gate as password login (status `active`, rate limits), then `wp_set_auth_cookie()` → redirect to `https://brothersof1-5-1.org/<return>`. Angular then calls `GET /session` to get the nonce, exactly as after a password login.
+
+**Rules:**
+
+- **Member area only.** Accounts with `b151_backend_access` (portal/membership/content admins, WP administrators) may use social sign-in for the member area, but `/wp-admin` still requires WordPress password + 2FA (`wp-login.php`). The provider's own 2FA can't be verified.
+- **Linking/unlinking** from the member's profile (`myMemberProfile` shows linked providers; `unlinkSignInProvider(provider)` mutation, requires a recent password or social re-authentication). Admins can unlink in wp-admin.
+- **Email changes:** after linking, the provider subject is used, so a changed email doesn't break sign-in and can't be used to take over another account.
+- **Password stays available** for every member; social sign-in is optional.
+- Suspension destroys sessions as usual; a suspended member's Google/Microsoft sign-in is refused at step 6.
+
+**Provider setup (free; owner action, with guidance):**
+
+| Provider | Where | Settings |
+|---|---|---|
+| Google | Google Cloud Console → APIs & Services → OAuth consent screen + Credentials → OAuth client ID (Web) | Consent screen: External, app name "Brothers of 1-5-1", scopes `openid email profile` only (no Google verification review needed). Authorized redirect URIs: `https://tzin.brothersof1-5-1.org/wp-json/b151/v1/oauth/google/callback` and the staging equivalent |
+| Microsoft | Microsoft Entra admin center → App registrations → New registration | Supported account types: **personal Microsoft accounts and any organization** (`common`). Redirect URI (Web) as above with `/microsoft/callback`. Client secret with a calendar reminder before it expires |
+
+Client IDs and secrets go in `wp-config.php` constants (`B151_GOOGLE_CLIENT_ID`, `B151_GOOGLE_CLIENT_SECRET`, `B151_MICROSOFT_CLIENT_ID`, `B151_MICROSOFT_CLIENT_SECRET`), **never** in the repo, the database options UI or Angular.
+
+**Hosting check (staging):** WordPress must be able to make outbound HTTPS requests to `oauth2.googleapis.com`, `www.googleapis.com` and `login.microsoftonline.com`. Usually allowed on HostGator; verified on staging before relying on it.
+
+**Additional tests** (added to §10): invalid/missing `state`; replayed `code`; wrong `aud`/`iss`; expired token; unverified email; unknown account (no account created); pending/suspended member refused; first-login linking by verified email; subject-based login after an email change; `return` parameter can't redirect off-site; backend-capable account still can't open `/wp-admin` without password + 2FA.
+
+**Later (optional, same design):** Facebook, Apple ($99/year), passkeys.
 
 ---
 
@@ -304,7 +347,7 @@ Required configuration changes (each needs approval): SMTP (FluentSMTP / WP Mail
 
 ## 12. Decisions needed before Checkpoint 2
 
-1. **Approve the authentication design** (§4): WordPress cookie sessions via `b151/v1/session` REST + nonce; Simple-JWT-Login `/auth` turned off afterwards.
+1. ~~**Approve the authentication design** (§4)~~ **Approved 2026-11-02:** WordPress cookie session with email + password, Sign in with Google and Sign in with Microsoft (§4.4). Simple-JWT-Login `/auth` turned off once this works (separate approval at deployment).
 2. **Roles** (§5): the four backend tiers (Membership Admin, Content Admin, Portal Admin, WP Administrator) — or merge Membership/Content Admin into Portal Admin only? And who are the first portal admins?
 3. **Classifications**: list (e.g. member, life member, honorary)?
 4. **Membership number format**: `151-YYYY-NNNN`? Do existing brothers already have numbers to import?
@@ -332,7 +375,7 @@ Required configuration changes (each needs approval): SMTP (FluentSMTP / WP Mail
 
 | Checkpoint | Scope | Rough size |
 |---|---|---|
-| 2 — Core backend | Plugin skeleton, roles/caps, status model, chapters, membership numbers, backend gate, session REST API (login/logout/me/reset/change), rate limiter, CORS/no-store headers, approval/suspend mutations, `currentMember`/`sessionStatus`/`myMemberProfile`/`updateMyMemberProfile`/`pendingMembers`, audit log, PHPUnit suite + staging smoke tests | Largest phase |
+| 2 — Core backend | Plugin skeleton, roles/caps, status model, chapters, membership numbers, backend gate, session REST API (login/logout/me/reset/change), Sign in with Google/Microsoft (§4.4), rate limiter, CORS/no-store headers, approval/suspend mutations, `currentMember`/`sessionStatus`/`myMemberProfile`/`updateMyMemberProfile`/`pendingMembers`, audit log, PHPUnit suite + staging smoke tests | Largest phase |
 | 3 — Member features | Directory + `verifyMember`, private member events, announcements, protected resources (if private storage verified), wp-admin screens, email notifications, roster export | Medium–large |
 | 4 — Deployment prep | Plugin zip, HostGator steps, config checklist, backup/rollback, Angular integration guide (`ANGULAR-INTEGRATION.md`) | Small |
 | Later (audit §16) | Prospect → candidate → member workflow, history archive + founders' interviews, education modules (Dean, intake classes, tests) | Separate approvals |
