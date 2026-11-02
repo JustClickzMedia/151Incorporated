@@ -685,9 +685,10 @@
 - **Branch:** `feature/events`
 - **What changed:**
   - Homepage **From the Blog** (homepage only, under Upcoming Events in the footer area): carousel of the 12 newest WordPress posts as tiles (featured image, date, title, excerpt, Read More); four visible at a time on desktop (two on tablets, one on phones), arrows + swipe; "View All Posts" → `/blog`; hidden when there are no posts.
-  - Menu **BLOG** (after the WordPress pages, before UPDATE) → `/blog`: all posts, newest first, **List / Grid** toggle (remembered), each row/card links to the post; "There are no blog posts yet." when empty.
+  - Menu **UPDATE → Blog** → `/blog`: all posts, newest first, **List / Grid** toggle (remembered), each row/card links to the post; "There are no blog posts yet." when empty.
   - Post page `/blog/:slug`: title, date, categories, whole featured image, full content, back links; 404 for unknown slugs; friendly error message.
   - Posts are never fetched while prerendering (always live). Author isn't requested (user data is private).
   - Files: `Model/wp-post.ts`, `Components/blogcarousel/*`, `Components/blog/*`, `Components/blogpost/*`, `Services/wordpress.service.ts` (`getBlogPosts`, `getBlogPost`), `Services/wp-queries.ts`, `app.routes.ts`, `navbar.component.html`, `footer.component.{ts,html}`, `docs/blog.md`.
 - **Checked against production:** the posts query returns the published post "A New Chapter in Our Digital Brotherhood…" (ID 175, category "blog", 819×1024 image).
 - **Testing:** 158/158 unit tests. Rendered with sample posts at 1280px and 390px (carousel incl. arrow paging, list, grid, post page; menu fits on one row at 1000px). Production build OK.
+- **Follow-up (same day):** BLOG moved from a top-level menu item into the **UPDATE** dropdown (Events, Blog). UPDATE is highlighted on `/events`, `/event/...`, `/blog` and `/blog/...`. 158/158 tests.

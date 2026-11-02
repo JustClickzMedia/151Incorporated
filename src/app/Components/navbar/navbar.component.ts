@@ -45,10 +45,10 @@ export class NavbarComponent implements OnInit {
   private readonly currentUrl = signal(this.router.url);
   /** Highlight MEMBERSHIP while the Membership page is open. */
   readonly membershipActive = computed(() => this.currentUrl().startsWith('/pg/membership'));
-  /** The Update dropdown (Events). */
+  /** The Update dropdown (Events, Blog). */
   readonly updateOpen = signal(false);
-  /** Highlight UPDATE on the events list and on an event's page. */
-  readonly updateActive = computed(() => /^\/events?(\/|$|\?)/.test(this.currentUrl()));
+  /** Highlight UPDATE on the events and blog pages (lists and single event/post pages). */
+  readonly updateActive = computed(() => /^\/(events?|blog)(\/|$|\?)/.test(this.currentUrl()));
   /** WordPress pages for the menu, without Membership (it is the dropdown at the end). */
   readonly pageMenu = computed(() => this.NavMenu().filter(p => p.slug !== MEMBERSHIP_SLUG));
 

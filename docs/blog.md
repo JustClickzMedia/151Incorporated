@@ -9,7 +9,7 @@ The blog uses the standard WordPress **Posts** (Posts → Add New). Everything l
 - **View All Posts ›** opens the blog page. Each tile opens the post.
 - Hidden when there are no published posts.
 
-## Blog page (menu **BLOG**, `/blog`)
+## Blog page (menu **UPDATE → Blog**, `/blog`)
 
 - All published posts, newest first, with a **List / Grid** toggle (remembered in the visitor's browser).
 - Every row or card opens the post. With no posts: "There are no blog posts yet."
