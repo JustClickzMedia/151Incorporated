@@ -58,10 +58,11 @@ code=$(req "$WP/wp-json/simple-jwt-login/v1/auth")
 [ "$code" = 404 ] && ok "JWT password endpoint removed" || bad "JWT password endpoint" "HTTP $code"
 code=$(req -X POST "$WP/xmlrpc.php" -H 'Content-Type: text/xml' --data '<?xml version="1.0"?><methodCall><methodName>system.listMethods</methodName></methodCall>')
 ! body | grep -q 'wp.getUsersBlogs' && ok "XML-RPC methods off" || bad "XML-RPC" "methods still listed"
+# A "coming soon" page (staging) answers 200 for everything; what matters is that nothing is revealed.
 code=$(req "$WP/?author=1")
-[ "$code" = 404 ] && ok "?author=1 does not reveal a username" || bad "author scan" "HTTP $code $(hdr location)"
+! hdr location | grep -q '/author/' && ok "?author=1 does not reveal a username" || bad "author scan" "HTTP $code $(hdr location)"
 code=$(req "$WP/wp-sitemap.xml")
-[ "$code" = 404 ] && ok "backend sitemap off" || bad "wp-sitemap.xml" "HTTP $code"
+! body | grep -q '<urlset\|<sitemapindex' && ok "backend sitemap off" || bad "wp-sitemap.xml" "HTTP $code: sitemap XML returned"
 code=$(req "$WP/")
 hdr x-robots-tag | grep -qi noindex && ok "backend marked noindex" || bad "X-Robots-Tag" "got: $(hdr x-robots-tag)"
 
