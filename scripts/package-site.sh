@@ -29,7 +29,8 @@ step "Checking the build"
 [ -f "$OUT/index.html" ] || fail "No build found at $OUT. Run without --skip-build."
 [ -f "$OUT/index.csr.html" ] || fail "index.csr.html is missing from the build."
 ls "$OUT"/main-*.js >/dev/null 2>&1 || fail "main-*.js is missing from the build."
-grep -q 'useGraphql:' "$OUT"/main-*.js || fail "Could not find the GraphQL setting in main-*.js."
+# The environment settings can land in main-*.js or in a shared chunk-*.js (the lazy member routes share them).
+grep -q 'useGraphql:' "$OUT"/*.js || fail "Could not find the GraphQL setting in the built JavaScript."
 echo "OK: $(ls "$OUT" | tr '\n' ' ')"
 
 step "Writing sitemap.xml and robots.txt from the live WordPress content"
