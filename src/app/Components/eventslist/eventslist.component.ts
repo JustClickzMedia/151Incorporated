@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { WordpressService } from '../../Services/wordpress.service';
-import { SeoService } from '../../Services/seo.service';
+import { SeoService, breadcrumbLd } from '../../Services/seo.service';
 import { WpEvent, eventBadge, formatEventDate, upcomingEvents } from '../../Model/wp-event';
 import { NOW } from '../../Model/now';
 
@@ -48,9 +48,12 @@ export class EventslistComponent {
 
   constructor() {
     const seo = inject(SeoService);
-    seo.removeMetaTags();
-    seo.addMetaTags();
-    seo.setTitle('Events | 1-5-1 Incorporated');
+    seo.apply({
+      title: 'Events',
+      description: 'Upcoming events from The Brothers of 1-5-1, Incorporated.',
+      path: '/events',
+      jsonLd: breadcrumbLd([{ name: 'Home', path: '/' }, { name: 'Events', path: '/events' }]),
+    });
   }
 
   setView(view: EventsView) {

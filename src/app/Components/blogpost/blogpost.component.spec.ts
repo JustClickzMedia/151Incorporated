@@ -43,7 +43,11 @@ describe('BlogpostComponent (/blog/:slug)', () => {
     expect((el().querySelector('img.feature') as HTMLImageElement).src).toBe('https://img.test/p.jpg');
     expect(el().querySelector('.content h2')?.textContent).toBe('Honoring Our History');
     expect(el().querySelector('a.back')?.getAttribute('href')).toBe('/blog');
-    expect(TestBed.inject(Title).getTitle()).toBe('A New Chapter ’26');
+    expect(TestBed.inject(Title).getTitle()).toBe('A New Chapter ’26 | 1-5-1 Incorporated');
+    expect(document.head.querySelector('meta[property="og:type"]')?.getAttribute('content')).toBe('article');
+    const ld = JSON.parse(document.head.querySelector('script[type="application/ld+json"]')!.textContent!);
+    expect(ld[0]['@type']).toBe('BlogPosting');
+    expect(ld[0].headline).toBe('A New Chapter ’26');
   });
 
   it('shows the 404 view for an unknown slug', async () => {

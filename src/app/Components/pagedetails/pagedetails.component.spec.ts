@@ -84,7 +84,7 @@ for (const source of [REST, GRAPHQL]) {
       expect(el().textContent).toContain('Body 19');
       expect((el().querySelector('#margintransition') as HTMLElement).style.backgroundImage).toContain(IMG);
       expect(el().querySelector('app-pagenotfound')).toBeNull();
-      expect(TestBed.inject(Title).getTitle()).toBe('1-5-1 History');
+      expect(TestBed.inject(Title).getTitle()).toBe('1-5-1 History | 1-5-1 Incorporated');
       expect(TestBed.inject(Meta).getTag('name="description"')?.content).toBe('Body 19');
     });
 

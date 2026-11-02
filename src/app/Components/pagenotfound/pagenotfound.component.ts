@@ -1,4 +1,5 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import { SeoService } from '../../Services/seo.service';
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -10,9 +11,11 @@ import { RouterLink } from '@angular/router';
 })
 export class PagenotfoundComponent implements OnInit {
 
-  constructor() { }
+  private seo = inject(SeoService);
 
   ngOnInit() {
+    // Keep "not found" views out of search results.
+    this.seo.apply({ title: 'Page not found', noindex: true });
   }
 
 }

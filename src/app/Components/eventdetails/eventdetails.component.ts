@@ -4,7 +4,8 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { WordpressService } from '../../Services/wordpress.service';
-import { SeoService } from '../../Services/seo.service';
+import { SeoService, breadcrumbLd } from '../../Services/seo.service';
+import { SITE, metaText, siteUrl } from '../../Services/seo.config';
 import { PagenotfoundComponent } from '../pagenotfound/pagenotfound.component';
 import { WpEvent, formatEventDate, isExpired } from '../../Model/wp-event';
 import { NOW } from '../../Model/now';
@@ -53,10 +54,31 @@ export class EventdetailsComponent {
 
   private applySeo(event: WpEvent): void {
     try {
-      this.seo.removeMetaTags();
-      this.seo.addMetaTags();
-      this.seo.setTitle(event.title);
-      if (event.summary) { this.seo.updateDescMetaTags(event.summary); }
+      const path = '/event/' + event.slug;
+      const title = metaText(event.title, 120);
+      const when = formatEventDate(event);
+      const description = [when, event.location, event.summary].filter(Boolean).join(' · ');
+      const jsonLd: object[] = [
+        breadcrumbLd([{ name: 'Home', path: '/' }, { name: 'Events', path: '/events' }, { name: title, path }]),
+      ];
+      // Google's event results need a date and a place; only describe the event as an Event when both exist.
+      if (event.startDate && event.location) {
+        jsonLd.unshift({
+          '@context': 'https://schema.org',
+          '@type': 'Event',
+          name: title,
+          description: metaText(event.summary, 300),
+          startDate: event.startDate,
+          endDate: event.endDate ?? event.startDate,
+          eventStatus: 'https://schema.org/EventScheduled',
+          eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+          location: { '@type': 'Place', name: event.location, address: event.location },
+          image: event.image ? [event.image.url] : undefined,
+          url: siteUrl(path),
+          organizer: { '@type': 'Organization', name: SITE.name, url: SITE.url + '/' },
+        });
+      }
+      this.seo.apply({ title, description, path, image: event.image, jsonLd });
     } catch (err) {
       console.error(err);
     }

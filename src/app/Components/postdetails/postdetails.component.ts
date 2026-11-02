@@ -32,13 +32,14 @@ export class PostdetailsComponent {
 
   private applySeo(resp: any): void {
     try {
-      this.seo.removeMetaTags();
-      this.seo.addMetaTags();
-      this.seo.setTitle(resp['title']['rendered']);
-      this.seo.updateKeywordMetaTags(resp['post-custom-fields']['Keywords']);
-      this.seo.updateDescMetaTags(resp['post-custom-fields']['Description']);
+      // Legacy address: let the new /blog/<slug> page be the one search engines index.
+      const slug = resp?.slug;
+      this.seo.apply({
+        title: resp?.title?.rendered ?? 'Post',
+        description: resp?.excerpt?.rendered,
+        path: slug ? '/blog/' + slug : undefined,
+      });
     } catch (err) {
-      // Same as before: a missing SEO field is logged, the content still renders.
       console.error(err);
     }
   }

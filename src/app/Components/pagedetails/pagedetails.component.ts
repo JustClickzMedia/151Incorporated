@@ -5,7 +5,8 @@ import { CommonModule } from '@angular/common';
 import { Observable, of } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { WordpressService } from '../../Services/wordpress.service';
-import { SeoService } from '../../Services/seo.service';
+import { SeoService, breadcrumbLd } from '../../Services/seo.service';
+import { metaText } from '../../Services/seo.config';
 import { PagenotfoundComponent } from '../../Components/pagenotfound/pagenotfound.component';
 import { WpPage } from '../../Model/wp-page';
 
@@ -56,13 +57,17 @@ export class PagedetailsComponent {
 
   private applySeo(page: WpPage): void {
     try {
-      this.seo.removeMetaTags();
-      this.seo.addMetaTags();
-      this.seo.setTitle(page.title);
-      // The old 'post-custom-fields' Keywords/Description don't exist in REST or GraphQL; use the excerpt instead.
-      if (page.excerptText) { this.seo.updateDescMetaTags(page.excerptText); }
+      const path = '/' + page.slug;
+      const title = metaText(page.title, 120);
+      this.seo.apply({
+        title,
+        description: page.excerptText,
+        path,
+        image: page.featuredImage,
+        jsonLd: breadcrumbLd([{ name: 'Home', path: '/' }, { name: title, path }]),
+      });
     } catch (err) {
-      // Same as before: an SEO problem is logged, the content still renders.
+      // An SEO problem is logged; the content still renders.
       console.error(err);
     }
   }

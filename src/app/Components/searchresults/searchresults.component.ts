@@ -6,6 +6,7 @@ import { WordpressService } from '../../Services/wordpress.service';
 import { withFallback } from '../../Services/rx-fallback';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { SeoService } from '../../Services/seo.service';
 
 @Component({
     selector: 'app-searchresults',
@@ -17,6 +18,11 @@ import { RouterLink } from '@angular/router';
 export class SearchresultsComponent {
   private route = inject(ActivatedRoute);
   private wpService = inject(WordpressService);
+
+  constructor() {
+    // Search result pages are useful to visitors, not to search engines.
+    inject(SeoService).apply({ title: 'Search', noindex: true });
+  }
 
   private readonly term$ = this.route.paramMap.pipe(map(params => params.get('term')));
 
