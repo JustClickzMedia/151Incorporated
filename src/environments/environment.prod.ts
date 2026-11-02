@@ -12,6 +12,7 @@ export const environment = {
   // Members area: the portal plugin on the production WordPress (cookie session; see ANGULAR-INTEGRATION.md).
   portalApiUrl: 'https://tzin.brothersof1-5-1.org',
   portalGraphqlUrl: 'https://tzin.brothersof1-5-1.org/graphql',
-  // Hidden from the menu until the portal plugin is installed on production (go-live step).
-  membersEnabled: false
+  // Members area live on production (portal plugin installed). Google sign-in shows only once
+  // B151_GOOGLE_CLIENT_* are in production's wp-config.php; the button comes from the server's provider list.
+  membersEnabled: true
 };
