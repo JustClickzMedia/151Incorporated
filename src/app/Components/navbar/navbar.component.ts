@@ -101,7 +101,7 @@ export class NavbarComponent implements OnInit {
 
   /** Pay Dues pop-up: the Square checkout in a frame over the page, so the visitor never leaves the site. */
   readonly payDuesUrl = PAY_DUES_URL;
-  /** "Member Login" in the MEMBERSHIP menu (off on production until the portal goes live). */
+  /** "Member Sign In" in the MEMBERSHIP menu (off on production until the portal goes live). */
   readonly membersEnabled = environment.membersEnabled;
   readonly payDuesFrameUrl = this.sanitizer.bypassSecurityTrustResourceUrl(PAY_DUES_URL);
   readonly payDuesOpen = signal(false);
