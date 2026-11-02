@@ -1,6 +1,7 @@
 # Members-Only Portal — Architecture Design (Checkpoint 1)
 
 **Status:** design for approval. **No implementation code has been written.** Nothing has been changed in WordPress.
+**Decided 2026-11-02 (owner):** member events are a separate private type; directory shows name, chapter, year and an **Active** indicator by default, everything else opt-in; "active" will later also depend on dues (§3.1, §3.3, §6, §12 Q8–Q9).
 **Decided 2026-11-02 (owner):** classifications (Member, Life Member, Honorary), membership number format `151-NNNNN`, inactivity logout, 2FA for admins (§3.1, §4.3, §4.5, §12 Q3–Q6).
 **Decided 2026-11-02 (owner):** roles — all admin tiers built, one admin for now (the owner); more can be added later (§5, §12 Q2).
 **Approved 2026-11-02 (owner):** authentication = **WordPress cookie session**, signed in with **email + password** or **Sign in with Google / Microsoft** (server-side OAuth 2.0 Authorization Code + PKCE, OpenID Connect). All three end in the same WordPress session (§4, §4.4). Other §12 decisions are still open.
@@ -99,7 +100,8 @@ All data lives in the existing WordPress database. **No second database.**
 | `b151_photo_id` | int (private resource) | Profile photo, stored privately (§3.3) — **not** the public Media Library |
 | `b151_bio` | text (optional) | |
 | Contact fields | `b151_phone`, `b151_address_*` | Personal data; never public |
-| `b151_visibility` | JSON map field → `members` \| `admins` | Directory sharing choices. **Default: everything except display name, chapter and year is `admins`** |
+| `b151_visibility` | JSON map field → `members` \| `admins` | Directory sharing choices. **Decided default:** display name, chapter, year (join/initiation year) and the **Active** indicator are visible to members; everything else (email, phone, address, bio, photo, line, classification) is `admins` until the brother opts in |
+| `b151_dues_status` *(later)* | `current` \| `lapsed` \| `exempt` + `b151_dues_paid_through` (date) | **Planned (owner, 2026-11-02): "active" will also depend on dues.** Not built now. When added, the directory's Active indicator = membership status `active` **and** dues `current`/`exempt` (Life Members and Honorary can be `exempt`). Whether lapsed dues also removes portal access is an open question (§12 Q10) |
 | `b151_profile_updated_at` | datetime | |
 | `b151_prospect_id` | int | Link to the New Prospects record it came from (§3.5) |
 
@@ -113,7 +115,7 @@ ACF PRO can render these fields in wp-admin (user-location field group), but **A
 
 | Type | Fields | Notes |
 |---|---|---|
-| `b151_member_event` | title, description, start, end, location, virtual meeting info (link/ID/passcode), visibility (`members` / `chapter` / `admins`), chapter (optional), status | **Separate from the public `events` type**, so private details can never leak through existing public queries, REST, feeds or sitemaps |
+| `b151_member_event` | title, description, start, end, location, virtual meeting info (link/ID/passcode), visibility (`members` / `chapter` / `admins`), chapter (optional), status | **Decided: separate private type**, apart from the public `events` type, so private details can never leak through existing public queries, REST, feeds or sitemaps. The public Events section and pages are unchanged |
 | `b151_announcement` | title, content, published, author, visibility, chapter (optional), expires_at | Separate from the public blog |
 | `b151_resource` | title, description, category, visibility, chapter (optional), private file reference (path, MIME, size, checksum, original name) | Files stored privately (§7) |
 
@@ -279,7 +281,7 @@ All new fields are registered with `register_graphql_object_type`, `register_gra
 | `sessionStatus` | query | anyone | `{ authenticated, expiresAt }`; no personal data |
 | `myMemberProfile` | query | `b151_edit_own_profile` | Full own profile incl. own contact data and visibility settings |
 | `updateMyMemberProfile` | mutation | `b151_edit_own_profile` | **Allow-list** of editable fields (display name, bio, phone, address, visibility, photo); status, number, chapter, role are never editable here |
-| `memberDirectory(first, after, search, chapterId)` | connection | `b151_view_directory` + active | Active members only; max 25 per page; search ≥ 2 chars; fields filtered by each member's visibility; per-user rate limit |
+| `memberDirectory(first, after, search, chapterId)` | connection | `b151_view_directory` + active | Lists brothers with portal accounts (not pending/suspended); each entry shows display name, chapter, year and **`isActive`** (today: membership status `active`; later: also dues current, §3.1), plus any fields the brother opted in to; max 25 per page; search ≥ 2 chars; per-user rate limit |
 | `memberProfile(id)` | query | `b151_view_directory` + active | Same visibility rules as the directory; no email unless shared |
 | `pendingMembers(first, after)` | connection | `b151_approve_members` | |
 | `approveMember(userId, classification?)` | mutation | `b151_approve_members` | pending → active; assigns membership number if missing; email; audit |
@@ -372,8 +374,9 @@ Required configuration changes (each needs approval): SMTP (FluentSMTP / WP Mail
 5. ~~**Session length**~~ **Decided:** log out after inactivity — 30 min members, 15 min backend accounts, 12 h absolute maximum, no "remember me" (all configurable).
 6. ~~**2FA**~~ **Decided:** required for every backend-capable account, using the free Two Factor plugin with enforcement in the portal plugin (§4.5).
 7. **Email sender** (e.g. `portal@brothersof1-5-1.org`) and SMTP choice (free options in audit §9).
-8. **Member events**: separate private type (recommended) vs. a visibility flag on the existing public `events` type.
-9. **Directory defaults**: confirm that only display name, chapter and year are visible to other members unless a brother opts in.
+8. ~~**Member events**~~ **Decided:** separate private type `b151_member_event` (recommended option).
+9. ~~**Directory defaults**~~ **Decided:** name, chapter, year and an **Active** indicator shown by default; everything else only if the brother opts in.
+10. **Later (dues):** "active" will also depend on dues. To decide when dues are built: does a lapsed-dues brother (a) keep portal access but show as not active, or (b) lose access to member content until dues are paid? Who records payments (manually, or from the Pay Dues/Square checkout)? Are Life Members and Honorary exempt?
 
 ## 13. Security risks (to resolve in the phases shown)
 
