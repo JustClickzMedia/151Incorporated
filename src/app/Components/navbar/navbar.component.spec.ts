@@ -26,12 +26,12 @@ describe('NavbarComponent', () => {
   it('menu order: HOME first, then the WordPress pages, UPDATE, then MEMBERSHIP last', async () => {
     http.expectOne(r => r.url.startsWith(environment.restUrl + 'pages?_embed'))
       .flush([{ id: 2, slug: 'membership', title: { rendered: 'Membership' } },
-              { id: 3, slug: 'moto', title: { rendered: 'Moto' } }]);
+              { id: 3, slug: 'gallery', title: { rendered: 'Gallery' } }]);
     fixture.detectChanges();
     await fixture.whenStable();
     const items = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.navbar-nav.mr-auto > li > .nav-link'));
-    expect(items.map(a => a.textContent?.trim())).toEqual(['HOME', 'MOTO', 'UPDATE', 'MEMBERSHIP']);
-    expect(items.map(a => a.getAttribute('href'))).toEqual(['/', '/moto', null, null]); // UPDATE and MEMBERSHIP are dropdown buttons
+    expect(items.map(a => a.textContent?.trim())).toEqual(['HOME', 'GALLERY', 'UPDATE', 'MEMBERSHIP']);
+    expect(items.map(a => a.getAttribute('href'))).toEqual(['/', '/gallery', null, null]); // UPDATE and MEMBERSHIP are dropdown buttons
   });
 
   it('MEMBERSHIP opens a dropdown with the Membership page and Pay Dues; it closes on an outside click or Escape', async () => {
@@ -75,7 +75,7 @@ describe('NavbarComponent', () => {
 
   it('the MEMBERSHIP button uses the same font as the other menu links', async () => {
     http.expectOne(r => r.url.startsWith(environment.restUrl + 'pages?_embed'))
-      .flush([{ id: 3, slug: 'moto', title: { rendered: 'Moto' } }]);
+      .flush([{ id: 3, slug: 'gallery', title: { rendered: 'Gallery' } }]);
     fixture.detectChanges();
     await fixture.whenStable();
     document.body.appendChild(fixture.nativeElement);
@@ -165,16 +165,80 @@ describe('NavbarComponent', () => {
     expect(items[1].getAttribute('href')).toBe('/president');
   });
 
-  it('labels the about-1-5-1 page "ABOUT" (other pages keep their slug)', async () => {
-    TestBed.inject(HttpTestingController); // same instance
+  it('groups About + Moto under ABOUT and Scholarship + Foundation under IMPACT', async () => {
+    // The live WordPress page order: Foundation, Scholarship, Moto, About, President, Membership.
     http.expectOne(r => r.url.startsWith(environment.restUrl + 'pages?_embed'))
-      .flush([{ id: 19, slug: 'about-1-5-1', title: { rendered: '1-5-1 History' } },
-              { id: 17, slug: 'moto', title: { rendered: 'Moto' } }]);
+      .flush([{ id: 10, slug: 'foundation', title: { rendered: 'THE HELP THEM WE WILL FOUNDATION' } },
+              { id: 15, slug: 'scholarship', title: { rendered: 'The Michael J. Bryant Memorial Scholarship' } },
+              { id: 17, slug: 'moto', title: { rendered: 'Perseverance' } },
+              { id: 19, slug: 'about-1-5-1', title: { rendered: '1-5-1 History' } },
+              { id: 27, slug: 'president', title: { rendered: 'Message from the National President' } },
+              { id: 29, slug: 'membership', title: { rendered: 'Membership Requirement' } }]);
     fixture.detectChanges();
     await fixture.whenStable();
-    const items = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.navbar-nav.mr-auto > li > .nav-link'));
-    expect(items.map(a => a.textContent?.trim())).toEqual(['HOME', 'ABOUT', 'MOTO', 'UPDATE', 'MEMBERSHIP']);
-    expect(items[1].getAttribute('href')).toBe('/about-1-5-1');
+    const el = fixture.nativeElement as HTMLElement;
+    const top = Array.from(el.querySelectorAll('.navbar-nav.mr-auto > li > .nav-link'));
+    expect(top.map(a => a.textContent?.trim())).toEqual(['HOME', 'ABOUT', 'IMPACT', 'LEADERSHIP', 'UPDATE', 'MEMBERSHIP']);
+
+    const impact = el.querySelector('#impact-toggle') as HTMLButtonElement;
+    const about = el.querySelector('#about-toggle') as HTMLButtonElement;
+    expect(el.querySelector('#impact-menu')!.classList).not.toContain('show');
+    impact.click();
+    fixture.detectChanges();
+    expect(impact.getAttribute('aria-expanded')).toBe('true');
+    const impactItems = Array.from(el.querySelectorAll('#impact-menu a'));
+    expect(impactItems.map(a => a.textContent?.trim())).toEqual(['Scholarship', 'Foundation']);
+    expect(impactItems.map(a => a.getAttribute('href'))).toEqual(['/scholarship', '/foundation']);
+
+    about.click();                       // only one dropdown open at a time
+    fixture.detectChanges();
+    expect(el.querySelector('#impact-menu')!.classList).not.toContain('show');
+    const aboutItems = Array.from(el.querySelectorAll('#about-menu a'));
+    expect(aboutItems.map(a => a.textContent?.trim())).toEqual(['About 1-5-1', 'Moto']);
+    expect(aboutItems.map(a => a.getAttribute('href'))).toEqual(['/about-1-5-1', '/moto']);
+
+    about.click();                       // clicking again closes it
+    fixture.detectChanges();
+    expect(el.querySelector('#about-menu')!.classList).not.toContain('show');
+
+    impact.click();
+    fixture.detectChanges();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    fixture.detectChanges();
+    expect(el.querySelector('#impact-menu')!.classList).not.toContain('show');
+  });
+
+  it('puts ABOUT right after HOME and PROGRAMS (Education, Social Action) right after ABOUT, whatever order WordPress returns the pages in', async () => {
+    // New pages come back last from WordPress (all pages have Order 0); an unlisted page goes after the fixed ones.
+    http.expectOne(r => r.url.startsWith(environment.restUrl + 'pages?_embed'))
+      .flush([{ id: 27, slug: 'president', title: { rendered: 'Message from the National President' } },
+              { id: 31, slug: 'gallery', title: { rendered: 'Gallery' } },
+              { id: 19, slug: 'about-1-5-1', title: { rendered: '1-5-1 History' } },
+              { id: 10, slug: 'foundation', title: { rendered: 'Foundation' } },
+              { id: 200, slug: 'social-action', title: { rendered: 'Social Action &#038; Community Impact' } },
+              { id: 196, slug: 'education', title: { rendered: 'Education' } }]);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(Array.from(el.querySelectorAll('.navbar-nav.mr-auto > li > .nav-link')).map(a => a.textContent?.trim()))
+      .toEqual(['HOME', 'ABOUT', 'PROGRAMS', 'IMPACT', 'LEADERSHIP', 'GALLERY', 'UPDATE', 'MEMBERSHIP']);
+    (el.querySelector('#programs-toggle') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    const items = Array.from(el.querySelectorAll('#programs-menu a'));
+    expect(items.map(a => a.textContent?.trim())).toEqual(['Education', 'Social Action']);
+    expect(items.map(a => a.getAttribute('href'))).toEqual(['/education', '/social-action']);
+  });
+
+  it('shows a group with only the pages that exist, and no group when none do', async () => {
+    http.expectOne(r => r.url.startsWith(environment.restUrl + 'pages?_embed'))
+      .flush([{ id: 15, slug: 'scholarship', title: { rendered: 'Scholarship' } }]);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(Array.from(el.querySelectorAll('.navbar-nav.mr-auto > li > .nav-link')).map(a => a.textContent?.trim()))
+      .toEqual(['HOME', 'IMPACT', 'UPDATE', 'MEMBERSHIP']);
+    expect(Array.from(el.querySelectorAll('#impact-menu a')).map(a => a.textContent?.trim())).toEqual(['Scholarship']);
+    expect(el.querySelector('#about-toggle')).toBeNull();
   });
 
   it('is a regular horizontal menu on desktop (navbar-expand-lg: hamburger only below 992px)', () => {
@@ -219,12 +283,12 @@ describe('NavbarComponent (GraphQL)', () => {
     expect(req.request.body.query).toContain('pages(');
     req.flush({ data: { pages: { pageInfo: { hasNextPage: false, endCursor: null },
       nodes: [{ databaseId: 29, slug: 'membership', title: 'Membership Requirement', uri: '/membership/' },
-              { databaseId: 17, slug: 'moto', title: 'Moto', uri: '/moto/' }] } } });
+              { databaseId: 17, slug: 'gallery', title: 'Gallery', uri: '/gallery/' }] } } });
     fixture.detectChanges();
     await fixture.whenStable();
     const items = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.navbar-nav.mr-auto > li > .nav-link'));
-    expect(items.map(a => a.textContent?.trim())).toEqual(['HOME', 'MOTO', 'UPDATE', 'MEMBERSHIP']);
-    expect(items.map(a => a.getAttribute('href'))).toEqual(['/', '/moto', null, null]);
+    expect(items.map(a => a.textContent?.trim())).toEqual(['HOME', 'GALLERY', 'UPDATE', 'MEMBERSHIP']);
+    expect(items.map(a => a.getAttribute('href'))).toEqual(['/', '/gallery', null, null]);
     http.verify();
   });
 });
