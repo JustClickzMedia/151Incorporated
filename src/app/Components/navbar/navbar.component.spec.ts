@@ -178,7 +178,7 @@ describe('NavbarComponent', () => {
     await fixture.whenStable();
     const el = fixture.nativeElement as HTMLElement;
     const top = Array.from(el.querySelectorAll('.navbar-nav.mr-auto > li > .nav-link'));
-    expect(top.map(a => a.textContent?.trim())).toEqual(['HOME', 'IMPACT', 'ABOUT', 'LEADERSHIP', 'UPDATE', 'MEMBERSHIP']);
+    expect(top.map(a => a.textContent?.trim())).toEqual(['HOME', 'ABOUT', 'IMPACT', 'LEADERSHIP', 'UPDATE', 'MEMBERSHIP']);
 
     const impact = el.querySelector('#impact-toggle') as HTMLButtonElement;
     const about = el.querySelector('#about-toggle') as HTMLButtonElement;
@@ -208,7 +208,7 @@ describe('NavbarComponent', () => {
     expect(el.querySelector('#impact-menu')!.classList).not.toContain('show');
   });
 
-  it('puts PROGRAMS (Education, Social Action) right after ABOUT, whatever order WordPress returns the pages in', async () => {
+  it('puts ABOUT right after HOME and PROGRAMS (Education, Social Action) right after ABOUT, whatever order WordPress returns the pages in', async () => {
     // New pages come back last from WordPress (all pages have Order 0); an unlisted page goes after the fixed ones.
     http.expectOne(r => r.url.startsWith(environment.restUrl + 'pages?_embed'))
       .flush([{ id: 27, slug: 'president', title: { rendered: 'Message from the National President' } },
@@ -221,7 +221,7 @@ describe('NavbarComponent', () => {
     await fixture.whenStable();
     const el = fixture.nativeElement as HTMLElement;
     expect(Array.from(el.querySelectorAll('.navbar-nav.mr-auto > li > .nav-link')).map(a => a.textContent?.trim()))
-      .toEqual(['HOME', 'IMPACT', 'ABOUT', 'PROGRAMS', 'LEADERSHIP', 'GALLERY', 'UPDATE', 'MEMBERSHIP']);
+      .toEqual(['HOME', 'ABOUT', 'PROGRAMS', 'IMPACT', 'LEADERSHIP', 'GALLERY', 'UPDATE', 'MEMBERSHIP']);
     (el.querySelector('#programs-toggle') as HTMLButtonElement).click();
     fixture.detectChanges();
     const items = Array.from(el.querySelectorAll('#programs-menu a'));
