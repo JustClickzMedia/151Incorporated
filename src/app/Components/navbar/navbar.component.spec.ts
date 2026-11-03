@@ -165,7 +165,7 @@ describe('NavbarComponent', () => {
     expect(items[1].getAttribute('href')).toBe('/president');
   });
 
-  it('groups About + Moto under ABOUT and Scholarship + Foundation under IMPACT, where the first of each page was', async () => {
+  it('groups About + Moto under ABOUT and Scholarship + Foundation under IMPACT', async () => {
     // The live WordPress page order: Foundation, Scholarship, Moto, About, President, Membership.
     http.expectOne(r => r.url.startsWith(environment.restUrl + 'pages?_embed'))
       .flush([{ id: 10, slug: 'foundation', title: { rendered: 'THE HELP THEM WE WILL FOUNDATION' } },
@@ -206,6 +206,27 @@ describe('NavbarComponent', () => {
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
     fixture.detectChanges();
     expect(el.querySelector('#impact-menu')!.classList).not.toContain('show');
+  });
+
+  it('puts PROGRAMS (Education, Social Action) right after ABOUT, whatever order WordPress returns the pages in', async () => {
+    // New pages come back last from WordPress (all pages have Order 0); an unlisted page goes after the fixed ones.
+    http.expectOne(r => r.url.startsWith(environment.restUrl + 'pages?_embed'))
+      .flush([{ id: 27, slug: 'president', title: { rendered: 'Message from the National President' } },
+              { id: 31, slug: 'gallery', title: { rendered: 'Gallery' } },
+              { id: 19, slug: 'about-1-5-1', title: { rendered: '1-5-1 History' } },
+              { id: 10, slug: 'foundation', title: { rendered: 'Foundation' } },
+              { id: 200, slug: 'social-action', title: { rendered: 'Social Action &#038; Community Impact' } },
+              { id: 196, slug: 'education', title: { rendered: 'Education' } }]);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(Array.from(el.querySelectorAll('.navbar-nav.mr-auto > li > .nav-link')).map(a => a.textContent?.trim()))
+      .toEqual(['HOME', 'IMPACT', 'ABOUT', 'PROGRAMS', 'LEADERSHIP', 'GALLERY', 'UPDATE', 'MEMBERSHIP']);
+    (el.querySelector('#programs-toggle') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    const items = Array.from(el.querySelectorAll('#programs-menu a'));
+    expect(items.map(a => a.textContent?.trim())).toEqual(['Education', 'Social Action']);
+    expect(items.map(a => a.getAttribute('href'))).toEqual(['/education', '/social-action']);
   });
 
   it('shows a group with only the pages that exist, and no group when none do', async () => {

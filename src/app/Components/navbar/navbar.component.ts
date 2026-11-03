@@ -21,14 +21,21 @@ export const NAV_LABELS: Record<string, string> = {
 };
 
 /**
- * WordPress pages shown together under one dropdown. The dropdown takes the place of the first of its pages in
- * the WordPress page order; pages that don't exist are simply left out (and an empty group is not shown).
+ * WordPress pages shown together under one dropdown (matched by page slug). Pages that don't exist or aren't
+ * published are left out, and a group with no pages is not shown.
  */
 export interface NavGroup { key: string; label: string; slugs: string[] }
 export const NAV_GROUPS: NavGroup[] = [
   { key: 'about', label: 'ABOUT', slugs: ['about-1-5-1', 'moto'] },
+  { key: 'programs', label: 'PROGRAMS', slugs: ['education', 'social-action'] },
   { key: 'impact', label: 'IMPACT', slugs: ['scholarship', 'foundation'] },
 ];
+
+/**
+ * Fixed order of the top menu after HOME (group keys and page slugs). The WordPress pages all have Order 0, so
+ * their own order isn't reliable. Pages not listed here follow, in WordPress order; UPDATE and MEMBERSHIP stay last.
+ */
+export const MENU_ORDER: string[] = ['impact', 'about', 'programs', 'president'];
 
 /** Text for a page inside a dropdown (other pages show their slug, title-cased by CSS). */
 export const DROPDOWN_LABELS: Record<string, string> = {
@@ -36,6 +43,8 @@ export const DROPDOWN_LABELS: Record<string, string> = {
   'moto': 'Moto',
   'scholarship': 'Scholarship',
   'foundation': 'Foundation',
+  'education': 'Education',
+  'social-action': 'Social Action',
 };
 
 /** One entry of the top menu: a single page, or a dropdown group with its pages. */
@@ -87,7 +96,11 @@ export class NavbarComponent implements OnInit {
       const members = group.slugs.map(slug => pages.find(p => p.slug === slug)).filter((p): p is WpPageLink => !!p);
       entries.push({ kind: 'group', group, pages: members });
     }
-    return entries;
+    const rank = (e: NavEntry) => {
+      const i = MENU_ORDER.indexOf(e.kind === 'group' ? e.group.key : e.page.slug);
+      return i < 0 ? MENU_ORDER.length : i;
+    };
+    return entries.map((e, i) => ({ e, i })).sort((a, b) => rank(a.e) - rank(b.e) || a.i - b.i).map(x => x.e);
   });
   /** Which page-group dropdown is open (ABOUT, IMPACT), if any. */
   readonly groupOpen = signal<string | null>(null);
