@@ -8,12 +8,14 @@
     </div>-->
   </div>
   <div class="container bgPage mbMargin" >
-    <div class="row">
-      <!-- Title only: the page's created date is no longer shown -->
-      <div class="col-lg-6 hdtitle hddate">
-        <h4>{{pagelments.title}}</h4>
+    <!-- Title only: the page's created date is no longer shown. Hidden on pages in HIDE_TITLE_SLUGS. -->
+    @if (showTitle()) {
+      <div class="row">
+        <div class="col-lg-6 hdtitle hddate">
+          <h4>{{pagelments.title}}</h4>
+        </div>
       </div>
-    </div>
+    }
     <div class="row">
       <div class="col-12 text-justify" [innerHTML]="pagelments.contentHtml">
       </div>
