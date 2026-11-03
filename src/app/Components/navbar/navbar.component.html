@@ -26,15 +26,30 @@
       <span class="navbar-toggler-icon" [ngStyle]="{'background-image': iconlnimage() }"></span>
     </button>
     <div class="collapse navbar-collapse" [ngClass]="{ 'show': navbarOpen() }">
-      <!-- Menu order: HOME, the WordPress pages, UPDATE (dropdown: Events, Blog), then MEMBERSHIP (dropdown: Membership page, Pay Dues) -->
+      <!-- Menu order: HOME, the WordPress pages (ABOUT and IMPACT group several pages in a dropdown, see NAV_GROUPS),
+           UPDATE (dropdown: Events, Blog), then MEMBERSHIP (dropdown: Membership page, Pay Dues, Member Sign In) -->
       <ul class="navbar-nav mr-auto">
         <li class="nav-item" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
           <a class="nav-link" (click)="closeNavbar()" routerLink="/">HOME</a>
         </li>
-        @for (NavItem of pageMenu(); track NavItem.id) {
-          <li class="nav-item" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
-            <a class="nav-link" (click)="closeNavbar()" [routerLink]="['/', NavItem.slug]">{{ menuLabel(NavItem) | uppercase }}</a>
-          </li>
+        @for (entry of menuEntries(); track entry.kind === 'page' ? entry.page.id : entry.group.key) {
+          @if (entry.kind === 'page') {
+            <li class="nav-item" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+              <a class="nav-link" (click)="closeNavbar()" [routerLink]="['/', entry.page.slug]">{{ menuLabel(entry.page) | uppercase }}</a>
+            </li>
+          } @else {
+            <!-- Same dropdown styling as MEMBERSHIP (membership-menu class) -->
+            <li class="nav-item dropdown membership-menu group-menu" [class.active]="groupActive(entry.group)">
+              <button type="button" class="nav-link dropdown-toggle" [id]="entry.group.key + '-toggle'"
+                      [attr.aria-expanded]="groupOpen() === entry.group.key" aria-haspopup="true" [attr.aria-controls]="entry.group.key + '-menu'"
+                      (click)="toggleGroup(entry.group.key, $event)">{{ entry.group.label }}</button>
+              <ul class="dropdown-menu" [id]="entry.group.key + '-menu'" [attr.aria-labelledby]="entry.group.key + '-toggle'" [class.show]="groupOpen() === entry.group.key">
+                @for (page of entry.pages; track page.id) {
+                  <li><a class="dropdown-item" (click)="closeNavbar()" [routerLink]="['/', page.slug]">{{ dropdownLabel(page) }}</a></li>
+                }
+              </ul>
+            </li>
+          }
         }
         <!-- Same dropdown styling as MEMBERSHIP (membership-menu class) -->
         <li class="nav-item dropdown membership-menu update-menu" [class.active]="updateActive()">

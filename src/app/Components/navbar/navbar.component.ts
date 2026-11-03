@@ -20,6 +20,27 @@ export const NAV_LABELS: Record<string, string> = {
   'president': 'Leadership',
 };
 
+/**
+ * WordPress pages shown together under one dropdown. The dropdown takes the place of the first of its pages in
+ * the WordPress page order; pages that don't exist are simply left out (and an empty group is not shown).
+ */
+export interface NavGroup { key: string; label: string; slugs: string[] }
+export const NAV_GROUPS: NavGroup[] = [
+  { key: 'about', label: 'ABOUT', slugs: ['about-1-5-1', 'moto'] },
+  { key: 'impact', label: 'IMPACT', slugs: ['scholarship', 'foundation'] },
+];
+
+/** Text for a page inside a dropdown (other pages show their slug, title-cased by CSS). */
+export const DROPDOWN_LABELS: Record<string, string> = {
+  'about-1-5-1': 'About 1-5-1',
+  'moto': 'Moto',
+  'scholarship': 'Scholarship',
+  'foundation': 'Foundation',
+};
+
+/** One entry of the top menu: a single page, or a dropdown group with its pages. */
+export type NavEntry = { kind: 'page'; page: WpPageLink } | { kind: 'group'; group: NavGroup; pages: WpPageLink[] };
+
 /** Square checkout for membership dues. Shown in a pop-up frame so visitors stay on the site. */
 export const PAY_DUES_URL = 'https://checkout.square.site/merchant/4ZBJEDVN0C8CN/checkout/C6GENNAL37VOT5NCEZJ24W2J';
 
@@ -52,6 +73,40 @@ export class NavbarComponent implements OnInit {
   readonly updateActive = computed(() => /^\/(events?|blog)(\/|$|\?)/.test(this.currentUrl()));
   /** WordPress pages for the menu, without Membership (it is the dropdown at the end). */
   readonly pageMenu = computed(() => this.NavMenu().filter(p => p.slug !== MEMBERSHIP_SLUG));
+  /** The top menu: single pages, with grouped pages (NAV_GROUPS) folded into one dropdown each. */
+  readonly menuEntries = computed<NavEntry[]>(() => {
+    const pages = this.pageMenu();
+    const entries: NavEntry[] = [];
+    const placed = new Set<string>();
+    for (const page of pages) {
+      const group = NAV_GROUPS.find(g => g.slugs.includes(page.slug));
+      if (!group) { entries.push({ kind: 'page', page }); continue; }
+      if (placed.has(group.key)) { continue; }
+      placed.add(group.key);
+      // Pages in the order listed in NAV_GROUPS.
+      const members = group.slugs.map(slug => pages.find(p => p.slug === slug)).filter((p): p is WpPageLink => !!p);
+      entries.push({ kind: 'group', group, pages: members });
+    }
+    return entries;
+  });
+  /** Which page-group dropdown is open (ABOUT, IMPACT), if any. */
+  readonly groupOpen = signal<string | null>(null);
+  /** Highlight a group while one of its pages is open. */
+  groupActive(group: NavGroup): boolean {
+    const path = this.currentUrl().split(/[?#]/)[0];
+    return group.slugs.some(slug => path === '/' + slug || path.startsWith('/' + slug + '/'));
+  }
+
+  toggleGroup(key: string, event: Event) {
+    event.stopPropagation();
+    this.membershipOpen.set(false);
+    this.updateOpen.set(false);
+    this.groupOpen.update(open => open === key ? null : key);
+  }
+
+  dropdownLabel(page: WpPageLink): string {
+    return DROPDOWN_LABELS[page.slug] ?? page.slug;
+  }
 
   constructor() {
     this.router.events.subscribe(e => { if (e instanceof NavigationEnd) { this.currentUrl.set(e.urlAfterRedirects); } });
@@ -75,12 +130,14 @@ export class NavbarComponent implements OnInit {
   toggleMembership(event: Event) {
     event.stopPropagation();
     this.updateOpen.set(false);
+    this.groupOpen.set(null);
     this.membershipOpen.update(open => !open);
   }
 
   toggleUpdate(event: Event) {
     event.stopPropagation();
     this.membershipOpen.set(false);
+    this.groupOpen.set(null);
     this.updateOpen.update(open => !open);
   }
 
@@ -89,6 +146,7 @@ export class NavbarComponent implements OnInit {
   closeMembership() {
     this.membershipOpen.set(false);
     this.updateOpen.set(false);
+    this.groupOpen.set(null);
   }
 
   /** Escape closes the dropdown and the Pay Dues pop-up. */
@@ -96,6 +154,7 @@ export class NavbarComponent implements OnInit {
   onEscape() {
     this.membershipOpen.set(false);
     this.updateOpen.set(false);
+    this.groupOpen.set(null);
     this.closePayDues();
   }
 
@@ -125,6 +184,7 @@ export class NavbarComponent implements OnInit {
     this.navbarOpen.set(false);
     this.membershipOpen.set(false);
     this.updateOpen.set(false);
+    this.groupOpen.set(null);
   }
 
   @HostListener('document:scroll')
