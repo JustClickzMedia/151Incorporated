@@ -35,7 +35,7 @@ export const NAV_GROUPS: NavGroup[] = [
  * Fixed order of the top menu after HOME (group keys and page slugs). The WordPress pages all have Order 0, so
  * their own order isn't reliable. Pages not listed here follow, in WordPress order; UPDATE and MEMBERSHIP stay last.
  */
-export const MENU_ORDER: string[] = ['about', 'programs', 'impact', 'president'];
+export const MENU_ORDER: string[] = ['president', 'about', 'programs', 'impact'];
 
 /** Text for a page inside a dropdown (other pages show their slug, title-cased by CSS). */
 export const DROPDOWN_LABELS: Record<string, string> = {
