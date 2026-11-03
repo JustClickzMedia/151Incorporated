@@ -17,6 +17,12 @@ type PageState =
   | { status: 'notfound' }
   | { status: 'error' };
 
+/**
+ * Pages whose content starts with its own heading, so the page title is not shown above it.
+ * (The title is still used for the browser tab, Google and link previews.)
+ */
+export const HIDE_TITLE_SLUGS = ['education', 'social-action'];
+
 @Component({
     selector: 'app-pagedetails',
     templateUrl: './pagedetails.component.html',
@@ -42,6 +48,7 @@ export class PagedetailsComponent {
   readonly page = computed(() => { const s = this.state(); return s.status === 'found' ? s.page : undefined; });
   readonly notFound = computed(() => this.state().status === 'notfound');
   /** Hero image; pages without a featured image just get no background instead of a template error. */
+  readonly showTitle = computed(() => !HIDE_TITLE_SLUGS.includes(this.page()?.slug ?? ''));
   readonly heroUrl = computed<string | undefined>(() => this.page()?.featuredImage?.url);
 
   private load(slug: string): Observable<PageState> {

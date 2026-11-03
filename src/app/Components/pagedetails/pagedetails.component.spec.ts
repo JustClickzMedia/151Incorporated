@@ -97,6 +97,25 @@ for (const source of [REST, GRAPHQL]) {
       expect(el().querySelector('.bgPage h6')).toBeNull();
     });
 
+    for (const [slug, title] of [['education', 'Education & Music Education'], ['social-action', 'Social Action & Community Impact']]) {
+      it(`does not show the page title on /${slug} (the browser tab still uses it)`, async () => {
+        await setup(slug);
+        source.request(http, slug).flush(source.found(196, slug, title));
+        await render();
+        expect(el().querySelector('.hdtitle')).toBeNull();
+        expect(el().textContent).not.toContain(title);
+        expect(el().textContent).toContain('Body 196');
+        expect(TestBed.inject(Title).getTitle()).toBe(title + ' | 1-5-1 Incorporated');
+      });
+    }
+
+    it('still shows the title on other pages', async () => {
+      await setup('moto');
+      source.request(http, 'moto').flush(source.found(17, 'moto', 'Moto', false));
+      await render();
+      expect(el().querySelector('.hdtitle h4')?.textContent).toContain('Moto');
+    });
+
     it('re-fetches when the route slug changes', async () => {
       await setup('about-1-5-1');
       source.request(http, 'about-1-5-1').flush(source.found(19, 'about-1-5-1', '1-5-1 History'));
